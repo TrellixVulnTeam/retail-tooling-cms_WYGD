@@ -1,0 +1,6 @@
+#checkout_content .c-btn-primary--large > p.small_details.explain {
+    font-size: 1em !important;
+    border: 1px solid #d12c2a !important;
+    padding: 1em !important;
+    border-radius: .5em !important;
+}

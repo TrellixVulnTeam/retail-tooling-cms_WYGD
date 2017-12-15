@@ -1,0 +1,42 @@
+body {
+  font-family: 'Walter Turncoat', cursive;
+}
+.mce-container .mce-txt {
+  font-family: 'Walter Turncoat', cursive !important;
+}
+.ge-canvas.ge-editing .row,
+.btn,
+.panel,
+.modal-content,
+#preview {
+  border-top-left-radius: 255px 5px;
+  border-top-right-radius: 5px 225px;
+  border-bottom-right-radius: 225px 5px;
+  border-bottom-left-radius: 5px 255px;
+  border: 1px solid #999999;
+}
+.ge-canvas.ge-editing .column:hover {
+  border-top-left-radius: 225px 5px;
+  border-top-right-radius: 5px 225px;
+  border-bottom-right-radius: 225px 5px;
+  border-bottom-left-radius: 5px 225px;
+}
+.panel-default > .panel-heading,
+.ge-canvas.ge-editing .row > .ge-tools-drawer {
+  background-color: rgba(160, 160, 160, 0.15);
+  border-bottom: 1px solid #999999;
+  border-bottom-right-radius: 225px 5px;
+  border-bottom-left-radius: 255px 1px;
+}
+.btn,
+textarea,
+.mce-panel {
+  border-top-left-radius: 75px 5px !important;
+  border-top-right-radius: 5px 75px !important;
+  border-bottom-right-radius: 75px 5px !important;
+  border-bottom-left-radius: 5px 75px !important;
+}
+body.mce-content-body,
+.mce-panel {
+  background-color: transparent !important;
+}

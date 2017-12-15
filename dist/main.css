@@ -1,0 +1,218 @@
+body {
+  padding-top: 50px;
+}
+.btn-primary {
+  color: #fff;
+  background-color: #36c;
+  border-color: #36c;
+}
+.btn-primary:hover,
+.btn-primary:active,
+.btn-primary:focus,
+.btn-primary:active:focus {
+  background-color: #5c85d6;
+  border-color: #5c85d6;
+}
+.btn-secondary {
+  color: #666;
+  background-color: #f4f4f4;
+  border-color: #999;
+}
+.btn-secondary:focus,
+.btn-secondary.focus {
+  color: #666;
+  background-color: #dbdbdb;
+  border-color: #595959;
+}
+.btn-secondary:hover {
+  color: #666;
+  background-color: #dbdbdb;
+  border-color: #7a7a7a;
+}
+.btn-secondary:active,
+.btn-secondary.active,
+.open > .dropdown-toggle.btn-secondary {
+  color: #666;
+  background-color: #dbdbdb;
+  border-color: #7a7a7a;
+}
+.btn-secondary:active:hover,
+.btn-secondary.active:hover,
+.open > .dropdown-toggle.btn-secondary:hover,
+.btn-secondary:active:focus,
+.btn-secondary.active:focus,
+.open > .dropdown-toggle.btn-secondary:focus,
+.btn-secondary:active.focus,
+.btn-secondary.active.focus,
+.open > .dropdown-toggle.btn-secondary.focus {
+  color: #666;
+  background-color: #c9c9c9;
+  border-color: #595959;
+}
+.btn-secondary:active,
+.btn-secondary.active,
+.open > .dropdown-toggle.btn-secondary {
+  background-image: none;
+}
+.btn-secondary.disabled:hover,
+.btn-secondary[disabled]:hover,
+fieldset[disabled] .btn-secondary:hover,
+.btn-secondary.disabled:focus,
+.btn-secondary[disabled]:focus,
+fieldset[disabled] .btn-secondary:focus,
+.btn-secondary.disabled.focus,
+.btn-secondary[disabled].focus,
+fieldset[disabled] .btn-secondary.focus {
+  background-color: #f4f4f4;
+  border-color: #999;
+}
+.btn-secondary .badge {
+  color: #f4f4f4;
+  background-color: #666;
+}
+.dropdown-toggle::after {
+  display: inline-block;
+  width: 0;
+  height: 0;
+  margin-left: 0.5em;
+  vertical-align: 0.255em;
+  content: "";
+  border-top: 0.3em solid;
+  border-right: 0.3em solid transparent;
+  border-bottom: 0;
+  border-left: 0.3em solid transparent;
+}
+.ge-addRowGroup .btn .glyphicon {
+  margin-right: 4px;
+}
+.ge-canvas.ge-editing .ge-tools-drawer .ge-details {
+  display: inline-block;
+  padding: 0;
+}
+.ge-tools-drawer {
+  text-align: right;
+}
+.ge-col-title,
+.ge-element-title {
+  float: left;
+  font-weight: 500;
+  margin-left: 6px;
+}
+.ge-element-title {
+  font-size: 18px;
+  margin-top: -36px;
+}
+.column .ge-element-title {
+  font-size: 14px;
+  margin-top: -32px;
+  color: #b3b3b3;
+  margin-left: 0;
+}
+.ge-canvas.ge-editing .row {
+  margin-top: 25px;
+  background-color: #f4f4f4;
+}
+.ge-canvas.ge-editing .column,
+.ge-canvas.ge-editing .column > .ge-tools-drawer {
+  background-color: transparent;
+}
+.ge-canvas .row > .ge-tools-drawer {
+  height: 36px;
+}
+.ge-canvas .column > .ge-tools-drawer {
+  height: 26px;
+}
+.ge-canvas.ge-editing .column {
+  border: 1px solid #dddbd5;
+  padding: 5px;
+  margin-bottom: 5px;
+}
+.ge-canvas.ge-editing .column:last-child {
+  margin-bottom: 0px;
+}
+.ge-canvas.ge-editing .column:hover {
+  border: 1px solid #999999;
+}
+.ge-canvas.ge-editing .column .ge-tools-drawer > a.settings {
+  display: none;
+}
+.ge-canvas.ge-editing .ui-sortable-placeholder {
+  border: 1px dashed #999899;
+}
+.ge-canvas.ge-editing .row > .ge-tools-drawer,
+.panel-default > .panel-heading {
+  background-color: rgba(160, 160, 160, 0.15);
+}
+.ge-canvas.ge-editing .row > .ge-tools-drawer {
+  padding: 5px;
+}
+.row img {
+  width: 100%;
+}
+.navbar-form {
+  margin-bottom: 0;
+}
+.navbar-form .alert {
+  padding: 5px 15px;
+  margin-bottom: 0;
+}
+.navbar-form label {
+  color: #9d9d9d;
+  font-weight: normal;
+}
+.navbar-form.navbar-right label {
+  margin-right: 10px;
+  margin-left: 20px;
+}
+[data-type="quote"] .ge-content,
+#preview [data-type="quote"] span,
+blockquote {
+  padding: 10px 20px !important;
+  font-style: italic;
+  font-size: 17.5px;
+  border: none;
+}
+#panel-template,
+#sample-content,
+#sample-template {
+  display: none;
+}
+.panel-title {
+  font-size: 18px;
+}
+[data-id="text-4"] > .mce-panel,
+[data-id="text-4"] textarea {
+  border: 1px solid #2e6da4;
+  box-shadow: #2e6da4 0 0 5px;
+}
+.ge-mainControls label {
+  margin-right: 10px;
+}
+#preview-controls {
+  float: right;
+  margin-right: -20px;
+}
+#preview-controls .dropdown {
+  display: inline-block;
+  margin-right: 20px;
+  margin-bottom: 40px;
+}
+.content-type {
+  height: 20px;
+  margin-left: 10px;
+}
+.ge-layout-mode.open > .dropdown-toggle.btn-primary:focus {
+  background-color: #e8e8e8;
+}
+#preview {
+  box-shadow: rgba(0, 0, 0, 0.3) 3px 3px 15px 0;
+  padding: 20px;
+}
+#preview .row {
+  margin-bottom: 20px;
+}
+@media only screen and (min-device-width: 320px) and (max-device-width: 480px) {
+  .ge-content h3 {
+    display: none;
+  }
+}

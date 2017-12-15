@@ -1,0 +1,37 @@
+{
+  "annotatie": {
+    "title": "Annotatie",
+    "elements": {
+      "quote-1": {
+        "title": "Annotatie",
+        "type": "quote",
+        "class": "col-md-12 col-sm-12 col-xs-12"
+      }
+    }
+  },
+  "samenvatting": {
+    "title": "Samenvatting",
+    "elements": {
+      "text-2": {
+        "title": "Samenvatting (EN)",
+        "type": "rich-text",
+        "class": "col-md-12 col-sm-12 col-xs-12"
+      },
+      "text-3": {
+        "title": "Samenvatting (NL)",
+        "type": "rich-text",
+        "class": "col-md-12 col-sm-12 col-xs-12"
+      }
+    }
+  },
+  "recensie": {
+    "title": "Recensie",
+    "elements": {
+      "rich-text-4": {
+        "title": "Recensie",
+        "type": "rich-text",
+        "class": "col-md-12 col-sm-12 col-xs-12"
+      }
+    }
+  }
+}

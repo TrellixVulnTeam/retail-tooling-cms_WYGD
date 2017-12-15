@@ -1,0 +1,224 @@
+<!doctype html>
+
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+  <title>Component editor</title>
+  <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" />
+  <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" />
+  <link rel="stylesheet" type="text/css" href="dist/main.css" />
+  <link rel="stylesheet" type="text/css" href="dist/sketchy.css" />
+  <link href="https://fonts.googleapis.com/css?family=Walter+Turncoat" rel="stylesheet">
+</head>
+
+<body>
+  <nav class="navbar navbar-inverse navbar-fixed-top">
+    <div class="container">
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+              <span class="sr-only">Toggle navigation</span>
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+            </button>
+        <!-- <a class="navbar-brand" href="#">Component editor</a> -->
+      </div>
+      <div id="navbar" class="collapse navbar-collapse">
+        <ul class="nav navbar-nav">
+          <li><a href="template.html">Template</a></li>
+          <!-- <li><a href="output.html">Output</a></li> -->
+          <li class="active"><a href="content.html">Content</a></li>
+          <!-- <li><a href="populate.html">Populate</a></li> -->
+          <!-- <li><a href="preview.html">Preview</a></li> -->
+        </ul>
+        <form class="navbar-form navbar-right">
+          <div class="form-group main-controls">
+            <div id="alert-content-saved" class="alert alert-success" role="alert" style="display:none">Content saved</div>
+            <div id="alert-content-reset" class="alert alert-warning" role="alert" style="display:none">Content reset completed</div>
+          </div>
+          <div class="form-group">
+            <label>Content:</label>
+            <select id="content-items" class="form-control">
+            </select>
+          </div>
+          <!-- <div class="form-group">
+            <button id="reset-content" class='btn btn-primary'>Reset</button>
+            <button id="save-content" class='btn btn-primary'>Save</button>
+            <button id="preview-content" type="button" class="btn btn-primary" data-toggle="modal" data-target="#previewModal">Preview</button>
+          </div> -->
+        </form>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container">
+    <div id="edit-form" class="content ">
+      <h1 class="form-group">
+        <span>Content editor</span>
+        <div class="pull-right">
+          <button id="reset-content" class='btn btn-secondary'>Reset all content</button>
+          <!-- <a id="preview-template" class='btn btn-primary' href="preview.html">Preview</a> -->
+          <button id="preview-content" type="button" class="btn btn-primary" data-toggle="modal" data-target="#previewModal">Preview</button>
+          <button id="save-content" class='btn btn-primary'>Save</button>
+        </div>
+      </h1>
+      <form id="editor">
+      </form>
+    </div>
+  </div>
+
+  <div id="panel-template">
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h3 class="panel-title"></h3>
+      </div>
+      <div class="panel-body"></div>
+    </div>
+  </div>
+
+  <!-- Modal -->
+  <div class="modal fade" id="previewModal" tabindex="-1" role="dialog" aria-labelledby="previewModalLabel">
+    <div class="modal-dialog modal-lg" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+          <h4 class="modal-title" id="previewModalLabel">Modal title</h4>
+        </div>
+        <div class="modal-body">
+          <div id="preview">
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+  <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/tinymce/4.7.3/tinymce.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/tinymce/4.7.3/jquery.tinymce.min.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/4.8.0/firebase.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/4.8.0/firebase-firestore.js"></script>
+  <script src="dist/jquery.grideditor.js"></script>
+  <!-- <script src="test.js"></script> -->
+  <script src="http://localhost:35729/livereload.js"></script>
+
+  <script>
+    $(document).ready(function() {
+      initTinyMCE = function() {
+        tinymce.init({
+          selector: 'textarea.text',
+          menubar: false,
+          statusbar: false,
+          content_css: 'dist/sketchy.css',
+          plugins: [
+            "advlist autolink lists link image charmap print preview anchor",
+            "searchreplace visualblocks code fullscreen",
+            "insertdatetime media table contextmenu paste save autoresize"
+          ],
+          autoresize_bottom_margin: 1,
+          autoresize_on_init: false,
+          toolbar: "bold italic",
+          // toolbar: 'undo redo | formatselect | alignleft aligncenter alignright alignjustify | bullist numlist | outdent indent',
+          block_formats: 'Paragraph=p;Header 1=h1;Header 2=h2;Samenvatting NL=h3',
+        });
+
+        tinymce.init({
+          selector: 'textarea.rich-text',
+          menubar: false,
+          statusbar: false,
+          content_css: 'dist/sketchy.css',
+          plugins: [
+            "advlist autolink lists link image charmap print preview anchor",
+            "searchreplace visualblocks code fullscreen",
+            "insertdatetime media table contextmenu paste save autoresize"
+          ],
+          autoresize_bottom_margin: 1,
+          autoresize_on_init: false,
+          toolbar: "formatselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link",
+          // toolbar: 'undo redo | formatselect | alignleft aligncenter alignright alignjustify | bullist numlist | outdent indent',
+          block_formats: 'Paragraph=p;Header 1=h1;Header 2=h2;Samenvatting NL=h3',
+        });
+      }
+
+      removeTinyMCE = function() {
+        if (typeof tinymce != 'undefined' && tinymce != null) {
+          tinymce.remove('textarea.rich-text');
+          tinymce.remove('textarea.text');
+        }
+      }
+
+      function initToastr() {
+        toastr.options = {
+          "closeButton": false,
+          "debug": false,
+          "newestOnTop": false,
+          "progressBar": false,
+          "positionClass": "toast-bottom-right",
+          "preventDuplicates": false,
+          "onclick": null,
+          "showDuration": "300",
+          "hideDuration": "500",
+          "timeOut": "3000",
+          "extendedTimeOut": "1000",
+          "showEasing": "swing",
+          "hideEasing": "linear",
+          "showMethod": "fadeIn",
+          "hideMethod": "fadeOut"
+        }
+      }
+
+      init = function() {
+        initToastr();
+        loadTemplateInContentEditor($("#editor"), $("#panel-template"));
+        loadContent('#edit-form');
+        populateContentItems(false)
+
+        initTinyMCE();
+      }
+
+      $("#content-items").change(function() {
+        removeTinyMCE();
+        setContentId($("#content-items option:selected").val());
+        loadContent('#edit-form');
+        initTinyMCE();
+      })
+
+      $("#save-content").on('click', function() {
+        removeTinyMCE();
+        saveContent($('#editor'), {sectionDivider: ".section", elementDivider: ".form-group", subElement: ">"});
+        initTinyMCE();
+        // $("#alert-content-saved").show(0).delay(2000).fadeOut();
+        toastr.success('Content saved')
+      })
+
+      $("#reset-content").on('click', function() {
+        removeTinyMCE();
+        resetSampleContent().done(function() {
+          loadContent('#edit-form');
+          initTinyMCE();
+          // $("#alert-content-reset").show(0).delay(2000).fadeOut();
+          toastr.success('Content reset completed')
+        })
+      })
+
+      $("#preview-content").on('click', function() {
+        removeTinyMCE();
+        saveContent($('#editor'), {sectionDivider: ".section", elementDivider: ".form-group", subElement: ">", isPreview: true});
+        initTinyMCE();
+
+        $("#previewModalLabel").text(getContentName() + " preview");
+        loadTemplate($('#preview'));
+        loadContent('#preview', 'span', 'No content', true);
+      })
+
+      init()
+    });
+  </script>
+</body>
+
+</html>
