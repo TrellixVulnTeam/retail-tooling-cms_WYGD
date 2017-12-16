@@ -57,10 +57,11 @@
         <span>Template editor</span>
         <div class="pull-right main-controls">
           <button id="reset-template" class='btn btn-secondary'>Reset</button>
-          <button id="save-template" class='btn btn-primary'>Save</button>
+          <button id="save-template" class='btn btn-primary' disabled>Save</button>
           <!-- <a id="preview-template" class='btn btn-primary' href="preview.html">Preview</a> -->
         </div>
       </h1>
+      <span id="loader" class="loader glyphicon glyphicon-refresh glyphicon-refresh-animate"></span>
       <div id="grid-editor">
       </div>
     </div>
@@ -136,11 +137,13 @@
       $("#save-template").on('click', function() {
         var html = $('#grid-editor').gridEditor('getHtml');
         // console.log(html);
-        saveTemplate(html);
-        loadContent('#grid-editor', '.ge-content');
-        location.reload();
-        // $("#alert-template-saved").show(0).delay(2000).fadeOut();
-        toastr.success('Template saved')
+        saveTemplate(html).then(function() {
+          loadContent('#grid-editor', '.ge-content').then(function() {
+            location.reload();
+            // $("#alert-template-saved").show(0).delay(2000).fadeOut();
+            toastr.success('Template saved');
+          })
+        })
       })
 
       function initToastr() {
@@ -164,22 +167,33 @@
       }
 
       init = function() {
-        loadTemplate('#grid-editor');
-        initGridEditor($('#grid-editor'));
-        populateContentItems(true);
-        loadContent('#grid-editor', '.ge-content');
-        initToastr();
+        loadTemplate('#grid-editor')
+        .then(function(templates) {
+          enableEditMode();
+          initGridEditor($('#grid-editor'));
+          populateContentItems(true);
+          loadContent('#grid-editor', '.ge-content').then(function() {
+            $("#preview-content ul.dropdown-menu a").click(function() {
+              if (typeof tinymce != 'undefined' && tinymce != null) {
+                tinymce.remove('textarea.rich-text');
+              }
+              setContentId(this.title);
+              loadContent('#grid-editor', '.ge-content').then(function() {
+                enableEditMode()
+              })
+            })
+          })
+          initToastr();
+        });
+      }
+
+      enableEditMode = function() {
+        $("#loader").hide();
+        $("#save-template").removeAttr("disabled");
       }
 
       init();
 
-      $("#preview-content ul.dropdown-menu a").click(function() {
-        if (typeof tinymce != 'undefined' && tinymce != null) {
-          tinymce.remove('textarea.rich-text');
-        }
-        setContentId(this.title);
-        loadContent('#grid-editor', '.ge-content');
-      })
     });
   </script>
 </body>

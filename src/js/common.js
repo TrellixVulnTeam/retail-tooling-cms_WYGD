@@ -61,15 +61,16 @@
   // }
   //
   saveContent = function(contentElement, configOptions) {
-    var allContent = getContent(configOptions.isPreview);
-    var content = parseContent(contentElement, configOptions);
-    var contentId = getContentId();
+    return getContent(configOptions.isPreview).then(function(allContent){
+      var content = parseContent(contentElement, configOptions);
+      var contentId = getContentId();
 
-    if (!allContent[contentId]) allContent[contentId] = {};
-    allContent[contentId].content = content;
-    // console.log(allContent);
+      if (!allContent[contentId]) allContent[contentId] = {};
+      allContent[contentId].content = content;
+      // console.log(allContent);
 
-    setContent(allContent, configOptions.isPreview);
+      setContent(allContent, configOptions.isPreview);
+    })
   }
 
   parseContent = function(contentElement, configOptions) {
@@ -114,103 +115,109 @@
   }
 
   loadTemplate = function(formElement) {
-    var templates = getTemplates();
-    $(formElement).html("");
+    return getTemplates()
+    .then(function(templates) {
+      $(formElement).html("");
 
-    $.each(templates, function(sectionId, section) {
-      var panel = $('<div class="row"></div>');
-      panel.attr("id", sectionId);
-      panel.attr("data-title", section.title);
+      $.each(templates, function(sectionId, section) {
+        var panel = $('<div class="row"></div>');
+        panel.attr("id", sectionId);
+        panel.attr("data-title", section.title);
 
-      $.each(section.elements, function(elementId, element) {
-        var elementHtml = $('<div></div>');
-        elementHtml.attr("id", elementId);
-        elementHtml.attr("data-title", element.title);
-        elementHtml.attr("data-type", element.type);
-        elementHtml.addClass(element.class);
-        elementHtml.addClass("column");
-        elementHtml.addClass("content-" + element.type);
-        elementHtml.append("<span></span>");
-        panel.append(elementHtml);
+        $.each(section.elements, function(elementId, element) {
+          var elementHtml = $('<div></div>');
+          elementHtml.attr("id", elementId);
+          elementHtml.attr("data-title", element.title);
+          elementHtml.attr("data-type", element.type);
+          elementHtml.addClass(element.class);
+          elementHtml.addClass("column");
+          elementHtml.addClass("content-" + element.type);
+          elementHtml.append("<span></span>");
+          panel.append(elementHtml);
+        })
+        $(formElement).append(panel);
+        // console.log($(formElement));
       })
-      $(formElement).append(panel);
-      // console.log($(formElement));
-    })
+    });
   }
 
   loadTemplateInContentEditor = function(form, panelTemplate) {
-    var templates = getTemplates();
-    // console.log(templates);
+    return getTemplates().then(function(templates){
+      $.each(templates, function(sectionId, section) {
+        var panel = panelTemplate.clone();
+        var panelTitle = $(panel).find(".panel-title")[0];
+        var panelContent = $(panel).find(".panel-body")[0];
+        var formElement = '';
 
-    $.each(templates, function(sectionId, section) {
-      var panel = panelTemplate.clone();
-      var panelTitle = $(panel).find(".panel-title")[0];
-      var panelContent = $(panel).find(".panel-body")[0];
-      var formElement = '';
+        panel.attr("id", sectionId);
+        panel.addClass("section");
+        panelTitle.innerHTML = section.title;
 
-      panel.attr("id", sectionId);
-      panel.addClass("section");
-      panelTitle.innerHTML = section.title;
+        $.each(section.elements, function(elementId, element) {
+          formElement += '<div class="form-group" data-id="' + elementId + '">';
+          var htmlElement = $("#" + elementId);
+          if (htmlElement) {
+            formElement += '<label for="' + elementId + '">' + element.title + '</label>';
+            formElement += createElement(elementId, element);
+          } else {
+            console.log(elementId + " not found");
+          }
+          formElement += '</div>';
+        })
 
-      $.each(section.elements, function(elementId, element) {
-        formElement += '<div class="form-group" data-id="' + elementId + '">';
-        var htmlElement = $("#" + elementId);
-        if (htmlElement) {
-          formElement += '<label for="' + elementId + '">' + element.title + '</label>';
-          formElement += createElement(elementId, element);
-        } else {
-          console.log(elementId + " not found");
-        }
-        formElement += '</div>';
+        panelContent.innerHTML = formElement;
+        form.append(panel);
       })
-
-      panelContent.innerHTML = formElement;
-      form.append(panel);
     })
   }
 
   loadContent = function(rootElementId, subElement, placeholder, isPreview) {
     var contentId = getContentId();
-    var allContent = getContent(isPreview);
-    var templates = getTemplates();
-    var content = allContent[contentId];
-    if (placeholder==undefined) placeholder = ""
+    return getContent(isPreview).then(function(allContent){
+      return getTemplates().then(function(templates){
+        var content = allContent[contentId];
+        if (placeholder==undefined) placeholder = ""
+        $(rootElementId).attr("data-title", content.title);
 
-    $(rootElementId).attr("data-title", content.title);
-
-    $.each(templates, function(sectionId, section) {
-      $.each(section.elements, function(elementId, element) {
-        var htmlElement = subElement && subElement!=null ? $(rootElementId + " #" + elementId + " > " + subElement) : $(rootElementId + " #" + elementId);
-        if (htmlElement[0]) {
-          var contentElement = getObjectById(content, elementId);
-          var value = contentElement ? contentElement.content : placeholder;
-          // switch (htmlElement.attr("data-type")) {
-          // console.log(element.type);
-          switch (element.type) {
-            case "image":
-              htmlElement.html(value);
-              break;
-            case "quote":
-            case "text":
-            case "rich-text":
-              htmlElement.val(value);
-              htmlElement.html(value);
-              break;
-            default:
-              // htmlElement[0].value = value;
-              htmlElement.html(value);
-              // htmlElement.val(value);
-          }
-        }
+        $.each(templates, function(sectionId, section) {
+          $.each(section.elements, function(elementId, element) {
+            var htmlElement = subElement && subElement!=null ? $(rootElementId + " #" + elementId + " > " + subElement) : $(rootElementId + " #" + elementId);
+            if (htmlElement[0]) {
+              var contentElement = getObjectById(content, elementId);
+              var value = contentElement ? contentElement.content : placeholder;
+              switch (element.type) {
+                case "image":
+                  htmlElement.html(value);
+                  break;
+                case "quote":
+                case "text":
+                case "rich-text":
+                  htmlElement.val(value);
+                  htmlElement.html(value);
+                  break;
+                default:
+                  htmlElement.html(value);
+              }
+            }
+          })
+        })
       })
-    })
-
-    setContentId(contentId);
+      // return setContentId(contentId);
+    });
   }
 
   getContent = function(isPreview) {
     var content = isPreview ? localStorage.getItem("previewContent") : localStorage.getItem("content");
-    return content ? JSON.parse(content) : {};
+    // return content ? JSON.parse(content) : {};
+    var contentItems = {};
+
+    return db.collection("content").get().then(function(querySnapshot) {
+        querySnapshot.forEach(function(content) {
+            // console.log(content.id, " => ", content.data());
+            contentItems[content.id] = content.data();
+        });
+        return contentItems;
+    });
   }
 
   setContent = function(content, isPreview) {
@@ -221,28 +228,19 @@
     } else {
       localStorage.setItem("content", jsonOutput);
 
-      console.log(content);
-      // db.collection("content").add(content)
-      // .then(function(docRef) {
-      //     console.log("Document written with ID: ", docRef.id);
-      // })
-      // .catch(function(error) {
-      //     console.error("Error adding document: ", error);
-      // });
-
+      var batch = db.batch();
       $.each(content, function(contentKey, contentObject) {
         var contentRef = db.collection("content").doc(contentKey);
-
-        return contentRef.set(contentObject)
-        .then(function() {
-            console.log("Document successfully updated!");
-        })
-        .catch(function(error) {
-            // The document probably doesn't exist.
-            console.error("Error updating document: ", error);
-        });
+        batch.set(contentRef, contentObject);
       })
 
+      return batch.commit()
+      .then(function() {
+          // console.log("Document successfully updated!");
+      })
+      .catch(function(error) {
+          console.error("Error updating document: ", error);
+      });
       // var contentRef = db.collection("content").doc("eLlYUchW53Kmkip4hxsP");
       //
       // return contentRef.update(content)
@@ -260,10 +258,10 @@
     var templates = isPreview ? localStorage.getItem("previewTemplates") : localStorage.getItem("templates");
 
     var templateRef = db.collection("templates").doc("description");
-    templateRef.get().then(function(doc) {
-        if (doc.exists) {
-            console.log("Document data:", doc.data());
-            return doc.data()
+    return templateRef.get().then(function(template) {
+        if (template.exists) {
+            // console.log("Document data:", template.data());
+            return template.data()
         } else {
             console.log("No such document!");
         }
@@ -302,6 +300,8 @@
   }
 
   setContentId = function(contentId) {
+    // console.log("setContentId");
+    // console.log(contentId);
     // if (contentId=="empty") {
     //   localStorage.removeItem("selectedContentId");
     // } else {
@@ -312,54 +312,40 @@
 
   getContentName = function() {
     var contentId = getContentId();
-    var allContent = getContent();
-    var contentItem = allContent[contentId];
-    return contentItem.title;
+    return getContent().then(function(allContent){
+      var contentItem = allContent[contentId];
+      return contentItem.title;
+    });
   }
 
   getContentItems = function(showEmptyItem) {
     if (showEmptyItem==undefined) showEmptyItem = false;
-    var content = getContent();
-    var templateArray = [];
-    $.each(content, function(key, object) {
-      if (showEmptyItem || key!="empty") templateArray.push({id: key, title: object.title});
+    return getContent().then(function(content){
+      var templateArray = [];
+      $.each(content, function(key, object) {
+        if (showEmptyItem || key!="empty") templateArray.push({id: key, title: object.title});
+      })
+
+      templateArray.sort(function (a, b) {
+        return a.title.localeCompare(b.title);
+      });
+
+      return templateArray;
     })
-
-    templateArray.sort(function (a, b) {
-      return a.title.localeCompare(b.title);
-    });
-
-    return templateArray;
   }
 
   populateContentItems = function(showEmptyItem) {
-    var contentItems = getContentItems(showEmptyItem);
-    // console.log(showEmptyItem);
+    return getContentItems(showEmptyItem).then(function(contentItems){
+      contentItems.forEach(function (item) {
+        $('#content-items').append($("<option></option>")
+                    .attr("value", item.id)
+                    .text(item.title)
+                  );
+        $('#preview-content ul.dropdown-menu').append($('<li><a data-width="auto" title="' + item.id + '"><span>' + item.title + '</span></li>'));
+      });
 
-    // if (!showEmptyItem) {
-    //   $('#content-items').append($("<option></option>")
-    //       .attr("value", "")
-    //       .text("Geen")
-    //     );
-    //   $('#preview-content ul.dropdown-menu').append($('<li><a data-width="auto" title=""><span>Geen</span></li>'));
-    // }
-
-    contentItems.forEach(function (item) {
-      // var name = item.charAt(0).toUpperCase() + item.slice(1);
-      // var name = item.charAt(0).toUpperCase() + item.slice(1);
-      $('#content-items').append($("<option></option>")
-                  .attr("value", item.id)
-                  .text(item.title)
-                );
-      $('#preview-content ul.dropdown-menu').append($('<li><a data-width="auto" title="' + item.id + '"><span>' + item.title + '</span></li>'));
-    });
-
-    $("#content-items").val(getContentId());
-
-    // '<li><a data-width="auto" title="Desktop"><span>Desktop</span></a></li>' +
-    // '<li><a title="Tablet"><span>Tablet</span></li>' +
-    // '<li><a title="Phone"><span>Phone</span></a></li>' +
-
+      $("#content-items").val(getContentId());
+    })
   }
 
   createElement = function(id, element) {
