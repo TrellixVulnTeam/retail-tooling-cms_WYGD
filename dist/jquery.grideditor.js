@@ -19,6 +19,13 @@ $.fn.gridEditor = function( options ) {
         } else {
             return self.html();
         }
+    } else if (arguments[0] == 'deinit') {
+      if (grideditor) {
+          grideditor.deinit();
+          $('.ge-mainControls').remove();
+          $('.ge-html-output').remove();
+          return;
+      }
     }
 
     /** Initialize plugin */
@@ -157,9 +164,11 @@ $.fn.gridEditor = function( options ) {
 
                 var layoutName = layout.title;
                 var icon = '<div class="row ge-row-icon">';
-                layout.cols.forEach(function(i) {
-                    icon += '<div class="column col-xs-' + i + '"/>';
-                });
+                if (layout.cols) {
+                  layout.cols.forEach(function(i) {
+                      icon += '<div class="column col-xs-' + i + '"/>';
+                  });
+                }
                 icon += '</div>';
                 // btn.append(icon);
                 btn.append(layoutName);
@@ -758,9 +767,9 @@ $.fn.gridEditor.RTEs = {};
       template[rowId] = {title: $(row).attr("data-title"), elements: templateElements};
     })
 
-    console.log(template);
-    setTemplates(template);
-    return template;
+    // console.log(template);
+    return setTemplates(template);
+    // return template;
   }
 
   resetSampleTemplate = function() {
@@ -849,8 +858,7 @@ $.fn.gridEditor.RTEs = {};
   }
 
   loadTemplate = function(formElement) {
-    return getTemplates()
-    .then(function(templates) {
+    return getTemplates().then(function(templates) {
       $(formElement).html("");
 
       $.each(templates, function(sectionId, section) {
@@ -940,9 +948,35 @@ $.fn.gridEditor.RTEs = {};
     });
   }
 
+  // watchContent = function() {
+  //   db.collection("content").onSnapshot(function(docs) {
+  //     var content = {};
+  //     docs.forEach(function(doc) {
+  //       var source = doc.metadata.hasPendingWrites ? "Local" : "Server";
+  //       // console.log(source, " data: ", doc && doc.data());
+  //       // console.log(doc);
+  //       content[doc.id] = doc.data();
+  //     });
+  //     console.log(content);
+  //     setContent(content);
+  //   });
+  //   // db.collection("content").onSnapshot(function(snapshot) {
+  //   //     snapshot.docChanges.forEach(function(change) {
+  //   //         if (change.type === "added") {
+  //   //             console.log("New doc: ", change.doc.data());
+  //   //         }
+  //   //         if (change.type === "modified") {
+  //   //             console.log("Modified doc: ", change.doc.data());
+  //   //         }
+  //   //         if (change.type === "removed") {
+  //   //             console.log("Removed doc: ", change.doc.data());
+  //   //         }
+  //   //     });
+  //   // });
+  // }
+
   getContent = function(isPreview) {
     var content = isPreview ? localStorage.getItem("previewContent") : localStorage.getItem("content");
-    // return content ? JSON.parse(content) : {};
     var contentItems = {};
 
     return db.collection("content").get().then(function(querySnapshot) {
@@ -975,16 +1009,6 @@ $.fn.gridEditor.RTEs = {};
       .catch(function(error) {
           console.error("Error updating document: ", error);
       });
-      // var contentRef = db.collection("content").doc("eLlYUchW53Kmkip4hxsP");
-      //
-      // return contentRef.update(content)
-      // .then(function() {
-      //     console.log("Document successfully updated!");
-      // })
-      // .catch(function(error) {
-      //     // The document probably doesn't exist.
-      //     console.error("Error updating document: ", error);
-      // });
     }
   }
 
@@ -1019,6 +1043,7 @@ $.fn.gridEditor.RTEs = {};
       // db.collection("templates").add(templates)
       .then(function() {
           console.log("Document successfully updated!");
+          return templates;
       })
       .catch(function(error) {
           // The document probably doesn't exist.

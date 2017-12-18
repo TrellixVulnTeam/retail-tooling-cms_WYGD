@@ -82,9 +82,10 @@
 
   <script>
     $(document).ready(function() {
+      var grideditor;
 
       initGridEditor = function(form) {
-        form.gridEditor({
+        grideditor = form.gridEditor({
           new_row_layouts: [{
               "title": "Annotatie",
               "cols": [{type: "quote", count: 12}]
@@ -125,10 +126,14 @@
       })
 
       $("#reset-template").on('click', function() {
+        disableEditMode();
         // initGridEditor($('#sample-template'));
         // var html = $('#sample-template').gridEditor('getHtml');
         // console.log(html);
         resetSampleTemplate().done(function(){
+          $('#grid-editor').gridEditor('deinit');
+          // initGridEditor($('#grid-editor'));
+          init();
           // $("#alert-template-reset").show(0).delay(2000).fadeOut();
           toastr.success('Template reset completed')
         });
@@ -138,11 +143,14 @@
         var html = $('#grid-editor').gridEditor('getHtml');
         // console.log(html);
         saveTemplate(html).then(function() {
-          loadContent('#grid-editor', '.ge-content').then(function() {
-            location.reload();
-            // $("#alert-template-saved").show(0).delay(2000).fadeOut();
-            toastr.success('Template saved');
-          })
+          $('#grid-editor').gridEditor('deinit');
+          initGridEditor($('#grid-editor'));
+          toastr.success('Template saved');
+          // loadContent('#grid-editor', '.ge-content').then(function() {
+          //   // location.reload();
+          //   // $('#grid-editor').gridEditor().init();
+          //   // $("#alert-template-saved").show(0).delay(2000).fadeOut();
+          // })
         })
       })
 
@@ -189,7 +197,14 @@
 
       enableEditMode = function() {
         $("#loader").hide();
+        $('#grid-editor').show();
         $("#save-template").removeAttr("disabled");
+      }
+
+      disableEditMode = function() {
+        $("#loader").show();
+        $('#grid-editor').hide();
+        $("#save-template").attr("disabled", true);
       }
 
       init();

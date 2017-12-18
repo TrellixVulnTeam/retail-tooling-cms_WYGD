@@ -163,6 +163,7 @@
 
       init = function() {
         initToastr();
+        watchContent();
         $("#preview .content").hide();
         loadTemplateInContentEditor($("#editor"), $("#panel-template")).then(function(templates) {
           enableEditMode();
@@ -172,6 +173,22 @@
             })
           })
         })
+      }
+
+      watchContent = function() {
+        db.collection("content").onSnapshot(function(docs) {
+          var content = {};
+          docs.forEach(function(doc) {
+            content[doc.id] = doc.data();
+          });
+          console.log(content);
+          setContent(content);
+          removeTinyMCE();
+          // setContentId($("#content-items option:selected").val());
+          loadContent('#edit-form').then(function(){
+            initTinyMCE();
+          })
+        });
       }
 
       $("#content-items").change(function() {

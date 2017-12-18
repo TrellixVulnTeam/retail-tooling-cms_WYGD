@@ -29,7 +29,7 @@
     "elements": {
       "rich-text-4": {
         "title": "Recensie",
-        "type": "rich-text",
+        "type": "text",
         "class": "col-md-12 col-sm-12 col-xs-12"
       }
     }

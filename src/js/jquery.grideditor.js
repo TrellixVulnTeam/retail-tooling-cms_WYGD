@@ -19,6 +19,13 @@ $.fn.gridEditor = function( options ) {
         } else {
             return self.html();
         }
+    } else if (arguments[0] == 'deinit') {
+      if (grideditor) {
+          grideditor.deinit();
+          $('.ge-mainControls').remove();
+          $('.ge-html-output').remove();
+          return;
+      }
     }
 
     /** Initialize plugin */
@@ -157,9 +164,11 @@ $.fn.gridEditor = function( options ) {
 
                 var layoutName = layout.title;
                 var icon = '<div class="row ge-row-icon">';
-                layout.cols.forEach(function(i) {
-                    icon += '<div class="column col-xs-' + i + '"/>';
-                });
+                if (layout.cols) {
+                  layout.cols.forEach(function(i) {
+                      icon += '<div class="column col-xs-' + i + '"/>';
+                  });
+                }
                 icon += '</div>';
                 // btn.append(icon);
                 btn.append(layoutName);
