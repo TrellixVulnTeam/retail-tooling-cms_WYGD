@@ -1,6 +1,6 @@
 // // Initialize Firebase
 var firebaseConfig = {
-  apiKey: "AIzaSyC1oK8OilCE_f6tBdsKkCSEScjnhNWVelU",
+  apiKey: "SECRET",
   authDomain: "retail-tooling-cms.firebaseapp.com",
   databaseURL: "https://retail-tooling-cms.firebaseio.com",
   projectId: "retail-tooling-cms",
