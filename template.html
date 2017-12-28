@@ -114,7 +114,7 @@
         if (typeof tinymce != 'undefined' && tinymce != null) {
           tinymce.remove('textarea.rich-text');
         }
-        setContentId($("#content-items option:selected").val());
+        setProductId($("#content-items option:selected").val());
         loadContent('#grid-editor', '.ge-content', 'No content');
       })
 
@@ -185,7 +185,7 @@
               if (typeof tinymce != 'undefined' && tinymce != null) {
                 tinymce.remove('textarea.rich-text');
               }
-              setContentId(this.title);
+              setProductId(this.title);
               loadContent('#grid-editor', '.ge-content').then(function() {
                 enableEditMode()
               })

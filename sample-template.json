@@ -2,7 +2,7 @@
   "annotatie": {
     "title": "Annotatie",
     "elements": {
-      "quote-1": {
+      "quote": {
         "title": "Annotatie",
         "type": "quote",
         "class": "col-md-12 col-sm-12 col-xs-12"
@@ -12,22 +12,22 @@
   "samenvatting": {
     "title": "Samenvatting",
     "elements": {
-      "text-2": {
+      "samenvatting-en": {
         "title": "Samenvatting (EN)",
         "type": "rich-text",
         "class": "col-md-12 col-sm-12 col-xs-12"
       },
-      "text-3": {
+      "samenvatting-nl": {
         "title": "Samenvatting (NL)",
         "type": "rich-text",
         "class": "col-md-12 col-sm-12 col-xs-12"
       }
     }
   },
-  "recensie": {
+  "product-recensie": {
     "title": "Recensie",
     "elements": {
-      "rich-text-4": {
+      "recensie": {
         "title": "Recensie",
         "type": "text",
         "class": "col-md-12 col-sm-12 col-xs-12"

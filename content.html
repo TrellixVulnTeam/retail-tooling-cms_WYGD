@@ -163,7 +163,7 @@
 
       init = function() {
         initToastr();
-        watchContent();
+        // watchContent();
         $("#preview .content").hide();
         loadTemplateInContentEditor($("#editor"), $("#panel-template")).then(function(templates) {
           enableEditMode();
@@ -176,15 +176,14 @@
       }
 
       watchContent = function() {
-        db.collection("content").onSnapshot(function(docs) {
-          var content = {};
+        db.collection("products").onSnapshot(function(docs) {
+          var products = {};
           docs.forEach(function(doc) {
-            content[doc.id] = doc.data();
+            products[doc.id] = doc.data();
           });
-          console.log(content);
-          setContent(content);
+          // console.log(products);
+          setContent(products);
           removeTinyMCE();
-          // setContentId($("#content-items option:selected").val());
           loadContent('#edit-form').then(function(){
             initTinyMCE();
           })
@@ -193,7 +192,7 @@
 
       $("#content-items").change(function() {
         removeTinyMCE();
-        setContentId($("#content-items option:selected").val());
+        setProductId($("#content-items option:selected").val());
         loadContent('#edit-form').then(function(){
           initTinyMCE();
         })

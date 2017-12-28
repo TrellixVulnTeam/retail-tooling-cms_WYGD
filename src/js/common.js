@@ -26,7 +26,6 @@
 
     // console.log(template);
     return setTemplates(template);
-    // return template;
   }
 
   resetSampleTemplate = function() {
@@ -37,29 +36,12 @@
   }
 
   resetSampleContent = function() {
-    return $.getJSON("sample-content.json", function(data) {
+    return $.getJSON("sample-products.json", function(data) {
       console.log("Content reset completed");
       setContent(data);
     });
   }
 
-  // saveSampleContent = function(contentElement, reset, configOptions) {
-  //   if (reset) setContent({});
-  //   var content = getContent();
-  //   if (!configOptions) configOptions = {};
-  //   configOptions.contentFormat = "html";
-  //
-  //   $(contentElement).children().each(function() {
-  //     content[this.id] = {};
-  //     content[this.id].title = $(this).attr("data-title");
-  //     content[this.id].content = parseContent($(this), configOptions);
-  //   })
-  //
-  //   // console.log(content);
-  //   setContent(content);
-  //   return content;
-  // }
-  //
   saveContent = function(contentElement, configOptions) {
     return getContent(configOptions.isPreview).then(function(allContent){
       var content = parseContent(contentElement, configOptions);
@@ -97,15 +79,12 @@
         }
 
         columnElements.each(function() {
-          elementCount++;
-          var id = this.id ? this.id : contentType + "-" + elementCount;
-          var content = (contentFormat=="object") ? $(this).val() : $(this).html();
-          // if (typeof content != "string" && $(content)[0].hasAttribute("data-ge-content-type")) {
-          //   // content = $(content).val();
-          //   content = $(content).html();
-          // }
-          content = content.replace(/\r?\n|\r/g,"").trim();
-          templateElements[id] = {content: content};
+          if (this.id) {
+            elementCount++;
+            var content = (contentFormat=="object") ? $(this).val() : $(this).html();
+            content = content.replace(/\r?\n|\r/g,"").trim();
+            templateElements[this.id] = content;
+          }
         });
       })
       sectionElements[row.id] = {elements: templateElements};
@@ -182,8 +161,8 @@
           $.each(section.elements, function(elementId, element) {
             var htmlElement = subElement && subElement!=null ? $(rootElementId + " #" + elementId + " > " + subElement) : $(rootElementId + " #" + elementId);
             if (htmlElement[0]) {
-              var contentElement = getObjectById(content, elementId);
-              var value = contentElement ? contentElement.content : placeholder;
+              var value = getObjectById(content, elementId);
+              if (!value) value = placeholder;
               switch (element.type) {
                 case "image":
                   htmlElement.html(value);
@@ -201,7 +180,7 @@
           })
         })
       })
-      // return setContentId(contentId);
+      // return setProductId(contentId);
     });
   }
 
@@ -236,9 +215,8 @@
     var content = isPreview ? localStorage.getItem("previewContent") : localStorage.getItem("content");
     var contentItems = {};
 
-    return db.collection("content").get().then(function(querySnapshot) {
+    return db.collection("products").get().then(function(querySnapshot) {
         querySnapshot.forEach(function(content) {
-            // console.log(content.id, " => ", content.data());
             contentItems[content.id] = content.data();
         });
         return contentItems;
@@ -249,13 +227,13 @@
     var jsonOutput = JSON.stringify(content);
 
     if (isPreview) {
-      localStorage.setItem("previewContent", jsonOutput);
+      localStorage.setItem("previewProducts", jsonOutput);
     } else {
-      localStorage.setItem("content", jsonOutput);
+      localStorage.setItem("products", jsonOutput);
 
       var batch = db.batch();
       $.each(content, function(contentKey, contentObject) {
-        var contentRef = db.collection("content").doc(contentKey);
+        var contentRef = db.collection("products").doc(contentKey);
         batch.set(contentRef, contentObject);
       })
 
@@ -272,7 +250,7 @@
   getTemplates = function(isPreview) {
     var templates = isPreview ? localStorage.getItem("previewTemplates") : localStorage.getItem("templates");
 
-    var templateRef = db.collection("templates").doc("description");
+    var templateRef = db.collection("templates").doc("product-description");
     return templateRef.get().then(function(template) {
         if (template.exists) {
             // console.log("Document data:", template.data());
@@ -294,10 +272,9 @@
     } else {
       localStorage.setItem("templates", jsonOutput);
 
-      var templateRef = db.collection("templates").doc("description");
+      var templateRef = db.collection("templates").doc("product-description");
 
       return templateRef.set(templates)
-      // db.collection("templates").add(templates)
       .then(function() {
           console.log("Document successfully updated!");
           return templates;
@@ -310,20 +287,14 @@
   }
 
   getContentId = function() {
-    var contentId = localStorage.getItem("selectedContentId");
-    if (!contentId) contentId = setContentId();
+    var contentId = localStorage.getItem("selectedProductId");
+    if (!contentId) contentId = setProductId();
     return contentId;
   }
 
-  setContentId = function(contentId) {
-    // console.log("setContentId");
-    // console.log(contentId);
-    // if (contentId=="empty") {
-    //   localStorage.removeItem("selectedContentId");
-    // } else {
-      localStorage.setItem("selectedContentId", contentId);
-    // }
-    return localStorage.getItem("selectedContentId");
+  setProductId = function(contentId) {
+    localStorage.setItem("selectedProductId", contentId);
+    return localStorage.getItem("selectedProductId");
   }
 
   getContentName = function() {
@@ -369,21 +340,15 @@
 
     switch (element.type) {
       case "text":
-      // htmlElement[0].innerHTML = '<div class="ge-content ge-content-type-tinymce" data-ge-content-type="tinymce">' + element.content + '</div>';
-        content = '<textarea class="form-control text" id="' + id + '" data-type="' + element.type + '"></textarea>';
+        content = '<textarea class="form-control text" id="' + id + '" data-id="' + id + '" data-type="' + element.type + '"></textarea>';
         break;
       case "rich-text":
-      // htmlElement[0].innerHTML = '<div class="ge-content ge-content-type-tinymce" data-ge-content-type="tinymce">' + element.content + '</div>';
-        content = '<textarea class="form-control rich-text" id="' + id + '" data-type="' + element.type + '"></textarea>';
+        content = '<textarea class="form-control rich-text" id="' + id + '" data-id="' + id + '"data-type="' + element.type + '"></textarea>';
         break;
       case "quote":
         content = '<textarea class="form-control blockquote" id="' + id + '" data-type="' + element.type + '"></textarea>';
         break;
-      // case "blockquote":
-      //   content = '<textarea class="form-control blockquote" id="' + id + '" data-type="' + element.type + '"></textarea>';
-      //   break;
       case "image":
-        // content = '<textarea class="form-control blockquote" id="' + id + '"></textarea>';
         content = '<div id="' + id + '" data-type="' + element.type + '"></div>';
         break;
     }
@@ -402,7 +367,6 @@
     if (type==undefined) type = "text";
 
     return type;
-    // return $(element).attr("data-type") ? $(element).attr("data-type") : "";
   }
 
   separateContent = function(content) {
@@ -455,7 +419,7 @@
           return obj[i];
         } else if (typeof obj[i] == 'object') {
           var resultObject = getObjectById(obj[i], key);
-          if (resultObject && typeof resultObject=="object") {
+          if (resultObject) {
             return resultObject;
           }
         }

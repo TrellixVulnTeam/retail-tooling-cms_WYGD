@@ -6,6 +6,7 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-clean');
   grunt.loadNpmTasks('grunt-contrib-cssmin');
   grunt.loadNpmTasks('grunt-contrib-watch');
+  grunt.loadNpmTasks('grunt-web-server');
 
   var jsFiles = [
     'src/js/jquery.grideditor.js',
@@ -65,6 +66,15 @@ module.exports = function(grunt) {
       },
     },
 
+    web_server: {
+      options: {
+        cors: true,
+        port: 8000,
+        nevercache: true,
+        logRequests: true
+      },
+      foo: 'bar' // For some reason an extra key with a non-object value is necessary
+    },
   });
 
   grunt.registerTask('default', ['concat:js', 'uglify', 'less']);
