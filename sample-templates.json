@@ -1,0 +1,51 @@
+{
+  "pdp": {
+    "packshot": {
+      "title": "Productafbeeldingen",
+      "elements": {
+        "product-afbeeldingen": {
+          "title": "Productafbeeldingen",
+          "type": "imagelist",
+          "class": "col-md-12 col-sm-12 col-xs-12"
+        }
+      }
+    }
+  },
+  "product-description": {
+    "annotatie": {
+      "title": "Annotatie",
+      "elements": {
+        "quote": {
+          "title": "Annotatie",
+          "type": "quote",
+          "class": "col-md-12 col-sm-12 col-xs-12"
+        }
+      }
+    },
+    "samenvatting": {
+      "title": "Samenvatting",
+      "elements": {
+        "samenvatting-en": {
+          "title": "Samenvatting (EN)",
+          "type": "rich-text",
+          "class": "col-md-12 col-sm-12 col-xs-12"
+        },
+        "samenvatting-nl": {
+          "title": "Samenvatting (NL)",
+          "type": "rich-text",
+          "class": "col-md-12 col-sm-12 col-xs-12"
+        }
+      }
+    },
+    "product-recensie": {
+      "title": "Recensie",
+      "elements": {
+        "recensie": {
+          "title": "Recensie",
+          "type": "text",
+          "class": "col-md-12 col-sm-12 col-xs-12"
+        }
+      }
+    }
+  }
+}

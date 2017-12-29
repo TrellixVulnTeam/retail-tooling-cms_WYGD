@@ -27,10 +27,15 @@
       </div>
       <div id="navbar" class="collapse navbar-collapse">
         <ul class="nav navbar-nav">
-          <li><a href="template.html">Template</a></li>
+          <li><a href="templates.html">Templates</a></li>
           <li class="active"><a href="content.html">Content</a></li>
         </ul>
         <form class="navbar-form navbar-right">
+          <div class="form-group">
+            <label>Template:</label>
+            <select id="template-items" class="form-control">
+            </select>
+          </div>
           <div class="form-group">
             <label>Content:</label>
             <select id="content-items" class="form-control">
@@ -46,8 +51,9 @@
       <h1 class="form-group">
         <span>Content editor</span>
         <div class="pull-right">
-          <button id="reset-content" class='btn btn-secondary'>Reset all content</button>
-          <button id="preview-content" type="button" class="btn btn-primary" data-toggle="modal" data-target="#previewModal" disabled>Preview</button>
+          <button id="reset-content" class='btn btn-secondary'>Reset</button>
+          <a id="preview-live" href="sample_content/FIFA 18.html" target="_blank" type="button" class="btn btn-secondary" data-toggle="modal" disabled>Bekijk op bol.com</a>
+          <button id="preview-content" type="button" class="btn btn-secondary" data-toggle="modal" data-target="#previewModal" disabled>Preview</button>
           <button id="save-content" class='btn btn-primary' disabled>Save</button>
         </div>
       </h1>
@@ -165,7 +171,8 @@
         initToastr();
         // watchContent();
         $("#preview .content").hide();
-        loadTemplateInContentEditor($("#editor"), $("#panel-template")).then(function(templates) {
+        loadTemplateInContentEditor($("#editor"), $("#panel-template")).then(function(template) {
+          populateTemplateItems();
           enableEditMode();
           loadContent('#edit-form').then(function(){
             populateContentItems(false).then(function(){
@@ -190,10 +197,26 @@
         });
       }
 
+      $("#template-items").change(function() {
+        disableEditMode();
+        removeTinyMCE();
+        setTemplateId($("#template-items option:selected").val());
+        loadTemplateInContentEditor($("#editor"), $("#panel-template")).then(function(template) {
+          enableEditMode();
+          loadContent('#edit-form').then(function(){
+            populateContentItems(false).then(function(){
+              initTinyMCE();
+            })
+          })
+        })
+      })
+
       $("#content-items").change(function() {
+        disableEditMode();
         removeTinyMCE();
         setProductId($("#content-items option:selected").val());
         loadContent('#edit-form').then(function(){
+          enableEditMode();
           initTinyMCE();
         })
       })
@@ -235,8 +258,18 @@
         })
       })
 
+      disableEditMode = function() {
+        $("#editor").hide();
+        $("#loader").show();
+        $("#preview-live").attr("disabled", true);
+        $("#preview-content").attr("disabled", true);
+        $("#save-content").attr("disabled", true);
+      }
+
       enableEditMode = function() {
+        $("#editor").show();
         $("#loader").hide();
+        $("#preview-live").removeAttr("disabled");
         $("#preview-content").removeAttr("disabled");
         $("#save-content").removeAttr("disabled");
       }

@@ -26,15 +26,11 @@
               <span class="icon-bar"></span>
               <span class="icon-bar"></span>
             </button>
-        <!-- <a class="navbar-brand" href="#">Component editor</a> -->
       </div>
       <div id="navbar" class="collapse navbar-collapse">
         <ul class="nav navbar-nav">
-          <li class="active"><a href="template.html">Template</a></li>
-          <!-- <li><a href="output.html">Output</a></li> -->
+          <li class="active"><a href="templates.html">Templates</a></li>
           <li><a href="content.html">Content</a></li>
-          <!-- <li><a href="populate.html">Populate</a></li> -->
-          <!-- <li><a href="preview.html">Preview</a></li> -->
         </ul>
         <div class="navbar-form navbar-right">
           <div id="alert-template-saved" class="alert alert-success" role="alert" style="display:none">Template saved</div>
@@ -54,16 +50,15 @@
   <div class="container">
     <div class="content">
       <h1 class="form-group">
-        <span>Template editor</span>
+        <span><a href="templates.html">Templates</a></span> &gt; <span id="page-title"></span>
         <div class="pull-right main-controls">
           <button id="reset-template" class='btn btn-secondary'>Reset</button>
           <button id="save-template" class='btn btn-primary' disabled>Save</button>
-          <!-- <a id="preview-template" class='btn btn-primary' href="preview.html">Preview</a> -->
         </div>
       </h1>
-      <span id="loader" class="loader glyphicon glyphicon-refresh glyphicon-refresh-animate"></span>
       <div id="grid-editor">
       </div>
+      <span id="loader" class="loader glyphicon glyphicon-refresh glyphicon-refresh-animate"></span>
     </div>
   </div>
 
@@ -73,11 +68,9 @@
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/tinymce/4.7.3/tinymce.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/tinymce/4.7.3/jquery.tinymce.min.js"></script>
-  <!-- <script src="https://www.gstatic.com/firebasejs/4.6.2/firebase.js"></script> -->
   <script src="https://www.gstatic.com/firebasejs/4.8.0/firebase.js"></script>
   <script src="https://www.gstatic.com/firebasejs/4.8.0/firebase-firestore.js"></script>
   <script src="dist/jquery.grideditor.js"></script>
-  <!-- <script src="test.js"></script> -->
   <script src="http://localhost:35729/livereload.js"></script>
 
   <script>
@@ -111,11 +104,14 @@
       }
 
       $("#content-items").change(function() {
+        disableEditMode();
         if (typeof tinymce != 'undefined' && tinymce != null) {
           tinymce.remove('textarea.rich-text');
         }
         setProductId($("#content-items option:selected").val());
-        loadContent('#grid-editor', '.ge-content', 'No content');
+        loadContent('#grid-editor', '.ge-content', 'No content').then(function() {
+          enableEditMode();
+        });
       })
 
       $("#gm-save-content").on('click', function() {
@@ -175,13 +171,15 @@
       }
 
       init = function() {
-        loadTemplate('#grid-editor')
-        .then(function(templates) {
+        loadTemplate('#grid-editor', getURLParameter("template"))
+        .then(function(template) {
           enableEditMode();
           initGridEditor($('#grid-editor'));
           populateContentItems(true);
+          $("#page-title").html(template.id);
           loadContent('#grid-editor', '.ge-content').then(function() {
             $("#preview-content ul.dropdown-menu a").click(function() {
+              disableEditMode();
               if (typeof tinymce != 'undefined' && tinymce != null) {
                 tinymce.remove('textarea.rich-text');
               }

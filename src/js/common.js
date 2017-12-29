@@ -25,11 +25,11 @@
     })
 
     // console.log(template);
-    return setTemplates(template);
+    return setTemplate(getTemplateId(), template);
   }
 
   resetSampleTemplate = function() {
-    return $.getJSON("sample-template.json", function(data) {
+    return $.getJSON("sample-templates.json", function(data) {
       console.log("Template reset completed");
       setTemplates(data);
     });
@@ -43,9 +43,9 @@
   }
 
   saveContent = function(contentElement, configOptions) {
-    return getContent(configOptions.isPreview).then(function(allContent){
+    return getContent().then(function(allContent){
       var content = parseContent(contentElement, configOptions);
-      var contentId = getContentId();
+      var contentId = getProductId();
 
       if (!allContent[contentId]) allContent[contentId] = {};
       allContent[contentId].content = content;
@@ -93,11 +93,13 @@
     return sectionElements;
   }
 
-  loadTemplate = function(formElement) {
-    return getTemplates().then(function(templates) {
+  loadTemplate = function(formElement, templateId) {
+    if (templateId) setTemplateId(templateId);
+
+    return getTemplate(getTemplateId()).then(function(template) {
       $(formElement).html("");
 
-      $.each(templates, function(sectionId, section) {
+      $.each(template.data(), function(sectionId, section) {
         var panel = $('<div class="row"></div>');
         panel.attr("id", sectionId);
         panel.attr("data-title", section.title);
@@ -116,12 +118,26 @@
         $(formElement).append(panel);
         // console.log($(formElement));
       })
+      return template;
+    });
+  }
+
+  loadTemplates = function(formElement) {
+    return getTemplates().then(function(templates) {
+      var table = $(formElement);
+      table.append("<tbody></tbody>");
+
+      $.each(templates, function(templateId, template) {
+        table.append('<tr><td><a href="/template.html?template=' + templateId + '">' + templateId + '</a></td></tr>');
+      })
     });
   }
 
   loadTemplateInContentEditor = function(form, panelTemplate) {
-    return getTemplates().then(function(templates){
-      $.each(templates, function(sectionId, section) {
+    return getTemplate(getTemplateId()).then(function(template){
+      form.html("");
+
+      $.each(template.data(), function(sectionId, section) {
         var panel = panelTemplate.clone();
         var panelTitle = $(panel).find(".panel-title")[0];
         var panelContent = $(panel).find(".panel-body")[0];
@@ -150,14 +166,14 @@
   }
 
   loadContent = function(rootElementId, subElement, placeholder, isPreview) {
-    var contentId = getContentId();
+    var contentId = getProductId();
     return getContent(isPreview).then(function(allContent){
-      return getTemplates().then(function(templates){
+      return getTemplate(getTemplateId()).then(function(template){
         var content = allContent[contentId];
         if (placeholder==undefined) placeholder = ""
         $(rootElementId).attr("data-title", content.title);
 
-        $.each(templates, function(sectionId, section) {
+        $.each(template.data(), function(sectionId, section) {
           $.each(section.elements, function(elementId, element) {
             var htmlElement = subElement && subElement!=null ? $(rootElementId + " #" + elementId + " > " + subElement) : $(rootElementId + " #" + elementId);
             if (htmlElement[0]) {
@@ -180,7 +196,6 @@
           })
         })
       })
-      // return setProductId(contentId);
     });
   }
 
@@ -212,15 +227,20 @@
   // }
 
   getContent = function(isPreview) {
-    var content = isPreview ? localStorage.getItem("previewContent") : localStorage.getItem("content");
     var contentItems = {};
 
-    return db.collection("products").get().then(function(querySnapshot) {
+    if (isPreview) {
+      return new Promise(function(resolve, reject) {
+        resolve(JSON.parse(localStorage.getItem("previewProducts")));
+      });
+    } else {
+      return db.collection("products").get().then(function(querySnapshot) {
         querySnapshot.forEach(function(content) {
             contentItems[content.id] = content.data();
         });
         return contentItems;
-    });
+      });
+    }
   }
 
   setContent = function(content, isPreview) {
@@ -229,8 +249,6 @@
     if (isPreview) {
       localStorage.setItem("previewProducts", jsonOutput);
     } else {
-      localStorage.setItem("products", jsonOutput);
-
       var batch = db.batch();
       $.each(content, function(contentKey, contentObject) {
         var contentRef = db.collection("products").doc(contentKey);
@@ -247,37 +265,47 @@
     }
   }
 
-  getTemplates = function(isPreview) {
-    var templates = isPreview ? localStorage.getItem("previewTemplates") : localStorage.getItem("templates");
-
-    var templateRef = db.collection("templates").doc("product-description");
-    return templateRef.get().then(function(template) {
-        if (template.exists) {
-            // console.log("Document data:", template.data());
-            return template.data()
-        } else {
-            console.log("No such document!");
-        }
-    }).catch(function(error) {
-        console.log("Error getting document:", error);
-    });
-
-    return templates ? JSON.parse(templates) : {};
+  getTemplate = function(id, isPreview) {
+    if (isPreview) {
+      return localStorage.getItem("previewTemplate");
+    } else {
+      var templateRef = db.collection("templates").doc(id);
+      return templateRef.get().then(function(template) {
+          if (template.exists) {
+            return template;
+          } else {
+            console.log("No such template!");
+          }
+      }).catch(function(error) {
+          console.log("Error getting template:", error);
+      });
+    }
   }
 
-  setTemplates = function(templates, isPreview) {
+  getTemplates = function() {
+    var templates = {};
+    return db.collection("templates").get().then(function(querySnapshot) {
+      querySnapshot.forEach(function(template) {
+          templates[template.id] = template.data();
+      });
+      return templates;
+    });
+  }
+
+  setTemplate = function(id, template, isPreview) {
+    var templates = {};
+    templates[id] = template;
     var jsonOutput = JSON.stringify(templates);
+
     if (isPreview) {
-      localStorage.setItem("previewTemplates", jsonOutput);
+      localStorage.setItem("previewTemplate", jsonOutput);
     } else {
-      localStorage.setItem("templates", jsonOutput);
+      var templateRef = db.collection("templates").doc(id);
 
-      var templateRef = db.collection("templates").doc("product-description");
-
-      return templateRef.set(templates)
+      return templateRef.set(template)
       .then(function() {
-          console.log("Document successfully updated!");
-          return templates;
+          console.log("Template successfully updated!");
+          return template;
       })
       .catch(function(error) {
           // The document probably doesn't exist.
@@ -286,31 +314,62 @@
     }
   }
 
-  getContentId = function() {
+  setTemplates = function(templates) {
+    var jsonOutput = JSON.stringify(templates);
+
+    var batch = db.batch();
+    $.each(templates, function(templateKey, templateObject) {
+      var templatesRef = db.collection("templates").doc(templateKey);
+      batch.set(templatesRef, templateObject);
+    })
+
+    return batch.commit()
+    .then(function() {
+        console.log("Templates successfully updated!");
+    })
+    .catch(function(error) {
+        console.error("Error updating document: ", error);
+    });
+  }
+
+  getProductId = function() {
     var contentId = localStorage.getItem("selectedProductId");
-    if (!contentId) contentId = setProductId();
+    if (!contentId || contentId=="undefined") contentId = setProductId();
     return contentId;
   }
 
   setProductId = function(contentId) {
+    if (!contentId) contentId = "1984";
     localStorage.setItem("selectedProductId", contentId);
     return localStorage.getItem("selectedProductId");
   }
 
+  getTemplateId = function() {
+    var templateId = localStorage.getItem("selectedTemplateId");
+    if (!templateId || templateId=="undefined") templateId = setTemplateId();
+    return templateId;
+  }
+
+  setTemplateId = function(templateId) {
+    if (!templateId) templateId = "product-description";
+    localStorage.setItem("selectedTemplateId", templateId);
+    return localStorage.getItem("selectedTemplateId");
+  }
+
   getContentName = function() {
-    var contentId = getContentId();
+    var contentId = getProductId();
     return getContent().then(function(allContent){
       var contentItem = allContent[contentId];
       return contentItem.title;
     });
   }
 
-  getContentItems = function(showEmptyItem) {
-    if (showEmptyItem==undefined) showEmptyItem = false;
-    return getContent().then(function(content){
+  getTemplateItems = function() {
+    return getTemplates().then(function(template){
       var templateArray = [];
-      $.each(content, function(key, object) {
-        if (showEmptyItem || key!="empty") templateArray.push({id: key, title: object.title});
+      $.each(template, function(key, object) {
+        // templateArray.push({id: key, title: object.title});
+        templateArray.push({id: key, title: key});
       })
 
       templateArray.sort(function (a, b) {
@@ -318,6 +377,35 @@
       });
 
       return templateArray;
+    })
+  }
+
+  getContentItems = function(showEmptyItem) {
+    if (showEmptyItem==undefined) showEmptyItem = false;
+    return getContent().then(function(content){
+      var contentArray = [];
+      $.each(content, function(key, object) {
+        if (showEmptyItem || key!="empty") contentArray.push({id: key, title: object.title});
+      })
+
+      contentArray.sort(function (a, b) {
+        return a.title.localeCompare(b.title);
+      });
+
+      return contentArray;
+    })
+  }
+
+  populateTemplateItems = function() {
+    return getTemplateItems().then(function(contentItems){
+      contentItems.forEach(function (item) {
+        $('#template-items').append($("<option></option>")
+                    .attr("value", item.id)
+                    .text(item.title)
+                  );
+      });
+
+      $("#template-items").val(getTemplateId());
     })
   }
 
@@ -331,7 +419,7 @@
         $('#preview-content ul.dropdown-menu').append($('<li><a data-width="auto" title="' + item.id + '"><span>' + item.title + '</span></li>'));
       });
 
-      $("#content-items").val(getContentId());
+      $("#content-items").val(getProductId());
     })
   }
 
@@ -426,17 +514,15 @@
     }
   }
 
-  function getUrlParams( prop ) {
-    var params = {};
-    var search = decodeURIComponent( window.location.href.slice( window.location.href.indexOf( '?' ) + 1 ) );
-    var definitions = search.split( '&' );
-
-    definitions.forEach( function( val, key ) {
-        var parts = val.split( '=', 2 );
-        params[ parts[ 0 ] ] = parts[ 1 ];
-    } );
-
-    return ( prop && prop in params ) ? params[ prop ] : params;
+  getURLParameter = function(sParam) {
+      var sPageURL = window.location.search.substring(1);
+      var sURLVariables = sPageURL.split('&');
+      for (var i = 0; i < sURLVariables.length; i++) {
+        var sParameterName = sURLVariables[i].split('=');
+        if (sParameterName[0] == sParam) {
+          return sParameterName[1];
+        }
+      }
   }
 
 })(jQuery);

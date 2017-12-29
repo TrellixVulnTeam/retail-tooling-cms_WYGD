@@ -9,11 +9,34 @@ body {
 .panel,
 .modal-content,
 #preview {
-  border-top-left-radius: 255px 5px;
+  border-top-left-radius: 225px 5px;
   border-top-right-radius: 5px 225px;
   border-bottom-right-radius: 225px 5px;
-  border-bottom-left-radius: 5px 255px;
+  border-bottom-left-radius: 5px 225px;
   border: 1px solid #999999;
+}
+.table-bordered {
+  border-collapse: collapse;
+  border-top-left-radius: 225px 5px;
+  border-top-right-radius: 5px 225px;
+  border-bottom-right-radius: 225px 5px;
+  border-bottom-left-radius: 5px 225px;
+  border-style: hidden;
+  /* hide standard table (collapsed) border */
+  box-shadow: 0 0 0 1px #999999;
+  /* this draws the table border  */
+}
+.table-bordered > tbody > tr > td {
+  border-collapse: collapse;
+  border-bottom-right-radius: 225px 5px;
+  border-bottom-left-radius: 225px 1px;
+  border-style: hidden;
+  /* hide standard table (collapsed) border */
+  box-shadow: 0 1px 0 0 #999999;
+  /* this draws the table border  */
+}
+.table-bordered > tbody > tr:last-of-type > td {
+  box-shadow: none;
 }
 .ge-canvas.ge-editing .column:hover {
   border-top-left-radius: 225px 5px;
@@ -26,7 +49,7 @@ body {
   background-color: rgba(160, 160, 160, 0.15);
   border-bottom: 1px solid #999999;
   border-bottom-right-radius: 225px 5px;
-  border-bottom-left-radius: 255px 1px;
+  border-bottom-left-radius: 225px 1px;
 }
 .btn,
 textarea,
