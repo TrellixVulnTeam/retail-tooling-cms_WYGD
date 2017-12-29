@@ -971,7 +971,7 @@ $.fn.gridEditor.RTEs = {};
             }
           })
         })
-        return allContent;
+        return allContent[contentId];
       })
     });
   }

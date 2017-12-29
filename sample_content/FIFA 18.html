@@ -3749,9 +3749,12 @@ init = function() {
 
   if (getURLParameter("content")) {
     var productId = setProductId(getURLParameter("content"));
+    var preview = getURLParameter("preview") && getURLParameter("preview")!='undefined' ? true : false;
+
     $(".product-description").hide();
     loadTemplate($('.product-description'), 'product-description').then(function(){
-      loadContent(productId, '.product-description', 'span', '', true).then(function() {
+      loadContent(productId, '.product-description', 'span', '', preview).then(function(content) {
+        console.log(content);
         $(".product-description").show();
         $("#loader").hide();
       })

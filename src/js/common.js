@@ -228,7 +228,7 @@
             }
           })
         })
-        return allContent;
+        return allContent[contentId];
       })
     });
   }
