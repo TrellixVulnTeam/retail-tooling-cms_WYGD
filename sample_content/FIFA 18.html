@@ -3754,7 +3754,9 @@ init = function() {
     $(".product-description").hide();
     loadTemplate($('.product-description'), 'product-description').then(function(){
       loadContent(productId, '.product-description', 'span', '', preview).then(function(content) {
-        console.log(content);
+        var replaceList = ["blockquote"];
+        wrapWithParagraph(".product-description", replaceList);
+
         $(".product-description").show();
         $("#loader").hide();
       })

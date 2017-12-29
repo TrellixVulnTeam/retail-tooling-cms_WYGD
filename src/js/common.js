@@ -556,6 +556,16 @@
     return htmlArray;
   }
 
+  wrapWithParagraph = function(selector, replaceList) {
+    var html = $(selector);
+
+    $.each(replaceList, function(itemId, item) {
+      html = $(selector + ' ' + item).wrapInner("<p></p>");
+    });
+
+    return html;
+  }
+
   function getObjectById(obj, key) {
     for (var i in obj) {
         if (!obj.hasOwnProperty(i)) continue;
