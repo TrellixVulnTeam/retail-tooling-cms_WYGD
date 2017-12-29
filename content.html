@@ -173,24 +173,27 @@
         initToastr();
         // watchContent();
         disableEditMode();
+
+        if (getURLParameter("content")) {
+          setProductId(getURLParameter("content"));
+        } else {
+          var productId = setProductId();
+          setURLParameter("content", productId);
+        }
+
         $("#preview .content").hide();
-        loadTemplateInContentEditor($("#editor"), $("#panel-template")).then(function(template) {
-          if (getURLParameter("content")) {
-            setProductId(getURLParameter("content"));
-          } else {
-            var productId = setProductId();
-            setURLParameter("content", productId);
-          }
-
-          $('#preview-live').attr("href", "sample_content/FIFA 18.html?content=" + getProductId());
-
+        loadContent(getProductId(), '#edit-form').then(function(content){
           populateTemplateItems();
 
-          loadContent(getProductId(), '#edit-form').then(function(content){
-            $("#page-title").html(content.title);
-            populateContentItems(false).then(function(){
-              enableEditMode();
-              initTinyMCE();
+          loadTemplateInContentEditor($("#editor"), $("#panel-template")).then(function(template) {
+            $('#preview-live').attr("href", "sample_content/FIFA 18.html?content=" + getProductId());
+
+            loadContent(getProductId(), '#edit-form').then(function(content){
+              $("#page-title").html(content.title);
+              populateContentItems(false).then(function(){
+                enableEditMode();
+                initTinyMCE();
+              })
             })
           })
         })

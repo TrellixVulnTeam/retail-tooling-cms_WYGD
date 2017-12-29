@@ -28,5 +28,14 @@
         "quote": "Games are fun"
       }
     }
+  },
+  "fifa18": {
+    "type": "pdp",
+    "title": "FIFA 18",
+    "content": {
+      "packshot": {
+        "product-afbeeldingen": "Games are fun"
+      }
+    }
   }
 }

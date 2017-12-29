@@ -176,6 +176,7 @@
         panelContent.innerHTML = formElement;
         form.append(panel);
       })
+      return template;
     })
   }
 
@@ -189,8 +190,10 @@
         table.append("<tbody></tbody>");
 
         $.each(contentItems, function(contentId, content) {
-          content.id = contentId;
-          contentArray.push(content);
+          if (contentId.substring(0, 5)!="empty") {
+            content.id = contentId;
+            contentArray.push(content);
+          }
         })
 
         contentArray.sort(function (a, b) {
@@ -449,6 +452,7 @@
                   );
       });
 
+      console.log(getTemplateId());
       $("#template-items").val(getTemplateId());
     })
   }
