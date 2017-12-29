@@ -3731,19 +3731,42 @@ s'morgens krijgen maar ik heb hem nog steeds niet. Alle andere mails van
   </div>
 </noscript>
 
+<link rel="stylesheet" type="text/css" href="../dist/live.css" />
 
 <script
   src="https://code.jquery.com/jquery-3.2.1.min.js"
   integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
   crossorigin="anonymous"></script>
 
+<script src="https://www.gstatic.com/firebasejs/4.8.0/firebase.js"></script>
+<script src="https://www.gstatic.com/firebasejs/4.8.0/firebase-firestore.js"></script>
+<script src="../dist/jquery.grideditor.js"></script>
 <script src="http://localhost:35729/livereload.js"></script>
 
 <script>
+init = function() {
+  $('.product-description').before('<span id="loader" class="loader glyphicon glyphicon-refresh glyphicon-refresh-animate"></span>');
+
+  if (getURLParameter("content")) {
+    var productId = setProductId(getURLParameter("content"));
+    $(".product-description").hide();
+    loadTemplate($('.product-description'), 'product-description').then(function(){
+      loadContent(productId, '.product-description', 'span', '', true).then(function() {
+        $(".product-description").show();
+        $("#loader").hide();
+      })
+    });
+  } else {
+    $("#loader").hide();
+  }
+}
+
 $(document).ready(function() {
-  $('#product_title').append('<a target="_blank" id="edit-page-template" href="http://localhost:8000/template.html?template=pdp" class="review__btn-write-review" style="float: right" title="Pas template aan">Pas pagina-template aan</a>');
-  $('#product_description').append('<a target="_blank" id="edit-page-template" href="http://localhost:8000/template.html?template=product-description" class="review__btn-write-review" style="float: right" title="Pas template aan">Pas template aan</a>');
-  $('#product_description').append('<a target="_blank" id="edit-description-content" href="http://localhost:8000/content.html?content=product-description" class="review__btn-write-review" style="float: right; margin-right: 10px" title="Pas content aan">Pas content aan</a>');
+  init();
+
+  $('#product_title').append('<a id="edit-page-template" href="http://localhost:8000/template.html?template=pdp" class="review__btn-write-review" style="float: right" title="Pas template aan">Pas pagina-template aan</a>');
+  $('#product_description').append('<a id="edit-page-template" href="http://localhost:8000/template.html?template=product-description" class="review__btn-write-review" style="float: right; margin-top: -5px" title="Pas template aan">Pas template aan</a>');
+  $('#product_description').append('<a id="edit-description-content" href="http://localhost:8000/content.html?content=1984" class="review__btn-write-review" style="float: right; margin-right: 10px; margin-top: -5px" title="Pas content aan">Pas content aan</a>');
 
   $('.js_show-more-description.show-more .show-more__button').click(function(event) {
     var parent = $(this).parent().parent().parent();

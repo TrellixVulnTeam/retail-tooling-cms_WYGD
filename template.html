@@ -41,6 +41,7 @@
       <h1 class="form-group">
         <span><a href="templates.html">Templates</a></span> &gt; <span id="page-title"></span>
         <div class="pull-right main-controls">
+          <a id="preview-live" type="button" class="btn btn-secondary" data-toggle="modal" disabled>Bekijk op bol.com</a>
           <button id="save-template" class='btn btn-primary' disabled>Save</button>
         </div>
       </h1>
@@ -64,6 +65,7 @@
   <script>
     $(document).ready(function() {
       var grideditor;
+      var liveLink = "";
 
       initGridEditor = function(form) {
         grideditor = form.gridEditor({
@@ -97,6 +99,7 @@
           tinymce.remove('textarea.rich-text');
         }
         setProductId($("#content-items option:selected").val());
+        $('#preview-live').attr("href", liveLink + "?content=" + getProductId());
         loadContent(getProductId(), '#grid-editor', '.ge-content', 'No content').then(function() {
           enableEditMode();
         });
@@ -151,13 +154,19 @@
           var templateId = setTemplateId();
           setURLParameter("template", templateId);
         }
-        
+        disableEditMode();
+
         loadTemplate('#grid-editor', templateId)
         .then(function(template) {
-          enableEditMode();
           initGridEditor($('#grid-editor'));
           populateContentItems(true);
           $("#page-title").html(template.data().title);
+
+          liveLink = template.data().link;
+          setLiveLink(getProductId());
+
+          enableEditMode();
+
           loadContent(getProductId(), '#grid-editor', '.ge-content').then(function() {
             $("#preview-content ul.dropdown-menu a").click(function() {
               disableEditMode();
@@ -165,6 +174,8 @@
                 tinymce.remove('textarea.rich-text');
               }
               setProductId(this.title);
+              setLiveLink(getProductId());
+
               loadContent(getProductId(), '#grid-editor', '.ge-content').then(function() {
                 enableEditMode()
               })
@@ -178,12 +189,18 @@
         $("#loader").hide();
         $('#grid-editor').show();
         $("#save-template").removeAttr("disabled");
+        if ($("#preview-live").attr("href")!=undefined) $("#preview-live").removeAttr("disabled");
       }
 
       disableEditMode = function() {
         $("#loader").show();
         $('#grid-editor').hide();
         $("#save-template").attr("disabled", true);
+        $("#preview-live").attr("disabled", true);
+      }
+
+      setLiveLink = function(productId) {
+        if (liveLink) $('#preview-live').attr("href", liveLink + "?content=" + getProductId());
       }
 
       init();

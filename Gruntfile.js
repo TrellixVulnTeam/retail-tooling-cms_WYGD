@@ -38,7 +38,19 @@ module.exports = function(grunt) {
         files: [{
             cwd: 'src/less/',
             src: [
-              '*.less'
+              '*.less',
+              'live.less'
+            ],
+            dest: 'dist/',
+            ext: '.css',
+            expand: true,
+        }]
+      },
+      development: {
+        files: [{
+            cwd: 'src/less/',
+            src: [
+              'live.less'
             ],
             dest: 'dist/',
             ext: '.css',
@@ -51,6 +63,7 @@ module.exports = function(grunt) {
       development: {
         files: {
           'dist/grideditor.min.css' : ['dist/grideditor.css'],
+          'dist/live.min.css' : ['dist/live.css'],
         }
       }
     },

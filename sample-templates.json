@@ -1,6 +1,7 @@
 {
   "pdp": {
     "title": "PDP",
+    "link": "/sample_content/FIFA%2018.html",
     "content": {
       "packshot": {
         "title": "Productafbeeldingen",
@@ -16,6 +17,7 @@
   },
   "product-description": {
     "title": "Productomschrijving",
+    "link": "/sample_content/FIFA%2018.html",
     "content": {
       "annotatie": {
         "title": "Annotatie",
