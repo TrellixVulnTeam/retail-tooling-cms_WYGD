@@ -99,7 +99,7 @@
     return getTemplate(getTemplateId()).then(function(template) {
       $(formElement).html("");
 
-      $.each(template.data(), function(sectionId, section) {
+      $.each(template.data().content, function(sectionId, section) {
         var panel = $('<div class="row"></div>');
         panel.attr("id", sectionId);
         panel.attr("data-title", section.title);
@@ -125,10 +125,11 @@
   loadTemplates = function(formElement) {
     return getTemplates().then(function(templates) {
       var table = $(formElement);
+      table.html("");
       table.append("<tbody></tbody>");
 
       $.each(templates, function(templateId, template) {
-        table.append('<tr><td><a href="/template.html?template=' + templateId + '">' + templateId + '</a></td></tr>');
+        table.append('<tr><td><a href="/template.html?template=' + templateId + '">' + template.title + '</a></td></tr>');
       })
     });
   }
@@ -137,7 +138,7 @@
     return getTemplate(getTemplateId()).then(function(template){
       form.html("");
 
-      $.each(template.data(), function(sectionId, section) {
+      $.each(template.data().content, function(sectionId, section) {
         var panel = panelTemplate.clone();
         var panelTitle = $(panel).find(".panel-title")[0];
         var panelContent = $(panel).find(".panel-body")[0];
@@ -165,7 +166,7 @@
     })
   }
 
-  loadContent = function(rootElementId, subElement, placeholder, isPreview) {
+  loadContent = function(contentId, rootElementId, subElement, placeholder, isPreview) {
     var contentId = getProductId();
     return getContent(isPreview).then(function(allContent){
       return getTemplate(getTemplateId()).then(function(template){
@@ -173,7 +174,7 @@
         if (placeholder==undefined) placeholder = ""
         $(rootElementId).attr("data-title", content.title);
 
-        $.each(template.data(), function(sectionId, section) {
+        $.each(template.data().content, function(sectionId, section) {
           $.each(section.elements, function(elementId, element) {
             var htmlElement = subElement && subElement!=null ? $(rootElementId + " #" + elementId + " > " + subElement) : $(rootElementId + " #" + elementId);
             if (htmlElement[0]) {
@@ -339,7 +340,7 @@
   }
 
   setProductId = function(contentId) {
-    if (!contentId) contentId = "1984";
+    if (!contentId) contentId = "empty";
     localStorage.setItem("selectedProductId", contentId);
     return localStorage.getItem("selectedProductId");
   }
@@ -368,8 +369,7 @@
     return getTemplates().then(function(template){
       var templateArray = [];
       $.each(template, function(key, object) {
-        // templateArray.push({id: key, title: object.title});
-        templateArray.push({id: key, title: key});
+        templateArray.push({id: key, title: object.title});
       })
 
       templateArray.sort(function (a, b) {
@@ -385,7 +385,9 @@
     return getContent().then(function(content){
       var contentArray = [];
       $.each(content, function(key, object) {
-        if (showEmptyItem || key!="empty") contentArray.push({id: key, title: object.title});
+        if (showEmptyItem || key.substring(0, 5)!="empty") {
+          contentArray.push({id: key, type: object.type, title: object.title});
+        }
       })
 
       contentArray.sort(function (a, b) {
@@ -410,13 +412,21 @@
   }
 
   populateContentItems = function(showEmptyItem) {
-    return getContentItems(showEmptyItem).then(function(contentItems){
-      contentItems.forEach(function (item) {
+    return getContentItems(showEmptyItem).then(function(contentItems) {
+      $('#content-items').html("");
+
+      var templateId = getTemplateId();
+      var filteredContentItems = contentItems.filter(function(item) {
+        return item.type === templateId || item.type === "all";
+      })
+
+      filteredContentItems.forEach(function (item) {
         $('#content-items').append($("<option></option>")
                     .attr("value", item.id)
                     .text(item.title)
                   );
         $('#preview-content ul.dropdown-menu').append($('<li><a data-width="auto" title="' + item.id + '"><span>' + item.title + '</span></li>'));
+        if (item.id===getProductId()) $('#preview-content-select span').html(item.title);
       });
 
       $("#content-items").val(getProductId());
@@ -523,6 +533,11 @@
           return sParameterName[1];
         }
       }
+  }
+
+  setURLParameter = function(parameter, value) {
+    var newurl = window.location.protocol + "//" + window.location.host + window.location.pathname + '?' + parameter + '=' + value;
+    window.history.pushState({path:newurl},'',newurl);
   }
 
 })(jQuery);

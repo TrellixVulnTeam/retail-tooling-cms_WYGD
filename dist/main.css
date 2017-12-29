@@ -208,6 +208,12 @@ blockquote {
   margin-right: 20px;
   margin-bottom: 40px;
 }
+#template-items {
+  min-width: 180px;
+}
+#content-items {
+  min-width: 300px;
+}
 .content-type {
   height: 20px;
   margin-left: 10px;

@@ -170,12 +170,21 @@
       init = function() {
         initToastr();
         // watchContent();
+        disableEditMode();
         $("#preview .content").hide();
         loadTemplateInContentEditor($("#editor"), $("#panel-template")).then(function(template) {
+          if (getURLParameter("content")) {
+            setProductId(getURLParameter("content"));
+          } else {
+            var productId = setProductId();
+            setURLParameter("content", productId);
+          }
+
           populateTemplateItems();
-          enableEditMode();
-          loadContent('#edit-form').then(function(){
+
+          loadContent(getProductId(), '#edit-form').then(function(){
             populateContentItems(false).then(function(){
+              enableEditMode();
               initTinyMCE();
             })
           })
@@ -191,7 +200,7 @@
           // console.log(products);
           setContent(products);
           removeTinyMCE();
-          loadContent('#edit-form').then(function(){
+          loadContent(getProductId(), '#edit-form').then(function(){
             initTinyMCE();
           })
         });
@@ -200,11 +209,12 @@
       $("#template-items").change(function() {
         disableEditMode();
         removeTinyMCE();
+        $("#content-items").html("");
         setTemplateId($("#template-items option:selected").val());
         loadTemplateInContentEditor($("#editor"), $("#panel-template")).then(function(template) {
-          enableEditMode();
-          loadContent('#edit-form').then(function(){
+          loadContent(getProductId(), '#edit-form').then(function(){
             populateContentItems(false).then(function(){
+              enableEditMode();
               initTinyMCE();
             })
           })
@@ -214,8 +224,9 @@
       $("#content-items").change(function() {
         disableEditMode();
         removeTinyMCE();
-        setProductId($("#content-items option:selected").val());
-        loadContent('#edit-form').then(function(){
+        var productId = setProductId($("#content-items option:selected").val());
+        setURLParameter("content", productId);
+        loadContent(getProductId(), '#edit-form').then(function(){
           enableEditMode();
           initTinyMCE();
         })
@@ -232,7 +243,7 @@
       $("#reset-content").on('click', function() {
         removeTinyMCE();
         resetSampleContent().done(function() {
-          loadContent('#edit-form').then(function() {
+          loadContent(getProductId(), '#edit-form').then(function() {
             initTinyMCE();
             toastr.success('Content reset completed')
           })
@@ -250,7 +261,7 @@
             $("#previewModalLabel").text(name + " preview");
           })
           loadTemplate($('#preview .content')).then(function(){
-            loadContent('#preview .content', 'span', 'No content', true).then(function() {
+            loadContent(getProductId(), '#preview .content', 'span', 'No content', true).then(function() {
               $("#preview .content").show();
               $("#previewLoader").hide();
             })
@@ -264,6 +275,8 @@
         $("#preview-live").attr("disabled", true);
         $("#preview-content").attr("disabled", true);
         $("#save-content").attr("disabled", true);
+        $("#template-items").attr("disabled", true);
+        $("#content-items").attr("disabled", true);
       }
 
       enableEditMode = function() {
@@ -272,6 +285,8 @@
         $("#preview-live").removeAttr("disabled");
         $("#preview-content").removeAttr("disabled");
         $("#save-content").removeAttr("disabled");
+        $("#template-items").removeAttr("disabled");
+        $("#content-items").removeAttr("disabled");
       }
 
       init()

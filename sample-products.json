@@ -1,9 +1,11 @@
 {
   "empty": {
+    "type": "all",
     "title": "--Geen--",
     "content": {}
   },
   "1984": {
+    "type": "product-description",
     "title": "George Orwell - 1984",
     "content": {
       "annotatie": {
@@ -19,6 +21,7 @@
     }
   },
   "before_they_pass_away": {
+    "type": "product-description",
     "title": "Jimmy Nelson - Before They Pass Away",
     "content": {
       "annotatie": {

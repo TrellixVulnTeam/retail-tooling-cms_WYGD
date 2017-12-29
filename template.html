@@ -32,17 +32,6 @@
           <li class="active"><a href="templates.html">Templates</a></li>
           <li><a href="content.html">Content</a></li>
         </ul>
-        <div class="navbar-form navbar-right">
-          <div id="alert-template-saved" class="alert alert-success" role="alert" style="display:none">Template saved</div>
-          <div id="alert-template-reset" class="alert alert-warning" role="alert" style="display:none">Template reset completed</div>
-        </div>
-        <!-- <form class="navbar-form navbar-right">
-          <div class="form-group">
-            <label>Content:</label>
-            <select id="content-items" class="form-control btn btn-md btn-secondary dropdown-toggle">
-            </select>
-          </div>
-        </form> -->
       </div>
     </div>
   </nav>
@@ -52,7 +41,6 @@
       <h1 class="form-group">
         <span><a href="templates.html">Templates</a></span> &gt; <span id="page-title"></span>
         <div class="pull-right main-controls">
-          <button id="reset-template" class='btn btn-secondary'>Reset</button>
           <button id="save-template" class='btn btn-primary' disabled>Save</button>
         </div>
       </h1>
@@ -109,7 +97,7 @@
           tinymce.remove('textarea.rich-text');
         }
         setProductId($("#content-items option:selected").val());
-        loadContent('#grid-editor', '.ge-content', 'No content').then(function() {
+        loadContent(getProductId(), '#grid-editor', '.ge-content', 'No content').then(function() {
           enableEditMode();
         });
       })
@@ -118,21 +106,7 @@
           var content = $('#grid-editor').gridEditor('getHtml');
           // var rawContent = $('<div id="wrapper">' + content + '</div>');
           // console.log(html);
-          saveContent($(content), getContentId(), '> .ge-content');
-      })
-
-      $("#reset-template").on('click', function() {
-        disableEditMode();
-        // initGridEditor($('#sample-template'));
-        // var html = $('#sample-template').gridEditor('getHtml');
-        // console.log(html);
-        resetSampleTemplate().done(function(){
-          $('#grid-editor').gridEditor('deinit');
-          // initGridEditor($('#grid-editor'));
-          init();
-          // $("#alert-template-reset").show(0).delay(2000).fadeOut();
-          toastr.success('Template reset completed')
-        });
+          saveContent($(content), getProductId(), '> .ge-content');
       })
 
       $("#save-template").on('click', function() {
@@ -171,20 +145,27 @@
       }
 
       init = function() {
-        loadTemplate('#grid-editor', getURLParameter("template"))
+        if (getURLParameter("template")) {
+          var templateId = setTemplateId(getURLParameter("template"));
+        } else {
+          var templateId = setTemplateId();
+          setURLParameter("template", templateId);
+        }
+        
+        loadTemplate('#grid-editor', templateId)
         .then(function(template) {
           enableEditMode();
           initGridEditor($('#grid-editor'));
           populateContentItems(true);
-          $("#page-title").html(template.id);
-          loadContent('#grid-editor', '.ge-content').then(function() {
+          $("#page-title").html(template.data().title);
+          loadContent(getProductId(), '#grid-editor', '.ge-content').then(function() {
             $("#preview-content ul.dropdown-menu a").click(function() {
               disableEditMode();
               if (typeof tinymce != 'undefined' && tinymce != null) {
                 tinymce.remove('textarea.rich-text');
               }
               setProductId(this.title);
-              loadContent('#grid-editor', '.ge-content').then(function() {
+              loadContent(getProductId(), '#grid-editor', '.ge-content').then(function() {
                 enableEditMode()
               })
             })
