@@ -867,12 +867,22 @@ $.fn.gridEditor.RTEs = {};
 
   loadTemplates = function(formElement) {
     return getTemplates().then(function(templates) {
+      var templatesArray = [];
       var table = $(formElement);
       table.html("");
       table.append("<tbody></tbody>");
 
       $.each(templates, function(templateId, template) {
-        table.append('<tr><td><a href="/template.html?template=' + templateId + '">' + template.title + '</a></td></tr>');
+        template.id = templateId;
+        templatesArray.push(template);
+      })
+
+      templatesArray.sort(function (a, b) {
+        return a.title.localeCompare(b.title);
+      });
+
+      $.each(templatesArray, function(templateId, template) {
+        table.append('<tr><td><a href="/template.html?template=' + template.id + '">' + template.title + '</a></td></tr>');
       })
     });
   }
@@ -909,6 +919,28 @@ $.fn.gridEditor.RTEs = {};
     })
   }
 
+  loadContentItems = function(formElement) {
+    return getContent().then(function(contentItems) {
+      var contentArray = [];
+      var table = $(formElement);
+      table.html("");
+      table.append("<tbody></tbody>");
+
+      $.each(contentItems, function(contentId, content) {
+        content.id = contentId;
+        contentArray.push(content);
+      })
+
+      contentArray.sort(function (a, b) {
+        return a.title.localeCompare(b.title);
+      });
+
+      $.each(contentArray, function(contentId, content) {
+        table.append('<tr><td><a href="/content.html?content=' + content.id + '">' + content.title + '</a></td></tr>');
+      })
+    });
+  }
+
   loadContent = function(contentId, rootElementId, subElement, placeholder, isPreview) {
     var contentId = getProductId();
     return getContent(isPreview).then(function(allContent){
@@ -939,6 +971,7 @@ $.fn.gridEditor.RTEs = {};
             }
           })
         })
+        return allContent;
       })
     });
   }

@@ -39,14 +39,14 @@ module.exports = function(grunt) {
             cwd: 'src/less/',
             src: [
               '*.less',
-              'live.less'
+              '!live.less'
             ],
             dest: 'dist/',
             ext: '.css',
             expand: true,
         }]
       },
-      development: {
+      developmentPdp: {
         files: [{
             cwd: 'src/less/',
             src: [

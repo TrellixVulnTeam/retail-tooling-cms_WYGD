@@ -28,7 +28,7 @@
       <div id="navbar" class="collapse navbar-collapse">
         <ul class="nav navbar-nav">
           <li><a href="templates.html">Templates</a></li>
-          <li class="active"><a href="content.html">Content</a></li>
+          <li class="active"><a href="content-list.html">Content</a></li>
         </ul>
         <form class="navbar-form navbar-right">
           <div class="form-group">
@@ -36,7 +36,7 @@
             <select id="template-items" class="form-control">
             </select>
           </div>
-          <div class="form-group">
+          <div class="form-group" style="display: none">
             <label>Content:</label>
             <select id="content-items" class="form-control">
             </select>
@@ -49,7 +49,7 @@
   <div class="container">
     <div id="edit-form" class="content ">
       <h1 class="form-group">
-        <span>Content editor</span>
+        <span><a href="content-list.html">Content</a></span> &gt; <span id="page-title"></span>
         <div class="pull-right">
           <button id="reset-content" class='btn btn-secondary'>Reset</button>
           <a id="preview-live" href="sample_content/FIFA 18.html" type="button" class="btn btn-secondary" data-toggle="modal" disabled>Bekijk op bol.com</a>
@@ -184,7 +184,8 @@
 
           populateTemplateItems();
 
-          loadContent(getProductId(), '#edit-form').then(function(){
+          loadContent(getProductId(), '#edit-form').then(function(content){
+            $("#page-title").html(content[getProductId()].title);
             populateContentItems(false).then(function(){
               enableEditMode();
               initTinyMCE();
@@ -229,7 +230,8 @@
         var productId = setProductId($("#content-items option:selected").val());
         $('#preview-live').attr("href", "sample_content/FIFA 18.html?content=" + productId);
         setURLParameter("content", productId);
-        loadContent(getProductId(), '#edit-form').then(function(){
+        loadContent(getProductId(), '#edit-form').then(function(content){
+          $("#page-title").html(content[getProductId()].title);
           enableEditMode();
           initTinyMCE();
         })
