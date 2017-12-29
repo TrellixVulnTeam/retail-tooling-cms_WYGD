@@ -31,11 +31,6 @@
           <li class="active"><a href="content-list.html">Content</a></li>
         </ul>
         <form class="navbar-form navbar-right">
-          <div class="form-group">
-            <label>Template:</label>
-            <select id="template-items" class="form-control">
-            </select>
-          </div>
           <div class="form-group" style="display: none">
             <label>Content:</label>
             <select id="content-items" class="form-control">
@@ -57,6 +52,13 @@
           <button id="save-content" class='btn btn-primary' disabled>Save</button>
         </div>
       </h1>
+      <div id="template" class="form-inline text-right">
+        <div class="form-group">
+          <label>Template:</label>
+          <select id="template-items" class="form-control">
+          </select>
+        </div>
+      </div>
       <span id="loader" class="loader glyphicon glyphicon-refresh glyphicon-refresh-animate"></span>
       <form id="editor">
       </form>
@@ -213,7 +215,7 @@
         disableEditMode();
         removeTinyMCE();
         $("#content-items").html("");
-        setTemplateId($("#template-items option:selected").val());
+        var templateId = setTemplateId($("#template-items option:selected").val());
         loadTemplateInContentEditor($("#editor"), $("#panel-template")).then(function(template) {
           loadContent(getProductId(), '#edit-form').then(function(){
             populateContentItems(false).then(function(){

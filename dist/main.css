@@ -195,6 +195,9 @@ blockquote {
 #template-list {
   display: none;
 }
+#template {
+  margin-bottom: 25px;
+}
 .panel-title {
   font-size: 18px;
 }
