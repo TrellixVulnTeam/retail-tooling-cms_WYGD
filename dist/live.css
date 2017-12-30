@@ -104,3 +104,13 @@ div[data-type="quote"] span::after {
   font-size: 4em;
   position: absolute;
 }
+person {
+  font-size: 20px;
+  padding: 10px;
+  font-style: normal;
+  text-align: center;
+  display: block;
+}
+person:before {
+  content: "- ";
+}

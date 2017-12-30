@@ -136,9 +136,15 @@
           ],
           autoresize_bottom_margin: 1,
           autoresize_on_init: false,
-          toolbar: "formatselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link",
+          extended_valid_elements : "person",
+          custom_elements: "person",
+          toolbar: "formatselect styleselect | bold italic | blockquote | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link",
           // toolbar: 'undo redo | formatselect | alignleft aligncenter alignright alignjustify | bullist numlist | outdent indent',
-          block_formats: 'Paragraph=p;Header 1=h1;Header 2=h2;Samenvatting NL=h3',
+          block_formats: 'Paragraph=p;Header 1=h1;Header 2=h2',
+          style_formats: [
+            {title: 'Bold text', inline: 'strong'},
+            {title: 'Auteur', block: 'person'},
+          ],
         });
       }
 

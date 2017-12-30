@@ -76,3 +76,19 @@ body.mce-content-body,
 .mce-panel {
   background-color: transparent !important;
 }
+.mce-stack-layout {
+  background-color: #fff !important;
+}
+blockquote,
+person {
+  margin: 20px 40px;
+  font-style: italic;
+  font-size: 16px;
+}
+person {
+  padding: 10px;
+  font-style: normal;
+}
+person:before {
+  content: "- ";
+}
