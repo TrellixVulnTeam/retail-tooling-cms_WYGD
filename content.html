@@ -100,7 +100,9 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/tinymce/4.7.3/jquery.tinymce.min.js"></script>
   <script src="https://www.gstatic.com/firebasejs/4.8.0/firebase.js"></script>
   <script src="https://www.gstatic.com/firebasejs/4.8.0/firebase-firestore.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/showdown/1.8.6/showdown.min.js"></script>
   <script src="dist/jquery.grideditor.js"></script>
+  <script src="dist/reMarked.js"></script>
   <!-- <script src="test.js"></script> -->
   <script src="http://localhost:35729/livereload.js"></script>
 
@@ -132,19 +134,42 @@
           plugins: [
             "advlist autolink lists link image charmap print preview anchor",
             "searchreplace visualblocks code fullscreen",
-            "insertdatetime media table contextmenu paste save autoresize"
+            "insertdatetime media table contextmenu paste save autoresize",
+            "textpattern"
           ],
           autoresize_bottom_margin: 1,
           autoresize_on_init: false,
           extended_valid_elements : "person",
           custom_elements: "person",
-          toolbar: "formatselect styleselect | bold italic | blockquote | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link",
+          toolbar: "formatselect styleselect | bold italic | blockquote | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link | exportMarkdown",
           // toolbar: 'undo redo | formatselect | alignleft aligncenter alignright alignjustify | bullist numlist | outdent indent',
           block_formats: 'Paragraph=p;Header 1=h1;Header 2=h2',
           style_formats: [
             {title: 'Bold text', inline: 'strong'},
             {title: 'Auteur', block: 'person'},
           ],
+          textpattern_patterns: [
+             {start: '*', end: '*', format: 'italic'},
+             {start: '**', end: '**', format: 'bold'},
+             {start: '#', format: 'h1'},
+             {start: '##', format: 'h2'},
+             {start: '###', format: 'h3'},
+             {start: '####', format: 'h4'},
+             {start: '#####', format: 'h5'},
+             {start: '######', format: 'h6'},
+             {start: '1. ', cmd: 'InsertOrderedList'},
+             {start: '* ', cmd: 'InsertUnorderedList'},
+             {start: '- ', cmd: 'InsertUnorderedList'}
+          ],
+          setup: function (editor) {
+            editor.addButton('exportMarkdown', {
+              text: 'Export Markdown',
+              icon: false,
+              onclick: function () {
+                console.log(convertHtmlToMarkdown(editor.getContent()));
+              }
+            });
+          },
         });
       }
 

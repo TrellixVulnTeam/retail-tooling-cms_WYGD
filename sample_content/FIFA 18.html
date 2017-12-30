@@ -3740,6 +3740,7 @@ s'morgens krijgen maar ik heb hem nog steeds niet. Alle andere mails van
 
 <script src="https://www.gstatic.com/firebasejs/4.8.0/firebase.js"></script>
 <script src="https://www.gstatic.com/firebasejs/4.8.0/firebase-firestore.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/showdown/1.8.6/showdown.min.js"></script>
 <script src="../dist/jquery.grideditor.js"></script>
 <script src="http://localhost:35729/livereload.js"></script>
 
@@ -3784,7 +3785,7 @@ $(document).ready(function() {
     } else {
       parent.addClass('active');
       event.preventDefault();
-      $('.product-tracklists-show-more--animate').height('1253px');
+      $('.product-tracklists-show-more--animate').height($('.product-description').height());
       $('.js_link-less').show();
       $('.js_link-more').hide();
     }
