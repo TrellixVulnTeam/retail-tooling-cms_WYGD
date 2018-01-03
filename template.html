@@ -59,6 +59,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/tinymce/4.7.3/jquery.tinymce.min.js"></script>
   <script src="https://www.gstatic.com/firebasejs/4.8.0/firebase.js"></script>
   <script src="https://www.gstatic.com/firebasejs/4.8.0/firebase-firestore.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/showdown/1.8.6/showdown.min.js"></script>
   <script src="dist/jquery.grideditor.js"></script>
   <script src="http://localhost:35729/livereload.js"></script>
 
@@ -70,17 +71,9 @@
       initGridEditor = function(form) {
         grideditor = form.gridEditor({
           new_row_layouts: [{
-              "title": "Annotatie",
-              "cols": [{type: "quote", count: 12}]
-            },
-            {
-              "title": "Samenvatting",
-              "cols": [{type: "rich-text", count: 12}]
-            },
-            {
-              "title": "Auteur",
-              "cols": [{type: "image", count: 6}, {type: "quote", count: 6}]
-            },
+              "title": "Nieuwe sectie",
+              "cols": [{type: "text", count: 12}]
+            }
           ],
           row_classes: [{
             label: 'Quote',
@@ -100,7 +93,7 @@
         }
         setProductId($("#content-items option:selected").val());
         $('#preview-live').attr("href", liveLink + "?content=" + getProductId());
-        loadContent(getProductId(), '#grid-editor', '.ge-content', 'No content').then(function() {
+        loadContent(getProductId(), '#grid-editor', '> .ge-content', 'No content').then(function() {
           enableEditMode();
         });
       })
@@ -113,9 +106,13 @@
       })
 
       $("#save-template").on('click', function() {
-        var html = $('#grid-editor').gridEditor('getHtml');
-        // console.log(html);
-        saveTemplate(html).then(function() {
+        var editor = $('#grid-editor');
+        var id = editor.attr("data-template-id");
+        var title = editor.attr("data-template-title");
+        var html = editor.gridEditor('getHtml');
+        var link = editor.attr("data-template-link");
+
+        saveTemplate(id, title, html, link).then(function() {
           $('#grid-editor').gridEditor('deinit');
           initGridEditor($('#grid-editor'));
           toastr.success('Template saved');
@@ -167,7 +164,7 @@
 
           enableEditMode();
 
-          loadContent(getProductId(), '#grid-editor', '.ge-content').then(function() {
+          loadContent(getProductId(), '#grid-editor', '> .ge-content').then(function() {
             $("#preview-content ul.dropdown-menu a").click(function() {
               disableEditMode();
               if (typeof tinymce != 'undefined' && tinymce != null) {
@@ -176,7 +173,7 @@
               setProductId(this.title);
               setLiveLink(getProductId());
 
-              loadContent(getProductId(), '#grid-editor', '.ge-content').then(function() {
+              loadContent(getProductId(), '#grid-editor', '> .ge-content').then(function() {
                 enableEditMode()
               })
             })

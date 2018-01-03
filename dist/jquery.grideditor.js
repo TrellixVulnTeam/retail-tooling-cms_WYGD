@@ -58,7 +58,7 @@ $.fn.gridEditor = function( options ) {
             'editor_types'      : ['tinymce'],
             'valid_col_sizes'   : [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
             'source_textarea'   : '',
-            'content_types'     : [{id: "text", label: "Tekst"}, {id: "rich-text", label: "Opgemaakte tekst"}, {id: "quote", label: "Annotatie"}, {id: "warning", label: "Waarschuwing"}],
+            'content_types'     : [{id: "text", label: "Tekst"}, {id: "rich-text", label: "Opgemaakte tekst"}, {id: "list", label: "Lijst"}, {id: "quote", label: "Annotatie"}, {id: "image", label: "Afbeelding"}, {id: "image-list", label: "Meerdere afbeeldingen"}, {id: "warning", label: "Waarschuwing"}],
             'default_content_type_id'     : "text"
         }, options);
 
@@ -269,7 +269,7 @@ $.fn.gridEditor = function( options ) {
             /* ----------- Show/hide drawer ----------- */
             canvas.on('mouseenter', '.row > .ge-tools-drawer', function(e) {
                 $(this).parent().find('> .ge-tools-drawer a').show();
-                $(this).parent().find('.content-type').show();
+                // $(this).parent().find('.content-type').show();
             });
 
             canvas.on('mouseleave', '.row > .ge-tools-drawer', function(e) {
@@ -367,12 +367,13 @@ $.fn.gridEditor = function( options ) {
                     // }
                 }, true);
                 createTool(drawer, 'Add column', 'ge-add-column', 'glyphicon-plus-sign', function() {
-                    row.append(createColumn(3));
+                    row.append(createColumn(12));
                     init();
                 }, true);
             });
 
             $(".row .ge-element-title").change(function() {
+              $(this).parent().attr("data-id", slugify($(this).text()));
               $(this).parent().attr("data-title", $(this).text());
             })
         }
@@ -467,7 +468,7 @@ $.fn.gridEditor = function( options ) {
             });
 
             $(".column > .ge-element-title").change(function() {
-              console.log(this);
+              $(this).parent().attr("data-id", slugify($(this).text()));
               $(this).parent().attr("data-title", $(this).text());
             })
 
@@ -507,9 +508,11 @@ $.fn.gridEditor = function( options ) {
             $('<input class="ge-id" />')
                 .attr('placeholder', 'title')
                 .val(container.attr('data-title'))
+                .attr('data-id', 'no-id')
                 .attr('data-title', 'Set a unique title')
                 .appendTo(detailsDiv)
                 .change(function() {
+                    container.attr('data-id', slugify(this.value));
                     container.attr('data-title', this.value);
 
                     var title = container.find('.ge-element-title').first();
@@ -641,7 +644,7 @@ $.fn.gridEditor = function( options ) {
         }
 
         function createRow(title) {
-            return $('<div class="row" data-title="' + title + '" />')
+            return $('<div class="row" data-id="' + slugify(title) + '" data-title="' + title + '" />')
         }
 
         function createColumn(size, contentType, title) {
@@ -654,6 +657,7 @@ $.fn.gridEditor = function( options ) {
               .addClass(colClasses.map(function(c) { return c + size; }).join(' '))
               .addClass('content-' + contentType)
               .attr("id", columnId)
+              .attr("data-id", columnId)
               .attr("data-title", title)
               .attr("data-type", contentType)
               .append(createDefaultContentWrapper().html(
@@ -731,6 +735,10 @@ $.fn.gridEditor = function( options ) {
             deinit: deinit,
         });
 
+        function slugify(text) {
+          return text.toLowerCase().split(' ').join('-');;
+        }
+
     });
 
     return self;
@@ -742,33 +750,36 @@ $.fn.gridEditor.RTEs = {};
 })( jQuery );
 
 (function($) {
-  saveTemplate = function(html) {
-    var template = {};
+  saveTemplate = function(templateId, templateTitle, html, templateLink) {
+    var template = {title: templateTitle, content: {}, link: templateLink};
+    var sectionCount = 0;
     var elementCount = 0;
 
     $(html).filter('.row').each(function() {
       var row = this;
       var templateElements = {};
       var rowTitle = $(row).attr("data-title") ? $(row).attr("data-title") : "";
-      var rowId = rowTitle.toLowerCase().replace(" ", "-");
+      var rowId = $(row).attr("data-id") ? $(row).attr("data-id") : slugify(rowTitle);
+      sectionCount++;
 
       $(row).find('.column').each(function() {
-        elementCount++;
         var col = this;
-        var id = col.id;
+        var id = $(col).attr("data-id");
         var title = $(col).attr("data-title") ? $(col).attr("data-title") : "";
-        var contentType = $(col).attr("data-type") ? $(col).attr("data-type") : "";//getContentTypeFromClass(col);
+        var contentType = $(col).attr("data-type") ? $(col).attr("data-type") : "";
         var colClasses = $.grep(col.className.split(" "), function(v, i){
           return v.indexOf('col-') === 0;
         }).join(" ");
-        templateElements[id] = {title: title, type: contentType, class: colClasses};
+        elementCount++;
+
+        templateElements[id] = {title: title, type: contentType, class: colClasses, sort: elementCount};
       })
 
-      template[rowId] = {title: $(row).attr("data-title"), elements: templateElements};
+      template.content[rowId] = {title: $(row).attr("data-title"), elements: templateElements, sort: sectionCount};
     })
 
     // console.log(template);
-    return setTemplate(getTemplateId(), template);
+    return setTemplate(templateId, template);
   }
 
   resetSampleTemplate = function() {
@@ -781,7 +792,7 @@ $.fn.gridEditor.RTEs = {};
   resetSampleContent = function() {
     return $.getJSON("sample-products.json", function(data) {
       console.log("Content reset completed");
-      setContent(data);
+      setContent(data, false, true);
     });
   }
 
@@ -823,12 +834,14 @@ $.fn.gridEditor.RTEs = {};
         }
 
         columnElements.each(function() {
-          if (this.id) {
+          if ($(this).attr('data-id')) {
             elementCount++;
             var content = (contentFormat=="object") ? $(this).val() : $(this).html();
             content = content.replace(/\r?\n|\r/g,"").trim();
-            console.log(convertHtmlToMarkdown(content));
-            templateElements[this.id] = convertHtmlToMarkdown(content);
+            // console.log(convertHtmlToMarkdown(content));
+            var html = convertHtmlToMarkdown(content)
+            if ($(this).attr('data-type')=="list" && html.trim()=="\*") html = "";
+            templateElements[$(this).attr('data-id')] = html;
           }
         });
       })
@@ -838,30 +851,76 @@ $.fn.gridEditor.RTEs = {};
     return sectionElements;
   }
 
-  loadTemplate = function(formElement, templateId) {
+  loadTemplate = function(formElement, templateId, subElement, sectionTemplate, elementTemplate, contentSelector) {
     if (templateId) setTemplateId(templateId);
 
     return getTemplate(getTemplateId()).then(function(template) {
-      $(formElement).html("");
 
-      $.each(template.data().content, function(sectionId, section) {
-        var panel = $('<div class="row"></div>');
-        panel.attr("id", sectionId);
-        panel.attr("data-title", section.title);
-
-        $.each(section.elements, function(elementId, element) {
-          var elementHtml = $('<div></div>');
-          elementHtml.attr("id", elementId);
-          elementHtml.attr("data-title", element.title);
-          elementHtml.attr("data-type", element.type);
-          elementHtml.addClass(element.class);
-          elementHtml.addClass("column");
-          elementHtml.addClass("content-" + element.type);
-          elementHtml.append("<span></span>");
-          panel.append(elementHtml);
+      // Sort sections & elements
+      var sectionsArray = [];
+      $.each(template.data().content, function(sectionKey, section) {
+        var elementsArray = [];
+        $.each(section.elements, function(elementKey, element) {
+          element.id = elementKey;
+          elementsArray.push(element);
         })
-        $(formElement).append(panel);
-        // console.log($(formElement));
+
+        elementsArray.sort(function (a, b) {
+          return a.sort && b.sort ? a.sort.toString().localeCompare(b.sort.toString()) : 0;
+        });
+
+        section.id = sectionKey;
+        section.elements = elementsArray;
+        sectionsArray.push(section);
+      })
+
+      sectionsArray.sort(function (a, b) {
+        return a.sort && b.sort ? a.sort.toString().localeCompare(b.sort.toString()) : 0;
+      });
+
+      $(formElement).html("");
+      $(formElement).attr("data-template-id", template.id);
+      $(formElement).attr("data-template-title", template.data().title);
+      $(formElement).attr("data-template-link", template.data().link);
+
+      $.each(sectionsArray, function(sectionId, section) {
+        if (!subElement || subElement==section.id) {
+          // var panel = $('<div class="row"></div>');
+          var panel = sectionTemplate ? $(sectionTemplate).clone() : $('<div class="row"></div>');
+          panel.attr("id", section.id);
+          panel.attr("data-id", section.id);
+          panel.attr("data-title", section.title);
+
+          if (sectionTemplate) {
+            $(panel).find("[data-title-element='true']").html(section.title);
+          }
+
+          $.each(section.elements, function(elementId, element) {
+            var elementHtml = elementTemplate ? $(elementTemplate) : $('<div></div>');
+            elementHtml.attr("id", element.id);
+            elementHtml.attr("data-id", element.id);
+            elementHtml.attr("data-title", element.title);
+            elementHtml.attr("data-type", element.type);
+            elementHtml.addClass(element.class);
+            elementHtml.addClass("column");
+            elementHtml.addClass("element-" + elementId);
+            elementHtml.addClass("content-" + element.type);
+
+            if (elementTemplate) {
+              var elementContent = elementHtml.append(elementTemplate);
+              elementContent.find("[data-title-element='true']").html(element.title);
+            } else {
+              elementHtml.append("<span></span>");
+            }
+
+            if (contentSelector) {
+              panel.find(contentSelector).append(elementHtml);
+            } else {
+              panel.append(elementHtml);
+            }
+          })
+          $(formElement).append(panel);
+        }
       })
       return template;
     });
@@ -890,29 +949,51 @@ $.fn.gridEditor.RTEs = {};
     });
   }
 
-  loadTemplateInContentEditor = function(form, panelTemplate) {
+  loadTemplateInContentEditor = function(form, sectionTemplate) {
     return getTemplate(getTemplateId()).then(function(template){
       form.html("");
       form.attr("data-template-id", getTemplateId());
 
-      $.each(template.data().content, function(sectionId, section) {
-        var panel = panelTemplate.clone();
+      // Sort sections & elements
+      var sectionsArray = [];
+      $.each(template.data().content, function(sectionKey, section) {
+        var elementsArray = [];
+        $.each(section.elements, function(elementKey, element) {
+          element.id = elementKey;
+          elementsArray.push(element);
+        })
+
+        elementsArray.sort(function (a, b) {
+          return a.sort && b.sort ? a.sort.toString().localeCompare(b.sort.toString()) : 0;
+        });
+
+        section.id = sectionKey;
+        section.elements = elementsArray;
+        sectionsArray.push(section);
+      })
+
+      sectionsArray.sort(function (a, b) {
+        return a.sort && b.sort ? a.sort.toString().localeCompare(b.sort.toString()) : 0;
+      });
+
+      $.each(sectionsArray, function(sectionId, section) {
+        var panel = sectionTemplate.clone();
         var panelTitle = $(panel).find(".panel-title")[0];
         var panelContent = $(panel).find(".panel-body")[0];
         var formElement = '';
 
-        panel.attr("id", sectionId);
+        panel.attr("id", section.id);
         panel.addClass("section");
         panelTitle.innerHTML = section.title;
 
         $.each(section.elements, function(elementId, element) {
-          formElement += '<div class="form-group" data-id="' + elementId + '">';
-          var htmlElement = $("#" + elementId);
+          formElement += '<div class="form-group" data-id="' + element.id + '">';
+          var htmlElement = $("#" + element.id);
           if (htmlElement) {
-            formElement += '<label for="' + elementId + '">' + element.title + '</label>';
-            formElement += createElement(elementId, element);
+            formElement += '<label for="' + element.id + '">' + element.title + '</label>';
+            formElement += createElement(element.id, element);
           } else {
-            console.log(elementId + " not found");
+            console.log(element.id + " not found");
           }
           formElement += '</div>';
         })
@@ -953,39 +1034,61 @@ $.fn.gridEditor.RTEs = {};
     });
   }
 
-  loadContent = function(contentId, rootElementId, subElement, placeholder, isPreview) {
-    var contentId = getProductId();
-    return getContent(isPreview).then(function(allContent){
+  loadContent = function(contentId, rootElementId, subElement, placeholder, viewType) {
+    // var contentId = getProductId();
+    return getContent(viewType=="preview").then(function(allContent){
       var content = allContent[contentId];
-      var templateId = setTemplateId(content.type);
-      return getTemplate(templateId).then(function(template){
-        if (placeholder==undefined) placeholder = ""
-        $(rootElementId).attr("data-title", content.title);
+      if (content) {
+        var templateId = setTemplateId(content.type);
+        return getTemplate(templateId).then(function(template){
+          if (placeholder==undefined) placeholder = ""
+          $(rootElementId).attr("data-content-title", content.title);
 
-        $.each(template.data().content, function(sectionId, section) {
-          $.each(section.elements, function(elementId, element) {
-            var htmlElement = subElement && subElement!=null ? $(rootElementId + " #" + elementId + " > " + subElement) : $(rootElementId + " #" + elementId);
-            if (htmlElement[0]) {
-              var value = getObjectById(content, elementId);
-              if (!value) value = placeholder;
-              switch (element.type) {
-                case "image":
-                  htmlElement.html(value);
-                  break;
-                case "quote":
-                case "text":
-                case "rich-text":
-                  htmlElement.val(convertMarkdownToHtml(value));
-                  htmlElement.html(convertMarkdownToHtml(value));
-                  break;
-                default:
-                  htmlElement.html(value);
+          $.each(template.data().content, function(sectionId, section) {
+            $.each(section.elements, function(elementId, element) {
+              var htmlElement = subElement && subElement!=null ? $(rootElementId + " [data-id='" + elementId + "'] " + subElement) : $(rootElementId + " #" + elementId);
+              if (htmlElement[0]) {
+                var value = getObjectById(content, elementId);
+                if (!value) value = placeholder;
+                switch (element.type) {
+                  case "image":
+                    htmlElement.html(value);
+                    break;
+                  case "quote":
+                  case "text":
+                  case "rich-text":
+                    htmlElement.val(convertMarkdownToHtml(value));
+                    htmlElement.html(convertMarkdownToHtml(value));
+                    // htmlElement.val(value);
+                    // htmlElement.html(value);
+                    break;
+                  case "list":
+                    var html = convertMarkdownToHtml(value);
+
+                    if (html=="" && viewType!="preview" && viewType!="live") html="<ul><li></li></ul>";
+
+                    if (viewType=="live") {
+                      if (elementId=="pluspunten" || elementId=="minpunten") {
+                        html = $(html).addClass("review-pros-and-cons__list review-pros-and-cons__list--pros")[0].outerHTML;
+                        if (elementId=="pluspunten") {
+                          html = $(html).find("li").addClass("review-pros-and-cons__attribute review-pros-and-cons__attribute--pro")[0].outerHTML;
+                        } else {
+                          html = $(html).find("li").addClass("review-pros-and-cons__attribute review-pros-and-cons__attribute--con")[0].outerHTML;
+                        }
+                      }
+                    }
+                    htmlElement.val(html);
+                    htmlElement.html(html);
+                    break;
+                  default:
+                    htmlElement.html(value);
+                }
               }
-            }
+            })
           })
+          return allContent[contentId];
         })
-        return allContent[contentId];
-      })
+      }
     });
   }
 
@@ -1033,21 +1136,23 @@ $.fn.gridEditor.RTEs = {};
     }
   }
 
-  setContent = function(content, isPreview) {
+  setContent = function(content, isPreview, convertToMarkdown) {
     var jsonOutput = JSON.stringify(content);
 
     if (isPreview) {
       localStorage.setItem("previewProducts", jsonOutput);
     } else {
       var batch = db.batch();
+      var that = this;
       $.each(content, function(contentKey, contentObject) {
+        if (convertToMarkdown) contentObject = convertPropertiesToMarkdown(contentObject)
         var contentRef = db.collection("products").doc(contentKey);
         batch.set(contentRef, contentObject);
       })
 
       return batch.commit()
       .then(function() {
-          // console.log("Document successfully updated!");
+          console.log("Content successfully updated!");
       })
       .catch(function(error) {
           console.error("Error updating document: ", error);
@@ -1059,12 +1164,13 @@ $.fn.gridEditor.RTEs = {};
     if (isPreview) {
       return localStorage.getItem("previewTemplate");
     } else {
+      var that = this;
       var templateRef = db.collection("templates").doc(id);
       return templateRef.get().then(function(template) {
           if (template.exists) {
             return template;
           } else {
-            console.log("No such template!");
+            console.log("No such template: " + that.id);
           }
       }).catch(function(error) {
           console.log("Error getting template:", error);
@@ -1233,6 +1339,9 @@ $.fn.gridEditor.RTEs = {};
       case "rich-text":
         content = '<textarea class="form-control rich-text" id="' + id + '" data-id="' + id + '"data-type="' + element.type + '"></textarea>';
         break;
+      case "list":
+        content = '<textarea class="form-control list" id="' + id + '" data-id="' + id + '" data-type="' + element.type + '"></textarea>';
+        break;
       case "quote":
         content = '<textarea class="form-control blockquote" id="' + id + '" data-type="' + element.type + '"></textarea>';
         break;
@@ -1376,6 +1485,16 @@ $.fn.gridEditor.RTEs = {};
     return html;
   }
 
+  convertPropertiesToMarkdown = function(object) {
+    $.each(object.content, function(contentSectionKey, contentSection) {
+      $.each(contentSection, function(contentPropKey, contentProperty) {
+        object.content[contentSectionKey][contentPropKey] = convertHtmlToMarkdown(contentProperty);
+      })
+    })
+
+    return object;
+  }
+
   getURLParameter = function(sParam) {
       var sPageURL = window.location.search.substring(1);
       var sURLVariables = sPageURL.split('&');
@@ -1390,6 +1509,10 @@ $.fn.gridEditor.RTEs = {};
   setURLParameter = function(parameter, value) {
     var newurl = window.location.protocol + "//" + window.location.host + window.location.pathname + '?' + parameter + '=' + value;
     window.history.pushState({path:newurl},'',newurl);
+  }
+
+  slugify = function(text) {
+    return text.toLowerCase().split(' ').join('-');;
   }
 
 })(jQuery);

@@ -70,7 +70,7 @@ module.exports = function(grunt) {
 
     watch: {
       stylesheets: {
-        files: ['*.html', 'src/**/*', 'example/*'],
+        files: ['*.html', 'src/**/*', 'example/*', 'sample_content/*.html', 'dist/live.js'],
         tasks: ['concat:js', 'uglify', 'less'],
         options: {
           spawn: false,

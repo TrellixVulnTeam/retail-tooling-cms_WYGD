@@ -1,0 +1,1 @@
+Krux.ns.bolcom.kxjsonp_userdata({"status":"200","body":{"code":"no_segments","kuid":"LYEl6Skr","kuid_long":"r0qzt1x9p","geo":{"domain":"bol.com","region":"ut","country":"nl","dma":null,"zip":"3543 aa","longitude":"5.03363","latitude":"52.1144"},"technographics":{"browser":"Firefox 53","manufacturer":"Apple Inc.","device":"Computer","os":"Mac OS X"}}});

@@ -58,7 +58,7 @@ $.fn.gridEditor = function( options ) {
             'editor_types'      : ['tinymce'],
             'valid_col_sizes'   : [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
             'source_textarea'   : '',
-            'content_types'     : [{id: "text", label: "Tekst"}, {id: "rich-text", label: "Opgemaakte tekst"}, {id: "quote", label: "Annotatie"}, {id: "warning", label: "Waarschuwing"}],
+            'content_types'     : [{id: "text", label: "Tekst"}, {id: "rich-text", label: "Opgemaakte tekst"}, {id: "list", label: "Lijst"}, {id: "quote", label: "Annotatie"}, {id: "image", label: "Afbeelding"}, {id: "image-list", label: "Meerdere afbeeldingen"}, {id: "warning", label: "Waarschuwing"}],
             'default_content_type_id'     : "text"
         }, options);
 
@@ -269,7 +269,7 @@ $.fn.gridEditor = function( options ) {
             /* ----------- Show/hide drawer ----------- */
             canvas.on('mouseenter', '.row > .ge-tools-drawer', function(e) {
                 $(this).parent().find('> .ge-tools-drawer a').show();
-                $(this).parent().find('.content-type').show();
+                // $(this).parent().find('.content-type').show();
             });
 
             canvas.on('mouseleave', '.row > .ge-tools-drawer', function(e) {
@@ -367,12 +367,13 @@ $.fn.gridEditor = function( options ) {
                     // }
                 }, true);
                 createTool(drawer, 'Add column', 'ge-add-column', 'glyphicon-plus-sign', function() {
-                    row.append(createColumn(3));
+                    row.append(createColumn(12));
                     init();
                 }, true);
             });
 
             $(".row .ge-element-title").change(function() {
+              $(this).parent().attr("data-id", slugify($(this).text()));
               $(this).parent().attr("data-title", $(this).text());
             })
         }
@@ -467,7 +468,7 @@ $.fn.gridEditor = function( options ) {
             });
 
             $(".column > .ge-element-title").change(function() {
-              console.log(this);
+              $(this).parent().attr("data-id", slugify($(this).text()));
               $(this).parent().attr("data-title", $(this).text());
             })
 
@@ -507,9 +508,11 @@ $.fn.gridEditor = function( options ) {
             $('<input class="ge-id" />')
                 .attr('placeholder', 'title')
                 .val(container.attr('data-title'))
+                .attr('data-id', 'no-id')
                 .attr('data-title', 'Set a unique title')
                 .appendTo(detailsDiv)
                 .change(function() {
+                    container.attr('data-id', slugify(this.value));
                     container.attr('data-title', this.value);
 
                     var title = container.find('.ge-element-title').first();
@@ -641,7 +644,7 @@ $.fn.gridEditor = function( options ) {
         }
 
         function createRow(title) {
-            return $('<div class="row" data-title="' + title + '" />')
+            return $('<div class="row" data-id="' + slugify(title) + '" data-title="' + title + '" />')
         }
 
         function createColumn(size, contentType, title) {
@@ -654,6 +657,7 @@ $.fn.gridEditor = function( options ) {
               .addClass(colClasses.map(function(c) { return c + size; }).join(' '))
               .addClass('content-' + contentType)
               .attr("id", columnId)
+              .attr("data-id", columnId)
               .attr("data-title", title)
               .attr("data-type", contentType)
               .append(createDefaultContentWrapper().html(
@@ -730,6 +734,10 @@ $.fn.gridEditor = function( options ) {
             init: init,
             deinit: deinit,
         });
+
+        function slugify(text) {
+          return text.toLowerCase().split(' ').join('-');;
+        }
 
     });
 

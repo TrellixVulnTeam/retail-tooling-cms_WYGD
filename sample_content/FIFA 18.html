@@ -888,7 +888,7 @@ gebruik te maken van deze website ga je hiermee akkoord.
 
 
 
-<div class="slot slot--description slot--seperated slot--seperated--has-more-content js_slot-description" data-test="product-description">
+<div class="slot slot--description slot--seperated slot--seperated--has-more-content js_slot-description" data-test="productbeschrijving">
   <a name="product_description" id="product_description"></a>
   <h2 data-test="title">Productbeschrijving</h2>
 
@@ -3731,6 +3731,7 @@ s'morgens krijgen maar ik heb hem nog steeds niet. Alle andere mails van
   </div>
 </noscript>
 
+<link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" />
 <link rel="stylesheet" type="text/css" href="../dist/live.css" />
 
 <script
@@ -3743,59 +3744,12 @@ s'morgens krijgen maar ik heb hem nog steeds niet. Alle andere mails van
 <script src="https://cdnjs.cloudflare.com/ajax/libs/showdown/1.8.6/showdown.min.js"></script>
 <script src="../dist/jquery.grideditor.js"></script>
 <script src="http://localhost:35729/livereload.js"></script>
+<script src="../dist/live.js"></script>
 
 <script>
-init = function() {
-  $('.product-description').before('<span id="loader" class="loader glyphicon glyphicon-refresh glyphicon-refresh-animate"></span>');
-
-  if (getURLParameter("content")) {
-    var productId = setProductId(getURLParameter("content"));
-    var preview = getURLParameter("preview") && getURLParameter("preview")!='undefined' ? true : false;
-
-    $(".product-description").hide();
-    loadTemplate($('.product-description'), 'product-description').then(function(){
-      loadContent(productId, '.product-description', 'span', '', preview).then(function(content) {
-        var replaceList = ["blockquote"];
-        wrapWithParagraph(".product-description", replaceList);
-
-        $(".product-description").show();
-        $("#loader").hide();
-      })
-    });
-  } else {
-    $("#loader").hide();
-  }
-}
-
 $(document).ready(function() {
-  init();
-
-  $('#product_title').append('<a id="edit-page-template" href="http://localhost:8000/template.html?template=pdp" class="review__btn-write-review" style="float: right" title="Pas template aan">Pas pagina-template aan</a>');
-  $('#product_description').append('<a id="edit-page-template" href="http://localhost:8000/template.html?template=product-description" class="review__btn-write-review" style="float: right; margin-top: -5px" title="Pas template aan">Pas template aan</a>');
-  $('#product_description').append('<a id="edit-description-content" href="http://localhost:8000/content.html?content=1984" class="review__btn-write-review" style="float: right; margin-right: 10px; margin-top: -5px" title="Pas content aan">Pas content aan</a>');
-
-  $('.js_show-more-description.show-more .show-more__button').click(function(event) {
-    var parent = $(this).parent().parent().parent();
-    if (parent.hasClass('active')) {
-      parent.removeClass('active');
-      event.preventDefault();
-      $('.product-tracklists-show-more--animate').height('210px');
-      $('.js_link-less').hide();
-      $('.js_link-more').show();
-    } else {
-      parent.addClass('active');
-      event.preventDefault();
-      $('.product-tracklists-show-more--animate').height($('.product-description').height());
-      $('.js_link-less').show();
-      $('.js_link-more').hide();
-    }
-
-    $('html, body').animate({
-        scrollTop: $(".slot--description").offset().top
-    }, 500);
-  })
+  setContent('productbeschrijving-boeken', 'fifa18');
 });
 </script>
-
 
 <img style="display: none;" class="inview_pixel" alt="" src="FIFA%2018_files/8242512.gif"><img style="display: none;" class="inview_pixel" alt="" src="FIFA%2018_files/3699675.gif"><img style="display: none;" class="inview_pixel" alt="" src="FIFA%2018_files/8021259.gif"><img style="display: none;" class="inview_pixel" alt="" src="FIFA%2018_files/157617.gif"></body></html>

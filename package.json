@@ -38,6 +38,7 @@
   "license": "MIT",
   "dependencies": {
     "firebase": "^4.8.0",
+    "html5sortable": "^0.6.3",
     "showdown": "^1.8.6",
     "toastr": "^2.1.4"
   }

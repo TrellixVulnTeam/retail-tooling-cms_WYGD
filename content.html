@@ -47,16 +47,17 @@
         <span><a href="content-list.html">Content</a></span> &gt; <span id="page-title"></span>
         <div class="pull-right">
           <!-- <button id="reset-content" class='btn btn-secondary'>Reset</button> -->
-          <a id="preview-live" href="sample_content/FIFA 18.html" type="button" class="btn btn-secondary" data-toggle="modal" disabled>Bekijk op bol.com</a>
+          <a id="preview-live" type="button" class="btn btn-secondary" data-toggle="modal" disabled>Bekijk op bol.com</a>
           <button id="preview-content" type="button" class="btn btn-secondary" data-toggle="modal" data-target="#previewModal" disabled>Preview</button>
           <button id="save-content" class='btn btn-primary' disabled>Save</button>
         </div>
       </h1>
-      <div id="template" class="form-inline text-right">
+      <div id="template" class="form-inline">
         <div class="form-group">
           <label>Template:</label>
           <select id="template-items" class="form-control">
           </select>
+          <a id="edit-template" type="button" class="btn btn-secondary" disabled>Beheer template</a>
         </div>
       </div>
       <span id="loader" class="loader glyphicon glyphicon-refresh glyphicon-refresh-animate"></span>
@@ -103,6 +104,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/showdown/1.8.6/showdown.min.js"></script>
   <script src="dist/jquery.grideditor.js"></script>
   <script src="dist/reMarked.js"></script>
+  <script src="/node_modules/html5sortable/dist/html.sortable.min.js"></script>
   <!-- <script src="test.js"></script> -->
   <script src="http://localhost:35729/livereload.js"></script>
 
@@ -114,16 +116,10 @@
           menubar: false,
           statusbar: false,
           content_css: 'dist/sketchy.css',
-          plugins: [
-            "advlist autolink lists link image charmap print preview anchor",
-            "searchreplace visualblocks code fullscreen",
-            "insertdatetime media table contextmenu paste save autoresize"
-          ],
+          plugins: ["autoresize"],
           autoresize_bottom_margin: 1,
           autoresize_on_init: false,
-          toolbar: "bold italic",
-          // toolbar: 'undo redo | formatselect | alignleft aligncenter alignright alignjustify | bullist numlist | outdent indent',
-          block_formats: 'Paragraph=p;Header 1=h1;Header 2=h2;Samenvatting NL=h3',
+          toolbar: "bold italic"
         });
 
         tinymce.init({
@@ -131,12 +127,7 @@
           menubar: false,
           statusbar: false,
           content_css: 'dist/sketchy.css',
-          plugins: [
-            "advlist autolink lists link image charmap print preview anchor",
-            "searchreplace visualblocks code fullscreen",
-            "insertdatetime media table contextmenu paste save autoresize",
-            "textpattern"
-          ],
+          plugins: ["autolink lists link image charmap anchor autoresize"],
           autoresize_bottom_margin: 1,
           autoresize_on_init: false,
           extended_valid_elements : "person",
@@ -171,12 +162,26 @@
             });
           },
         });
+
+        tinymce.init({
+          selector: 'textarea.list',
+          menubar: false,
+          statusbar: false,
+          content_css: 'dist/sketchy.css',
+          plugins: ["lists"],
+          autoresize_bottom_margin: 1,
+          autoresize_on_init: false,
+          toolbar: false,
+          // toolbar: "bullist",
+          // valid_elements: "-ul,-li"
+        });
       }
 
       removeTinyMCE = function() {
         if (typeof tinymce != 'undefined' && tinymce != null) {
           tinymce.remove('textarea.rich-text');
           tinymce.remove('textarea.text');
+          tinymce.remove('textarea.list');
         }
       }
 
@@ -214,10 +219,11 @@
 
         $("#preview .content").hide();
         loadContent(getProductId(), '#edit-form').then(function(content){
+          $('#preview-live').attr("href", content.link);
           populateTemplateItems();
 
           loadTemplateInContentEditor($("#editor"), $("#panel-template")).then(function(template) {
-            $('#preview-live').attr("href", "sample_content/FIFA 18.html?content=" + getProductId());
+            $("#edit-template").attr("href", "/template.html?template=" + template.id);
 
             loadContent(getProductId(), '#edit-form').then(function(content){
               $("#page-title").html(content.title);
@@ -251,6 +257,7 @@
         $("#content-items").html("");
         var templateId = setTemplateId($("#template-items option:selected").val());
         loadTemplateInContentEditor($("#editor"), $("#panel-template")).then(function(template) {
+          $("#edit-template").attr("href", "/template.html?template=" + template.id);
           loadContent(getProductId(), '#edit-form').then(function(){
             populateContentItems(false).then(function(){
               enableEditMode();
@@ -264,9 +271,9 @@
         disableEditMode();
         removeTinyMCE();
         var productId = setProductId($("#content-items option:selected").val());
-        $('#preview-live').attr("href", "sample_content/FIFA 18.html?content=" + productId);
         setURLParameter("content", productId);
         loadContent(getProductId(), '#edit-form').then(function(content){
+          $('#preview-live').attr("href", content.link);
           $("#page-title").html(content.title);
           enableEditMode();
           initTinyMCE();
@@ -302,7 +309,7 @@
             $("#previewModalLabel").text(name + " preview");
           })
           loadTemplate($('#preview .content')).then(function(){
-            loadContent(getProductId(), '#preview .content', 'span', 'No content', true).then(function() {
+            loadContent(getProductId(), '#preview .content', '> span', 'No content', true).then(function() {
               $("#preview .content").show();
               $("#previewLoader").hide();
             })
@@ -318,6 +325,7 @@
         $("#save-content").attr("disabled", true);
         $("#template-items").attr("disabled", true);
         $("#content-items").attr("disabled", true);
+        $("#edit-template").attr("disabled", true);
       }
 
       enableEditMode = function() {
@@ -328,6 +336,7 @@
         $("#save-content").removeAttr("disabled");
         $("#template-items").removeAttr("disabled");
         $("#content-items").removeAttr("disabled");
+        $("#edit-template").removeAttr("disabled");
       }
 
       init()

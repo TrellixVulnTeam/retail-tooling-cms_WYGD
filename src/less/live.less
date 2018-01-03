@@ -46,12 +46,12 @@
 }
 
 blockquote, div[data-type="quote"] {
-  font-size: 20px;
+  font-size: 21px;
   font-style: italic;
   text-align: center;
   width: 100%;
   margin-left: -12px;
-  padding: 36px 50px;
+  padding: 36px 50px 0px;
   position: relative;
   &::before, &::after {
     top: 0;
@@ -91,13 +91,45 @@ blockquote, div[data-type="quote"] {
 }
 
 person {
-  font-size: 20px;
+  font-size: 14px;
   padding: 10px;
-  font-style: normal;
+  font-style: italic;
   text-align: center;
   display: block;
+  margin-top: -50px;
+  padding-bottom: 40px;
 }
 
 person:before {
   content: "- "
+}
+
+// .product-description {
+//   .element-samenvatting-nl,
+//   .element-recensie,
+//   .element-quote
+//   {
+//     display: none;
+//   }
+// }
+
+// #other-content div[data-id="productbeschrijving"] {
+//   display: none;
+// }
+
+[data-type="list"] ul {
+  list-style-type: disc;
+  padding-left: 18px;
+}
+
+[data-id="plus--en-minpunten"] h3 {
+  display: none;
+}
+
+#element-quote .show-more__button {
+  display: none;
+}
+
+#element-quote .show-more-holder {
+  height: auto;
 }

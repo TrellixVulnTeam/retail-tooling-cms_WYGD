@@ -15,21 +15,11 @@
       }
     }
   },
-  "product-description": {
-    "title": "Productomschrijving",
-    "link": "/sample_content/FIFA%2018.html",
+  "productbeschrijving-boeken": {
+    "title": "Productomschrijving boeken",
+    "link": "/sample_content/1984.html",
     "content": {
-      "annotatie": {
-        "title": "Annotatie",
-        "elements": {
-          "quote": {
-            "title": "Annotatie",
-            "type": "quote",
-            "class": "col-md-12 col-sm-12 col-xs-12"
-          }
-        }
-      },
-      "samenvatting": {
+      "productbeschrijving": {
         "title": "Samenvatting",
         "elements": {
           "samenvatting-en": {
@@ -51,6 +41,59 @@
             "title": "Recensie",
             "type": "text",
             "class": "col-md-12 col-sm-12 col-xs-12"
+          }
+        }
+      }
+    }
+  },
+  "productbeschrijving-electronica": {
+    "title": "Productomschrijving electronica",
+    "link": "/sample_content/sonos.html",
+    "content": {
+      "productbeschrijving": {
+        "sort": 1,
+        "title": "Productbeschrijving",
+        "elements": {
+          "samenvatting-nl": {
+            "title": "Samenvatting",
+            "type": "rich-text",
+            "class": "col-md-12 col-sm-12 col-xs-12"
+          }
+        }
+      },
+      "samenvatting": {
+        "sort": 2,
+        "title": "Samenvatting",
+        "elements": {
+          "connectiviteit": {
+            "sort": 1,
+            "title": "Aansluitmogelijkheden",
+            "type": "list",
+            "class": "col-md-12 col-sm-12 col-xs-12"
+          },
+          "in-de-doos": {
+            "sort": 2,
+            "title": "In de doos",
+            "type": "list",
+            "class": "col-md-12 col-sm-12 col-xs-12"
+          }
+        }
+      },
+      "plus--en-minpunten": {
+        "sort": 3,
+        "title": "Plus- en minpunten",
+        "elements": {
+          "pluspunten": {
+            "sort": 1,
+            "title": "Pluspunten",
+            "type": "list",
+            "class": "col-md-6 col-sm-6 col-xs-12"
+          },
+          "minpunten": {
+            "sort": 2,
+            "title": "Minpunten",
+            "type": "list",
+            "class": "col-md-6 col-sm-6 col-xs-12"
           }
         }
       }
