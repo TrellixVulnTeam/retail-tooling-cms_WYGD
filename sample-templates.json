@@ -21,6 +21,7 @@
     "content": {
       "productbeschrijving": {
         "title": "Samenvatting",
+        "type": "collapsible",
         "elements": {
           "samenvatting-en": {
             "title": "Samenvatting (EN)",
@@ -50,43 +51,8 @@
     "title": "Productomschrijving electronica",
     "link": "/sample_content/sonos.html",
     "content": {
-      "productbeschrijving": {
-        "sort": 1,
-        "title": "Productbeschrijving",
-        "elements": {
-          "samenvatting-nl": {
-            "title": "Samenvatting",
-            "type": "rich-text",
-            "class": "col-md-12 col-sm-12 col-xs-12"
-          }
-        }
-      },
-      "samenvatting": {
-        "sort": 2,
-        "title": "Samenvatting",
-        "elements": {
-          "connectiviteit": {
-            "sort": 1,
-            "title": "Aansluitmogelijkheden",
-            "type": "list",
-            "class": "col-md-12 col-sm-12 col-xs-12"
-          },
-          "in-de-doos": {
-            "sort": 2,
-            "title": "In de doos",
-            "type": "list",
-            "class": "col-md-12 col-sm-12 col-xs-12"
-          },
-          "kenmerken-en-features": {
-            "sort": 3,
-            "title": "Kenmerken en features",
-            "type": "rich-text",
-            "class": "col-md-12 col-sm-12 col-xs-12"
-          }
-        }
-      },
       "plus--en-minpunten": {
-        "sort": 3,
+        "sort": 1,
         "title": "Plus- en minpunten",
         "elements": {
           "pluspunten": {
@@ -100,6 +66,42 @@
             "title": "Minpunten",
             "type": "list",
             "class": "col-md-6 col-sm-6 col-xs-12"
+          }
+        }
+      },
+      "productbeschrijving": {
+        "sort": 2,
+        "title": "Productbeschrijving",
+        "elements": {
+          "samenvatting-nl": {
+            "title": "Samenvatting",
+            "type": "rich-text",
+            "class": "col-md-12 col-sm-12 col-xs-12"
+          }
+        }
+      },
+      "samenvatting": {
+        "sort": 3,
+        "title": "Samenvatting",
+        "type": "collapsible",
+        "elements": {
+          "in-de-doos": {
+            "sort": 1,
+            "title": "In de doos",
+            "type": "list",
+            "class": "col-md-12 col-sm-12 col-xs-12"
+          },
+          "connectiviteit": {
+            "sort": 2,
+            "title": "Aansluitmogelijkheden",
+            "type": "list",
+            "class": "col-md-12 col-sm-12 col-xs-12"
+          },
+          "kenmerken-en-features": {
+            "sort": 3,
+            "title": "Kenmerken en features",
+            "type": "rich-text",
+            "class": "col-md-12 col-sm-12 col-xs-12"
           }
         }
       }

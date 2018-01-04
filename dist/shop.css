@@ -123,7 +123,8 @@ person:before {
   padding-top: 10px;
   padding-bottom: 10px;
 }
-.js_slot-description h2 {
+.slot--description h2,
+.slot--description[data-id='productbeschrijving'] h3[data-title-element='true'] {
   display: none;
 }
 .slot--description .show-more .show-more-holder {

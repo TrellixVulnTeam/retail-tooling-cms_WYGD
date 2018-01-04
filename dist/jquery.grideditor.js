@@ -851,7 +851,7 @@ $.fn.gridEditor.RTEs = {};
     return sectionElements;
   }
 
-  loadTemplate = function(formElement, templateId, subElement, sectionTemplate, elementTemplate, contentSelector) {
+  loadTemplate = function(formElement, templateId, subElement, sectionTemplates, elementTemplate, contentSelector) {
     if (templateId) setTemplateId(templateId);
 
     return getTemplate(getTemplateId()).then(function(template) {
@@ -886,12 +886,16 @@ $.fn.gridEditor.RTEs = {};
       $.each(sectionsArray, function(sectionId, section) {
         if (!subElement || subElement==section.id) {
           // var panel = $('<div class="row"></div>');
-          var panel = sectionTemplate ? $(sectionTemplate).clone() : $('<div class="row"></div>');
+          if (!section.type) section.type = "basic";
+
+          var panel = sectionTemplates ? $(sectionTemplates[section.type]).clone() : $('<div class="row"></div>');
+          console.log(section.type, panel);
           panel.attr("id", section.id);
           panel.attr("data-id", section.id);
           panel.attr("data-title", section.title);
+          panel.attr("data-type", section.type);
 
-          if (sectionTemplate) {
+          if (sectionTemplates) {
             $(panel).find("[data-title-element='true']").html(section.title);
           }
 
@@ -1077,7 +1081,7 @@ $.fn.gridEditor.RTEs = {};
                         } else {
                           $(tempDiv).find("li").addClass("review-pros-and-cons__attribute review-pros-and-cons__attribute--con");
                         }
-                        
+
                         html = tempDiv.html();
                         tempDiv.remove();
                       }
