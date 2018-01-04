@@ -87,7 +87,7 @@
             elementCount++;
             var content = (contentFormat=="object") ? $(this).val() : $(this).html();
             content = content.replace(/\r?\n|\r/g,"").trim();
-            // console.log(convertHtmlToMarkdown(content));
+            console.log(content.replace(/"/g, '\\"'));
             var html = convertHtmlToMarkdown(content)
             if ($(this).attr('data-type')=="list" && html.trim()=="\*") html = "";
             templateElements[$(this).attr('data-id')] = html;
@@ -315,15 +315,20 @@
                     var html = convertMarkdownToHtml(value);
 
                     if (html=="" && viewType!="preview" && viewType!="live") html="<ul><li></li></ul>";
-
                     if (viewType=="live") {
                       if (elementId=="pluspunten" || elementId=="minpunten") {
-                        html = $(html).addClass("review-pros-and-cons__list review-pros-and-cons__list--pros")[0].outerHTML;
+                        $("body").append('<div id="temp-html" style="display: none"></div>');
+                        var tempDiv = $("#temp-html").append(html);
+
+                        $(tempDiv).find("ul").addClass("review-pros-and-cons__list review-pros-and-cons__list--pros");
                         if (elementId=="pluspunten") {
-                          html = $(html).find("li").addClass("review-pros-and-cons__attribute review-pros-and-cons__attribute--pro")[0].outerHTML;
+                          $(tempDiv).find("li").addClass("review-pros-and-cons__attribute review-pros-and-cons__attribute--pro");
                         } else {
-                          html = $(html).find("li").addClass("review-pros-and-cons__attribute review-pros-and-cons__attribute--con")[0].outerHTML;
+                          $(tempDiv).find("li").addClass("review-pros-and-cons__attribute review-pros-and-cons__attribute--con");
                         }
+                        
+                        html = tempDiv.html();
+                        tempDiv.remove();
                       }
                     }
                     htmlElement.val(html);

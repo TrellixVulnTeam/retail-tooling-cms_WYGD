@@ -39,7 +39,7 @@ module.exports = function(grunt) {
             cwd: 'src/less/',
             src: [
               '*.less',
-              '!live.less'
+              '!shop.less'
             ],
             dest: 'dist/',
             ext: '.css',
@@ -50,7 +50,7 @@ module.exports = function(grunt) {
         files: [{
             cwd: 'src/less/',
             src: [
-              'live.less'
+              'shop.less'
             ],
             dest: 'dist/',
             ext: '.css',
@@ -63,14 +63,14 @@ module.exports = function(grunt) {
       development: {
         files: {
           'dist/grideditor.min.css' : ['dist/grideditor.css'],
-          'dist/live.min.css' : ['dist/live.css'],
+          'dist/shop.min.css' : ['dist/shop.css'],
         }
       }
     },
 
     watch: {
       stylesheets: {
-        files: ['*.html', 'src/**/*', 'example/*', 'sample_content/*.html', 'dist/live.js'],
+        files: ['*.html', 'src/**/*', 'example/*', 'sample_content/*.html', 'dist/shop.js'],
         tasks: ['concat:js', 'uglify', 'less'],
         options: {
           spawn: false,

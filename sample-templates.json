@@ -76,6 +76,12 @@
             "title": "In de doos",
             "type": "list",
             "class": "col-md-12 col-sm-12 col-xs-12"
+          },
+          "kenmerken-en-features": {
+            "sort": 3,
+            "title": "Kenmerken en features",
+            "type": "rich-text",
+            "class": "col-md-12 col-sm-12 col-xs-12"
           }
         }
       },

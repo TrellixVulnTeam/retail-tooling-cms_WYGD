@@ -37,15 +37,16 @@
     "link": "/sample_content/sonos.html",
     "content": {
       "productbeschrijving": {
-        "samenvatting-nl": "De Sonos Play 5 is een krachtige draadloze speaker geschikt voor elke kamer. Deze beschikt over zes ingebouwde high-end versterkers met ieder een eigen luidspreker. Geniet van elke stem, ieder instrument en elk detail in kraakhelder en krachtig geluid. Wanneer je jouw Home-cinema uitbreidt met meerdere speakers kun je deze allemaal draadloos bedienen met de Sonosapp. Daarnaast heb je ook direct toegang tot al je favoriete muziekstreamingsdiensten. Met de app kan je ook alle speakers en kamers individueel bedienen."
+        "samenvatting-nl": "<h3>Over de Sonos Playbar</h3><p>De Sonos Playbar zorgt ervoor dat je niet langer naar het matige geluid van je tv hoeft te luisteren maar kan genieten van superieure geluidskwaliteit. Deze soundbar kan je eenvoudig onder je tv plaatsen en in een handomdraai draadloos verbinden op je thuisnetwerk. De Playbar beschikt over negen ingebouwde luidsprekers die samen zorgen voor de geweldige luisterervaring in jouw kamer.</p><p>Wanneer je voor het beste wilt gaan kan je een SUB en 2x Play 1 toevoegen voor een 5.1-kanaals home-cinema, of voeg alleen een SUB toe voor een 3.1-kanaals hifisysteem.</p>"
       },
       "samenvatting": {
-        "in-de-doos": "<ul><li>Lorem</ul></li>",
-        "connectiviteit": "<ul><li>Ipsum</ul></li>"
+        "in-de-doos": "<ul><li>Ethernetkabel</li><li>Netsnoer</li><li>Optische audiokabel</li><li>Installatiehandleiding</li><li>Garantie en juridische informatie</li></ul>",
+        "connectiviteit": "<ul><li>Ipsum</li></ul>",
+        "kenmerken-en-features": "<p>Met de Sonos kan je meer dan alleen muziek draaien. Sonos is:</p><h4 id=\"deperfectetoevoegingonderjetv\">De perfecte toevoeging onder je TV</h4><p><img src=\"/sample_content/images/sonos-1.png\" alt=\"\" /></p><p>De Sonos Playbar is er voor de muziekliefhebber, dankzij de negen ingebouwde luidsprekers met ieder zijn eigen versterker ben je verzekerd van kraakhelder geluid in een prachtig design. Door naast de Playbar een Sonos SUB en 2x Play 1 toe te voegen maak je van jouw woonkamer een 5.1-kanaals homecinema. Het adembenemende geluid van deze soundbar wordt door het Engelse What Hi-Fi bekroond met 5/5 sterren.</p><h4 id=\"brengaljemuziekenspeakerssameninnapp\">Breng al je muziek en speakers samen in &eacute;&eacute;n app</h4><p><img src=\"/sample_content/images/sonos-2.png\" alt=\"\" /></p><p>Dankzij de Sonos app kan je vanaf nu al je muziek en speakers beheren in slechts &eacute;&eacute;n app. Wil je in &eacute;&eacute;n of meerdere kamers muziek afspelen? Maak met de app een selectie en stel gelijk je afspeellijst samen. Je kan direct vanaf de Sonos app gebruik maken van jouw favoriete streamingsdienst zoals Spotify, Deezer en Apple Music. De Sonos mobiele applicatie is er voor iOS en Android en de desktopversie is er voor Mac en Windows.&nbsp;</p><h4 id=\"brengaljemuziekenspeakerssameninnapp-1\">Breng al je muziek en speakers samen in &eacute;&eacute;n app</h4><p><img src=\"/sample_content/images/sonos-3.png\" alt=\"\" /></p><h4 id=\"genietvandemuzieknaarjouwkeuze\">Geniet van de muziek naar jouw keuze</h4><p><img src=\"/sample_content/images/sonos-4.png\" alt=\"\" /></p>"
       },
       "plus--en-minpunten": {
-        "pluspunten": "<ul><li>Dolor</ul></li>",
-        "minpunten": "<ul><li>Sit</ul></li>"
+        "pluspunten": "<ul><li>Dit hifi-apparaat zorgt voor ongekend geluid voor onder je TV</li><li>Gemakkelijk te verbinden met eigen wifi-netwerk. Extra kastje is niet nodig</li><li>Door meerdere Sonos speakers toe te voegen creëer je een multiroom of surround opstelling</li><li>Eenvoudig op te hangen met de Sonos Wallmount. (niet meegeleverd)</li><li>Gemakkelijk te bedienen via Sonos app</li></ul>",
+        "minpunten": "<ul><li>Bediening is via gratis app, geen losse afstandsbediening aanwezig</li><li>Streaming van muziek is via Wifi, geen ondersteuning voor Airplay en Bluetooth</li></ul>"
       }
     }
   },

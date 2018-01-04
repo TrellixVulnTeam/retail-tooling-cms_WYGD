@@ -128,13 +128,15 @@
           statusbar: false,
           content_css: 'dist/sketchy.css',
           plugins: ["autolink lists link image charmap anchor autoresize"],
+          // file_browser_callback_types: 'image',
+          relative_urls: false,
           autoresize_bottom_margin: 1,
           autoresize_on_init: false,
           extended_valid_elements : "person",
           custom_elements: "person",
-          toolbar: "formatselect styleselect | bold italic | blockquote | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link | exportMarkdown",
+          toolbar: "formatselect styleselect | bold italic | blockquote | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link | image",
           // toolbar: 'undo redo | formatselect | alignleft aligncenter alignright alignjustify | bullist numlist | outdent indent',
-          block_formats: 'Paragraph=p;Header 1=h1;Header 2=h2',
+          block_formats: 'Paragraph=p;Header 3=h3;Header 4=h4',
           style_formats: [
             {title: 'Bold text', inline: 'strong'},
             {title: 'Auteur', block: 'person'},
@@ -309,7 +311,7 @@
             $("#previewModalLabel").text(name + " preview");
           })
           loadTemplate($('#preview .content')).then(function(){
-            loadContent(getProductId(), '#preview .content', '> span', 'No content', true).then(function() {
+            loadContent(getProductId(), '#preview .content', '> span', 'No content', "preview").then(function() {
               $("#preview .content").show();
               $("#previewLoader").hide();
             })
