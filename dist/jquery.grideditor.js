@@ -868,7 +868,7 @@ $.fn.gridEditor.RTEs = {};
 
               var person = $(this).find('#annotatie-person').val();
               if (person) html += "<person>" + person + "</person>";
-              
+
               markdown = convertHtmlToMarkdown(html);
             } else if (elementType=="list") {
               if (markdown.trim()=="\*") markdown = "";
@@ -1089,7 +1089,7 @@ $.fn.gridEditor.RTEs = {};
                     htmlElement.html(value);
                     break;
                   case "quote":
-                    if (viewType=="live") {
+                    if (viewType=="live" || viewType=="preview") {
                       // value="<p>" + value + "</p>";
                       var html = convertMarkdownToHtml(value);
 
