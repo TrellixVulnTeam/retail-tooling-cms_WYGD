@@ -155,7 +155,6 @@
           if (!section.type) section.type = "basic";
 
           var panel = sectionTemplates ? $(sectionTemplates[section.type]).clone() : $('<div class="row"></div>');
-          console.log(section.type, panel);
           panel.attr("id", section.id);
           panel.attr("data-id", section.id);
           panel.attr("data-title", section.title);
