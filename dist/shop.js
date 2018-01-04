@@ -1,6 +1,5 @@
 setContent = function(templateType, productId) {
-  $('#product_title').append('<a id="edit-page-template" href="http://localhost:8000/template.html?template=pdp" class="review__btn-write-review" style="float: right" title="Pas template aan">Pas pagina-template aan</a>');
-  $('#product_title').append('<a id="switch-layout" href="#" class="btn buy-block__btn-wishlist btn--wishlist btn--quaternary btn--lg js_add_to_wishlist_link js_preventable_buy_action" style="float: right; margin-right: 10px" title="Switch template"><i class="fa fa-refresh"></i></a>');
+  $('#product_title').append('<a id="edit-page-template" href="http://localhost:8000/template.html?template=pdp" class="review__btn-write-review" style="float: right" title="Pas template aan"><i class="fa fa-th"></i> Pas pagina-template aan</a>');
 
   if (getURLParameter("content")) productId = setProductId(getURLParameter("content"));
 
@@ -38,6 +37,11 @@ setContent = function(templateType, productId) {
     var productDescriptionContentSlug = ' .product-description';
     var productDescriptionContent = $(productDescriptionSelector + " " + productDescriptionContentSlug);
     productDescription.html('<div><span id="loader" class="loader glyphicon glyphicon-refresh glyphicon-refresh-animate"></span></div>');
+
+    var contentControls = $('<div class="content-controls slot slot--description slot--seperated"></div>');
+    productSpecificaties.after(contentControls);
+    contentControls.append('<a href="http://localhost:8000/template.html?template=' + templateType + '" class="btn buy-block__btn-wishlist btn--wishlist btn--quaternary btn--lg js_add_to_wishlist_link js_preventable_buy_action" title="Pas template aan"><i class="fa fa-th"></i> Pas template aan</a>');
+    contentControls.append('<a href="http://localhost:8000/content.html?content=' + productId + '" class="btn buy-block__btn-wishlist btn--wishlist btn--quaternary btn--lg js_add_to_wishlist_link js_preventable_buy_action" title="Pas content aan"><i class="fa fa-edit"></i> Pas content aan</a>');
 
     // productDescription.append('<span id="loader" class="loader glyphicon glyphicon-refresh glyphicon-refresh-animate"></span>');
     // productDescriptionContent.hide();

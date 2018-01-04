@@ -593,7 +593,6 @@
                   );
       });
 
-      console.log(getTemplateId());
       $("#template-items").val(getTemplateId());
     })
   }
