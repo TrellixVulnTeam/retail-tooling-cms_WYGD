@@ -45,7 +45,7 @@
   color: #666;
 }
 
-blockquote, div[data-type="quote"] {
+blockquote, div[data-type="quote"], span[data-type="quote"] span {
   font-size: 21px;
   font-style: italic;
   text-align: center;
@@ -53,6 +53,7 @@ blockquote, div[data-type="quote"] {
   margin-left: -12px;
   padding: 36px 50px 0px;
   position: relative;
+  display: block;
   &::before, &::after {
     top: 0;
     bottom: 0;
@@ -66,7 +67,7 @@ blockquote, div[data-type="quote"] {
   &::after {
     left: 100%;
   }
-  p, span {
+  p {
     margin: 0;
     font-size: 20px;
     &::before {

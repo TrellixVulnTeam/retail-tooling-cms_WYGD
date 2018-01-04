@@ -46,7 +46,8 @@
   color: #666;
 }
 blockquote,
-div[data-type="quote"] {
+div[data-type="quote"],
+span[data-type="quote"] span {
   font-size: 21px;
   font-style: italic;
   text-align: center;
@@ -54,11 +55,14 @@ div[data-type="quote"] {
   margin-left: -12px;
   padding: 36px 50px 0px;
   position: relative;
+  display: block;
 }
 blockquote::before,
 div[data-type="quote"]::before,
+span[data-type="quote"] span::before,
 blockquote::after,
-div[data-type="quote"]::after {
+div[data-type="quote"]::after,
+span[data-type="quote"] span::after {
   top: 0;
   bottom: 0;
   content: '';
@@ -66,24 +70,24 @@ div[data-type="quote"]::after {
   box-shadow: 0 2px rgba(0, 0, 0, 0.25);
 }
 blockquote::before,
-div[data-type="quote"]::before {
+div[data-type="quote"]::before,
+span[data-type="quote"] span::before {
   right: 100%;
 }
 blockquote::after,
-div[data-type="quote"]::after {
+div[data-type="quote"]::after,
+span[data-type="quote"] span::after {
   left: 100%;
 }
 blockquote p,
 div[data-type="quote"] p,
-blockquote span,
-div[data-type="quote"] span {
+span[data-type="quote"] span p {
   margin: 0;
   font-size: 20px;
 }
 blockquote p::before,
 div[data-type="quote"] p::before,
-blockquote span::before,
-div[data-type="quote"] span::before {
+span[data-type="quote"] span p::before {
   font-family: 'Droid Serif', serif;
   top: 0;
   left: 16px;
@@ -94,8 +98,7 @@ div[data-type="quote"] span::before {
 }
 blockquote p::after,
 div[data-type="quote"] p::after,
-blockquote span::after,
-div[data-type="quote"] span::after {
+span[data-type="quote"] span p::after {
   font-family: 'Droid Serif', serif;
   right: 16px;
   color: #e6e4e0;

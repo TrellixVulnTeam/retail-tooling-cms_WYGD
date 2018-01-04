@@ -81,7 +81,8 @@ body.mce-content-body,
   background-color: #fff !important;
 }
 blockquote,
-person {
+person,
+#preview div[data-type="quote"] span {
   margin: 20px 40px;
   font-style: italic;
   font-size: 16px;

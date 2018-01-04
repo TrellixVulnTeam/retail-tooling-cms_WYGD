@@ -58,10 +58,8 @@ setContent = function(templateType, productId) {
     var sectionTemplates = {"basic": sectionTemplate, "collapsible": sectionCollapsibleTemplate};
     loadTemplate(productDescription, templateType, null, sectionTemplates, elementTemplate, productDescriptionContentSlug).then(function(template){
       loadContent(productId, productDescriptionSelector, 'span', null, preview ? "preview" : "live").then(function(content) {
-        var replaceList = ["blockquote"];
-        wrapWithParagraph(productDescriptionSelector, replaceList);
-        // productDescription.find(".loader").hide();
-        // productDescription.show();
+        // var replaceList = ["blockquote"];
+        // wrapWithParagraph(productDescriptionSelector, replaceList);
 
         $('.js_show-more-description.show-more .show-more__button').click(function(event) {
           var parent = $(this).parent().parent().parent();

@@ -8,6 +8,7 @@
       var row = this;
       var templateElements = {};
       var rowTitle = $(row).attr("data-title") ? $(row).attr("data-title") : "";
+      var rowType = $(row).attr("data-type") ? $(row).attr("data-type") : "";
       var rowId = $(row).attr("data-id") ? $(row).attr("data-id") : slugify(rowTitle);
       sectionCount++;
 
@@ -24,7 +25,7 @@
         templateElements[id] = {title: title, type: contentType, class: colClasses, sort: elementCount};
       })
 
-      template.content[rowId] = {title: $(row).attr("data-title"), elements: templateElements, sort: sectionCount};
+      template.content[rowId] = {title: rowTitle, type: rowType, elements: templateElements, sort: sectionCount};
     })
 
     // console.log(template);
@@ -308,6 +309,10 @@
                     htmlElement.html(value);
                     break;
                   case "quote":
+                    if (viewType=="live") value="<p>" + value + "</p>";
+                    htmlElement.val(value);
+                    htmlElement.html(value);
+                    break;
                   case "text":
                   case "rich-text":
                     htmlElement.val(convertMarkdownToHtml(value));
@@ -601,7 +606,7 @@
         content = '<textarea class="form-control list" id="' + id + '" data-id="' + id + '" data-type="' + element.type + '"></textarea>';
         break;
       case "quote":
-        content = '<textarea class="form-control blockquote" id="' + id + '" data-type="' + element.type + '"></textarea>';
+        content = '<textarea class="form-control quote" id="' + id + '" data-id="' + id + '" data-type="' + element.type + '"></textarea>';
         break;
       case "image":
         content = '<div id="' + id + '" data-type="' + element.type + '"></div>';

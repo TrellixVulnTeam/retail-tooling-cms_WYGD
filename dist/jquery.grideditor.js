@@ -59,6 +59,7 @@ $.fn.gridEditor = function( options ) {
             'valid_col_sizes'   : [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
             'source_textarea'   : '',
             'content_types'     : [{id: "text", label: "Tekst"}, {id: "rich-text", label: "Opgemaakte tekst"}, {id: "list", label: "Lijst"}, {id: "quote", label: "Annotatie"}, {id: "image", label: "Afbeelding"}, {id: "image-list", label: "Meerdere afbeeldingen"}, {id: "warning", label: "Waarschuwing"}],
+            'template_types'    : [{id: "basic", label: "Basic"}, {id: "collapsible", label: "Collapsible"}],
             'default_content_type_id'     : "text"
         }, options);
 
@@ -269,11 +270,12 @@ $.fn.gridEditor = function( options ) {
             /* ----------- Show/hide drawer ----------- */
             canvas.on('mouseenter', '.row > .ge-tools-drawer', function(e) {
                 $(this).parent().find('> .ge-tools-drawer a').show();
-                // $(this).parent().find('.content-type').show();
+                $(this).parent().find('.template-type').show();
             });
 
             canvas.on('mouseleave', '.row > .ge-tools-drawer', function(e) {
               $(this).parent().find('> .ge-tools-drawer a').hide();
+              $(this).parent().find('.template-type').hide();
               $(this).parent().find('.content-type').hide();
               $(this).parent().find('.ge-details').hide();
             });
@@ -346,6 +348,16 @@ $.fn.gridEditor = function( options ) {
                 var title = row.attr('data-title') ? row.attr('data-title') : "No title";
                 var rowTitle = $('<div class="ge-element-title" contenteditable="true">' + title + '</div>').prependTo(row);
                 var drawer = $('<div class="ge-tools-drawer" />').prependTo(row);
+                var templateType = row.attr('data-type') ? row.attr('data-type') : "basic";
+                var templateTypeSelect = $('<select class="template-type btn btn-xs btn-secondary dropdown-toggle"></select>').prependTo(drawer);
+                settings.template_types.forEach(function(type) {
+                  var option = templateTypeSelect.append($("<option></option>")
+                              .attr("value", type.id)
+                              .text(type.label)
+                            );
+                  if (templateType==type.id) templateTypeSelect.val(templateType);
+                });
+                templateTypeSelect.hide();
 
                 var details = createDetails(row, settings.row_classes).appendTo(drawer);
                 details.hide()
@@ -466,6 +478,10 @@ $.fn.gridEditor = function( options ) {
 
                 details.hide();
             });
+
+            $(".row .template-type").change(function() {
+              $(this).parent().parent().attr("data-type", $(this).val());
+            })
 
             $(".column > .ge-element-title").change(function() {
               $(this).parent().attr("data-id", slugify($(this).text()));
@@ -759,6 +775,7 @@ $.fn.gridEditor.RTEs = {};
       var row = this;
       var templateElements = {};
       var rowTitle = $(row).attr("data-title") ? $(row).attr("data-title") : "";
+      var rowType = $(row).attr("data-type") ? $(row).attr("data-type") : "";
       var rowId = $(row).attr("data-id") ? $(row).attr("data-id") : slugify(rowTitle);
       sectionCount++;
 
@@ -775,7 +792,7 @@ $.fn.gridEditor.RTEs = {};
         templateElements[id] = {title: title, type: contentType, class: colClasses, sort: elementCount};
       })
 
-      template.content[rowId] = {title: $(row).attr("data-title"), elements: templateElements, sort: sectionCount};
+      template.content[rowId] = {title: rowTitle, type: rowType, elements: templateElements, sort: sectionCount};
     })
 
     // console.log(template);
@@ -1059,6 +1076,10 @@ $.fn.gridEditor.RTEs = {};
                     htmlElement.html(value);
                     break;
                   case "quote":
+                    if (viewType=="live") value="<p>" + value + "</p>";
+                    htmlElement.val(value);
+                    htmlElement.html(value);
+                    break;
                   case "text":
                   case "rich-text":
                     htmlElement.val(convertMarkdownToHtml(value));
@@ -1352,7 +1373,7 @@ $.fn.gridEditor.RTEs = {};
         content = '<textarea class="form-control list" id="' + id + '" data-id="' + id + '" data-type="' + element.type + '"></textarea>';
         break;
       case "quote":
-        content = '<textarea class="form-control blockquote" id="' + id + '" data-type="' + element.type + '"></textarea>';
+        content = '<textarea class="form-control quote" id="' + id + '" data-id="' + id + '" data-type="' + element.type + '"></textarea>';
         break;
       case "image":
         content = '<div id="' + id + '" data-type="' + element.type + '"></div>';
