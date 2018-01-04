@@ -45,9 +45,7 @@
   font-size: 20px;
   color: #666;
 }
-blockquote,
-div[data-type="quote"],
-span[data-type="quote"] span {
+blockquote {
   font-size: 21px;
   font-style: italic;
   text-align: center;
@@ -58,36 +56,24 @@ span[data-type="quote"] span {
   display: block;
 }
 blockquote::before,
-div[data-type="quote"]::before,
-span[data-type="quote"] span::before,
-blockquote::after,
-div[data-type="quote"]::after,
-span[data-type="quote"] span::after {
+blockquote::after {
   top: 0;
   bottom: 0;
   content: '';
   position: absolute;
   box-shadow: 0 2px rgba(0, 0, 0, 0.25);
 }
-blockquote::before,
-div[data-type="quote"]::before,
-span[data-type="quote"] span::before {
+blockquote::before {
   right: 100%;
 }
-blockquote::after,
-div[data-type="quote"]::after,
-span[data-type="quote"] span::after {
+blockquote::after {
   left: 100%;
 }
-blockquote p,
-div[data-type="quote"] p,
-span[data-type="quote"] span p {
+blockquote p {
   margin: 0;
   font-size: 20px;
 }
-blockquote p::before,
-div[data-type="quote"] p::before,
-span[data-type="quote"] span p::before {
+blockquote p::before {
   font-family: 'Droid Serif', serif;
   top: 0;
   left: 16px;
@@ -96,9 +82,7 @@ span[data-type="quote"] span p::before {
   font-size: 4em;
   position: absolute;
 }
-blockquote p::after,
-div[data-type="quote"] p::after,
-span[data-type="quote"] span p::after {
+blockquote p::after {
   font-family: 'Droid Serif', serif;
   right: 16px;
   color: #e6e4e0;
@@ -113,8 +97,8 @@ person {
   font-style: italic;
   text-align: center;
   display: block;
-  margin-top: -50px;
-  padding-bottom: 40px;
+  margin-top: -40px;
+  padding-bottom: 20px;
 }
 person:before {
   content: "- ";

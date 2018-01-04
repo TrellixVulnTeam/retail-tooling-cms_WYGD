@@ -853,12 +853,28 @@ $.fn.gridEditor.RTEs = {};
         columnElements.each(function() {
           if ($(this).attr('data-id')) {
             elementCount++;
-            var content = (contentFormat=="object") ? $(this).val() : $(this).html();
-            content = content.replace(/\r?\n|\r/g,"").trim();
-            console.log(content.replace(/"/g, '\\"'));
-            var html = convertHtmlToMarkdown(content)
-            if ($(this).attr('data-type')=="list" && html.trim()=="\*") html = "";
-            templateElements[$(this).attr('data-id')] = html;
+            var elementId = $(this).attr('data-id');
+            var elementType = $(this).attr('data-type');
+            var html = (contentFormat=="object") ? $(this).val() : $(this).html();
+            html = html.replace(/\r?\n|\r/g,"").trim();
+            var markdown = convertHtmlToMarkdown(html);
+
+            if (elementType=="quote") {
+              var content = (contentFormat=="object") ? $(this).val() : $(this).html();
+
+              var quote = $(this).find('#annotatie-content').val();
+              if (!quote) quote = content;
+              html = "<blockquote>" + quote + "</blockquote>";
+
+              var person = $(this).find('#annotatie-person').val();
+              if (person) html += "<person>" + person + "</person>";
+              
+              markdown = convertHtmlToMarkdown(html);
+            } else if (elementType=="list") {
+              if (markdown.trim()=="\*") markdown = "";
+            }
+
+            templateElements[elementId] = markdown;
           }
         });
       })
@@ -1008,15 +1024,12 @@ $.fn.gridEditor.RTEs = {};
         panelTitle.innerHTML = section.title;
 
         $.each(section.elements, function(elementId, element) {
-          formElement += '<div class="form-group" data-id="' + element.id + '">';
           var htmlElement = $("#" + element.id);
           if (htmlElement) {
-            formElement += '<label for="' + element.id + '">' + element.title + '</label>';
             formElement += createElement(element.id, element);
           } else {
             console.log(element.id + " not found");
           }
-          formElement += '</div>';
         })
 
         panelContent.innerHTML = formElement;
@@ -1076,10 +1089,25 @@ $.fn.gridEditor.RTEs = {};
                     htmlElement.html(value);
                     break;
                   case "quote":
-                    if (viewType=="live") value="<p>" + value + "</p>";
-                    htmlElement.val(value);
-                    htmlElement.html(value);
-                    break;
+                    if (viewType=="live") {
+                      // value="<p>" + value + "</p>";
+                      var html = convertMarkdownToHtml(value);
+
+                      htmlElement.val(convertMarkdownToHtml(value));
+                      htmlElement.html(convertMarkdownToHtml(value));
+                    } else {
+                      var html = convertMarkdownToHtml(value);
+
+                      var quote = $(html).filter('blockquote').find('p').html();
+                      if (!quote) quote = value;
+                      htmlElement.find("#" + elementId + "-content").val(quote);
+                      htmlElement.find("#" + elementId + "-content").html(quote);
+
+                      var person = $(html).find('person').html();
+                      htmlElement.find("#" + elementId + "-person").val(person);
+                      htmlElement.find("#" + elementId + "-person").html(person);
+                      break;
+                    }
                   case "text":
                   case "rich-text":
                     htmlElement.val(convertMarkdownToHtml(value));
@@ -1360,26 +1388,44 @@ $.fn.gridEditor.RTEs = {};
   }
 
   createElement = function(id, element) {
-    var content = "";
+    var label = '<h4>' + element.title + '</h4>';
+    var content = '<div class="form-group" data-id="' + element.id + '">';
 
     switch (element.type) {
       case "text":
-        content = '<textarea class="form-control text" id="' + id + '" data-id="' + id + '" data-type="' + element.type + '"></textarea>';
+        content += label;
+        content += '<textarea class="form-control text" id="' + id + '" data-id="' + id + '" data-type="' + element.type + '"></textarea>';
         break;
       case "rich-text":
-        content = '<textarea class="form-control rich-text" id="' + id + '" data-id="' + id + '"data-type="' + element.type + '"></textarea>';
+        content += label;
+        content += '<textarea class="form-control rich-text" id="' + id + '" data-id="' + id + '"data-type="' + element.type + '"></textarea>';
         break;
       case "list":
-        content = '<textarea class="form-control list" id="' + id + '" data-id="' + id + '" data-type="' + element.type + '"></textarea>';
+        content += label;
+        content += '<textarea class="form-control list" id="' + id + '" data-id="' + id + '" data-type="' + element.type + '"></textarea>';
         break;
       case "quote":
-        content = '<textarea class="form-control quote" id="' + id + '" data-id="' + id + '" data-type="' + element.type + '"></textarea>';
+        content += '<div class="quote" id="' + id + '" data-id="' + id + '" data-type="' + element.type + '">';
+        content += '<div class="row">';
+        content += '<div class="col-md-12"><h4>' + element.title + '</h4></div>'
+        content += '</div>';
+        content += '<div class="row">';
+        content += '<div class="col-md-9 form-group">';
+        content += '<label for="' + element.id + '-content">Quote</label>';
+        content += '<input id="' + element.id + '-content" class="form-control">';
+        content += '</div>';
+        content += '<div class="col-md-3 form-group">';
+        content += '<label for="' + element.id + '-person">Gezegd door</label>';
+        content += '<input id="' + element.id + '-person" class="form-control">';
+        content += '</div>';
         break;
       case "image":
-        content = '<div id="' + id + '" data-type="' + element.type + '"></div>';
+        content += label;
+        content += '<div id="' + id + '" data-type="' + element.type + '"></div>';
         break;
     }
 
+    content += "</div>"
     return content;
   }
 
