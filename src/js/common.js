@@ -89,8 +89,14 @@
             var elementId = $(this).attr('data-id');
             var elementType = $(this).attr('data-type');
             var html = (contentFormat=="object") ? $(this).val() : $(this).html();
-            html = html.replace(/\r?\n|\r/g,"").trim();
-            var markdown = convertHtmlToMarkdown(html);
+            var markdown = "";
+
+            if (typeof html=="object") {
+              markdown = JSON.stringify(html);
+            } else {
+              html = html.replace(/\r?\n|\r/g,"").trim();
+              markdown = convertHtmlToMarkdown(html);
+            }
 
             if (elementType=="quote") {
               var content = (contentFormat=="object") ? $(this).val() : $(this).html();
@@ -103,8 +109,8 @@
               if (person) html += "<person>" + person + "</person>";
 
               markdown = convertHtmlToMarkdown(html);
-            } else if (elementType.substring(0, 9)=="template-") {
-              markdown = $(this).find(":selected").val();
+            } else if (elementType=="imagelist") {
+              if (markdown.trim()=="\*") markdown = "";
             } else if (elementType=="list") {
               if (markdown.trim()=="\*") markdown = "";
             }
@@ -352,8 +358,7 @@
                     htmlElement.html(convertMarkdownToHtml(value));
                     break;
                   case "imagelist":
-                    htmlElement.val(convertMarkdownToHtml(value));
-                    htmlElement.html(convertMarkdownToHtml(value));
+                    populateImageList(htmlElement, template.id, value);
                     break;
                   case "list":
                     var html = convertMarkdownToHtml(value);
@@ -692,14 +697,15 @@
         break;
       case "imagelist":
         content += label;
-        content += '<textarea class="form-control imagelist" data-id="' + id + '" data-type="' + element.type + '"></textarea>';
+        content += '<select data-id="' + id + '" data-type="' + element.type + '" multiple="multiple"></select>';
+        // populateImageList(id, templateId);
+        // content += '<textarea class="form-control imagelist" data-id="' + id + '" data-type="' + element.type + '"></textarea>';
         // content += '<div data-id="' + id + '" data-type="' + element.type + '"></div>';
         break;
       case "template":
         var templateId = element.type.substring(9);
         content += label;
-        content += '<select data-id="' + id + '" data-type="' + element.type + '" data-template="' + templateId + '">';
-        content += '</select>';
+        content += '<select data-id="' + id + '" data-type="' + element.type + '" data-template="' + templateId + '"></select>';
         populateContentDropdown(id, templateId);
         break;
       default:
@@ -711,7 +717,7 @@
     return content;
   }
 
-  populateContentDropdown = function(id, templateId, selectedId) {
+  populateContentDropdown = function(id, templateId) {
     return getContentItems().then(function(contentItems) {
 
       var filteredContentItems = contentItems.filter(function(item) {
@@ -724,6 +730,21 @@
             .text(item.title)
           );
       });
+    })
+  }
+
+  populateImageList = function(element, templateId, selectedItems) {
+    return $.getJSON("http://localhost:8888/images/" + templateId, function(images) {
+      images.forEach(function(image) {
+        element.append($("<option></option>")
+            .attr("data-img-src", "/sample_content/images/" + templateId + "/" + image)
+            .attr("value", image)
+            .text(image)
+          );
+      });
+
+      element.val(JSON.parse(selectedItems));
+      $(element).imagepicker();
     })
   }
 
