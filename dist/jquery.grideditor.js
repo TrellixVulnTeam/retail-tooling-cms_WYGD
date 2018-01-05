@@ -870,6 +870,8 @@ $.fn.gridEditor.RTEs = {};
               if (person) html += "<person>" + person + "</person>";
 
               markdown = convertHtmlToMarkdown(html);
+            } else if (elementType.substring(0, 9)=="template-") {
+              markdown = $(this).find(":selected").val();
             } else if (elementType=="list") {
               if (markdown.trim()=="\*") markdown = "";
             }
@@ -972,15 +974,17 @@ $.fn.gridEditor.RTEs = {};
 
       $.each(templates, function(templateId, template) {
         template.id = templateId;
+        template.sort = template.parent ? (template.parent + "-" + templateId) : templateId;
         templatesArray.push(template);
       })
 
       templatesArray.sort(function (a, b) {
-        return a.title.localeCompare(b.title);
+        return a.sort.localeCompare(b.sort);
       });
 
       $.each(templatesArray, function(templateId, template) {
-        table.append('<tr><td><a href="/template.html?template=' + template.id + '">' + template.title + '</a></td></tr>');
+        var levelClass = template.parent ? "child" : ""
+        table.append('<tr><td><a href="/template.html?template=' + template.id + '" class="' + levelClass + '">' + template.title + '</a></td></tr>');
       })
     });
   }
@@ -1079,7 +1083,9 @@ $.fn.gridEditor.RTEs = {};
 
           $.each(template.data().content, function(sectionId, section) {
             $.each(section.elements, function(elementId, element) {
-              var htmlElement = subElement && subElement!=null ? $(rootElementId + " [data-id='" + elementId + "'] " + subElement) : $(rootElementId + " #" + elementId);
+              var selector = subElement && subElement!=null ? (rootElementId + ' [data-id="' + elementId + '"] ' + subElement) : (rootElementId + ' [data-id="' + elementId + '"]');
+              var htmlElement = $(selector);
+
               if (htmlElement[0]) {
                 var value = getObjectById(content, elementId);
                 if (!value) value = placeholder;
@@ -1111,8 +1117,10 @@ $.fn.gridEditor.RTEs = {};
                   case "rich-text":
                     htmlElement.val(convertMarkdownToHtml(value));
                     htmlElement.html(convertMarkdownToHtml(value));
-                    // htmlElement.val(value);
-                    // htmlElement.html(value);
+                    break;
+                  case "imagelist":
+                    htmlElement.val(convertMarkdownToHtml(value));
+                    htmlElement.html(convertMarkdownToHtml(value));
                     break;
                   case "list":
                     var html = convertMarkdownToHtml(value);
@@ -1138,7 +1146,11 @@ $.fn.gridEditor.RTEs = {};
                     htmlElement.html(html);
                     break;
                   default:
-                    htmlElement.html(value);
+                    if (element.type.substring(0, 9)=="template-") {
+                      htmlElement.val(value);
+                    } else {
+                      htmlElement.html(value);
+                    }
                 }
               }
             })
@@ -1321,7 +1333,7 @@ $.fn.gridEditor.RTEs = {};
     return getTemplates().then(function(template){
       var templateArray = [];
       $.each(template, function(key, object) {
-        templateArray.push({id: key, title: object.title});
+        templateArray.push({id: key, title: object.title, parent: object.parent ? object.parent : null});
       })
 
       templateArray.sort(function (a, b) {
@@ -1351,15 +1363,37 @@ $.fn.gridEditor.RTEs = {};
   }
 
   populateTemplateItems = function() {
-    return getTemplateItems().then(function(contentItems){
-      contentItems.forEach(function (item) {
+    return getTemplateItems().then(function(templateItems){
+      templateItems.forEach(function (item) {
         $('#template-items').append($("<option></option>")
-                    .attr("value", item.id)
-                    .text(item.title)
-                  );
+            .attr("value", item.id)
+            .text(item.title)
+          );
       });
 
       $("#template-items").val(getTemplateId());
+    })
+  }
+
+  addTemplateToSectionDropdowns = function() {
+    return getTemplateItems().then(function(templateItems){
+      if (templateItems.length>0) {
+        var mainTemplateId = $("#grid-editor").attr("data-template-id");
+        var dropdown = $('.content-type.dropdown-toggle');
+        dropdown.append($("<option disabled>___________________________</option>"));
+        templateItems.forEach(function (item) {
+          var disabled = (item.id == mainTemplateId) ? ' disabled="true"' : "";
+          var title = item.parent ? "- " + item.title : item.title;
+          dropdown.append($("<option" + disabled + "></option>")
+            .attr("value", "template-" + item.id)
+            .text(title)
+          );
+        });
+
+        $(".column .content-type.dropdown-toggle").each(function() {
+          $(this).val($(this).parent().parent().attr("data-type"));
+        })
+      }
     })
   }
 
@@ -1387,23 +1421,25 @@ $.fn.gridEditor.RTEs = {};
 
   createElement = function(id, element) {
     var label = '<h4>' + element.title + '</h4>';
-    var content = '<div class="form-group" data-id="' + element.id + '">';
+    // var content = '<div class="form-group" data-id="' + element.id + '">';
+    var content = '<div class="form-group">';
+    var type = element.type.substring(0, 9)=="template-" ? "template" : element.type;
 
-    switch (element.type) {
+    switch (type) {
       case "text":
         content += label;
-        content += '<textarea class="form-control text" id="' + id + '" data-id="' + id + '" data-type="' + element.type + '"></textarea>';
+        content += '<textarea class="form-control text" data-id="' + id + '" data-type="' + element.type + '"></textarea>';
         break;
       case "rich-text":
         content += label;
-        content += '<textarea class="form-control rich-text" id="' + id + '" data-id="' + id + '"data-type="' + element.type + '"></textarea>';
+        content += '<textarea class="form-control rich-text" data-id="' + id + '"data-type="' + element.type + '"></textarea>';
         break;
       case "list":
         content += label;
-        content += '<textarea class="form-control list" id="' + id + '" data-id="' + id + '" data-type="' + element.type + '"></textarea>';
+        content += '<textarea class="form-control list" data-id="' + id + '" data-type="' + element.type + '"></textarea>';
         break;
       case "quote":
-        content += '<div class="quote" id="' + id + '" data-id="' + id + '" data-type="' + element.type + '">';
+        content += '<div class="quote" data-id="' + id + '" data-type="' + element.type + '">';
         content += '<div class="row">';
         content += '<div class="col-md-12"><h4>' + element.title + '</h4></div>'
         content += '</div>';
@@ -1419,12 +1455,43 @@ $.fn.gridEditor.RTEs = {};
         break;
       case "image":
         content += label;
-        content += '<div id="' + id + '" data-type="' + element.type + '"></div>';
+        content += '<div data-id="' + id + '" data-type="' + element.type + '"></div>';
         break;
+      case "imagelist":
+        content += label;
+        content += '<textarea class="form-control imagelist" data-id="' + id + '" data-type="' + element.type + '"></textarea>';
+        // content += '<div data-id="' + id + '" data-type="' + element.type + '"></div>';
+        break;
+      case "template":
+        var templateId = element.type.substring(9);
+        content += label;
+        content += '<select data-id="' + id + '" data-type="' + element.type + '" data-template="' + templateId + '">';
+        content += '</select>';
+        populateContentDropdown(id, templateId);
+        break;
+      default:
+        content += label;
+        content += '<div data-id="' + id + '" data-type="' + element.type + '"></div>';
     }
 
     content += "</div>"
     return content;
+  }
+
+  populateContentDropdown = function(id, templateId, selectedId) {
+    return getContentItems().then(function(contentItems) {
+
+      var filteredContentItems = contentItems.filter(function(item) {
+        return item.type === templateId || item.type === "all";
+      })
+
+      filteredContentItems.forEach(function (item) {
+        $('select[data-id="' + id + '"]').append($("<option></option>")
+            .attr("value", item.id)
+            .text(item.title)
+          );
+      });
+    })
   }
 
   getContentTypeFromClass = function(element) {

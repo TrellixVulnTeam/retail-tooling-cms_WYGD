@@ -115,6 +115,7 @@
         saveTemplate(id, title, html, link).then(function() {
           $('#grid-editor').gridEditor('deinit');
           initGridEditor($('#grid-editor'));
+          addTemplateToSectionDropdowns();
           toastr.success('Template saved');
           // loadContent('#grid-editor', '.ge-content').then(function() {
           //   // location.reload();
@@ -157,6 +158,7 @@
         .then(function(template) {
           initGridEditor($('#grid-editor'));
           populateContentItems(true);
+          addTemplateToSectionDropdowns();
           $("#page-title").html(template.data().title);
 
           liveLink = template.data().link;

@@ -10,6 +10,11 @@
             "title": "Productafbeeldingen",
             "type": "imagelist",
             "class": "col-md-12 col-sm-12 col-xs-12"
+          },
+          "productomschrijving": {
+            "title": "Productomschrijving",
+            "type": "template-productbeschrijving-electronica",
+            "class": "col-md-12 col-sm-12 col-xs-12"
           }
         }
       }
@@ -18,6 +23,7 @@
   "productbeschrijving-boeken": {
     "title": "Productomschrijving boeken",
     "link": "/sample_content/1984.html",
+    "parent": "pdp",
     "content": {
       "productbeschrijving": {
         "title": "Samenvatting",
@@ -55,6 +61,7 @@
   "productbeschrijving-electronica": {
     "title": "Productomschrijving electronica",
     "link": "/sample_content/sonos.html",
+    "parent": "pdp",
     "content": {
       "plus--en-minpunten": {
         "sort": 1,
