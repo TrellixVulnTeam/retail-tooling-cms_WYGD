@@ -281,6 +281,68 @@ blockquote,
 #preview .row {
   margin-bottom: 20px;
 }
+.vertical-align,
+ul.thumbnails.image_picker_selector li .thumbnail {
+  display: flex;
+  align-items: center;
+}
+ul.thumbnails.image_picker_selector {
+  overflow: auto;
+  list-style-image: none;
+  list-style-position: outside;
+  list-style-type: none;
+  padding: 0px;
+  margin: 0px;
+}
+ul.thumbnails.image_picker_selector ul {
+  overflow: auto;
+  list-style-image: none;
+  list-style-position: outside;
+  list-style-type: none;
+  padding: 0px;
+  margin: 0px;
+}
+ul.thumbnails.image_picker_selector li.group {
+  width: 100%;
+}
+ul.thumbnails.image_picker_selector li.group_title {
+  float: none;
+}
+ul.thumbnails.image_picker_selector li {
+  margin: 0px 12px 12px 0px;
+  float: left;
+}
+ul.thumbnails.image_picker_selector li .thumbnail {
+  padding: 2px;
+  border: 1px solid #dddddd;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  width: 100px;
+  height: 100px;
+  box-sizing: border-box;
+}
+ul.thumbnails.image_picker_selector li .thumbnail img {
+  -webkit-user-drag: none;
+  max-width: 100%;
+  max-height: 100%;
+}
+ul.thumbnails.image_picker_selector li .thumbnail.selected {
+  border: 3px solid #5c85d6;
+  padding: 0;
+}
+ul.thumbnails.image_picker_selector li .thumbnail:hover {
+  border: 2px solid #999999;
+  padding: 1px;
+}
+ul.thumbnails.image_picker_selector li .thumbnail.selected:hover {
+  border: 3px solid #2952a3;
+  padding: 0;
+}
+.thumbnail {
+  transition: unset;
+  margin-bottom: 0;
+}
 @media only screen and (min-device-width: 320px) and (max-device-width: 480px) {
   .ge-content h3 {
     display: none;

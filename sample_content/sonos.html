@@ -3167,12 +3167,13 @@ dit wel. <br><br>Mvg,<br>Kenny van bol.com</p>
 <script src="https://www.gstatic.com/firebasejs/4.8.0/firebase-firestore.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/showdown/1.8.6/showdown.min.js"></script>
 <script src="../dist/jquery.grideditor.js"></script>
-<script src="../dist/shop.js"></script>
 <script src="http://localhost:35729/livereload.js"></script>
 
 <script>
 $(document).ready(function() {
-  setContent('productbeschrijving-electronica', 'sonos');
+  setShopMainTemplate();
+  setShopElementContent('slot--product-images', 'productafbeeldingen', 'productafbeeldingen-sonos');
+  setShopElementContent('.slot--description', 'productbeschrijving-electronica', 'productbeschrijving-sonos');
 });
 </script>
 

@@ -1,10 +1,11 @@
 {
   "pdp": {
     "title": "PDP",
-    "link": "/sample_content/FIFA%2018.html",
+    "link": "/sample_content/sonos.html",
     "content": {
       "packshot": {
         "title": "Productafbeeldingen",
+        "sort": 1,
         "elements": {
           "product-afbeeldingen": {
             "title": "Productafbeeldingen",
@@ -20,6 +21,29 @@
       }
     }
   },
+  "productafbeeldingen": {
+    "title": "Productafbeeldingen",
+    "link": "/sample_content/sonos.html",
+    "parent": "pdp",
+    "content": {
+      "packshot": {
+        "title": "Productafbeeldingen",
+        "sort": 1,
+        "elements": {
+          "afbeelding": {
+            "title": "Packshot",
+            "type": "image",
+            "class": "col-md-12 col-sm-12 col-xs-12"
+          },
+          "product-afbeeldingen": {
+            "title": "Productafbeeldingen",
+            "type": "imagelist",
+            "class": "col-md-12 col-sm-12 col-xs-12"
+          }
+        }
+      }
+    }
+  },
   "productbeschrijving-boeken": {
     "title": "Productomschrijving boeken",
     "link": "/sample_content/1984.html",
@@ -28,6 +52,7 @@
       "productbeschrijving": {
         "title": "Samenvatting",
         "type": "collapsible",
+        "sort": 1,
         "elements": {
           "annotatie": {
             "title": "Annotatie",
@@ -48,6 +73,7 @@
       },
       "product-recensie": {
         "title": "Recensie",
+        "sort": 2,
         "elements": {
           "recensie": {
             "title": "Recensie",

@@ -35,12 +35,12 @@ ul.thumbnails.image_picker_selector li .thumbnail {
   -webkit-user-select: none;
   -moz-user-select: none;
   -ms-user-select: none;
-  max-width: 200px;
-  max-height: 200px;
 }
 
 ul.thumbnails.image_picker_selector li .thumbnail img {
   -webkit-user-drag: none;
+  max-width: 200px;
+  max-height: 200px;
 }
 
 ul.thumbnails.image_picker_selector li .thumbnail.selected {

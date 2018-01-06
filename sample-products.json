@@ -4,7 +4,7 @@
     "title": "--Geen--",
     "content": {}
   },
-  "1984": {
+  "productbeschrijving-1984": {
     "type": "productbeschrijving-boeken",
     "title": "George Orwell - 1984",
     "link": "/sample_content/1984.html",
@@ -19,7 +19,7 @@
       }
     }
   },
-  "before_they_pass_away": {
+  "productbeschrijving-before_they_pass_away": {
     "type": "productbeschrijving-boeken",
     "title": "Jimmy Nelson - Before They Pass Away",
     "link": "/sample_content/1984.html?content=before_they_pass_away",
@@ -29,7 +29,7 @@
       }
     }
   },
-  "sonos": {
+  "productbeschrijving-sonos": {
     "type": "productbeschrijving-electronica",
     "title": "Sonos PLAY:5 - Zwart",
     "link": "/sample_content/sonos.html",
@@ -48,13 +48,34 @@
       }
     }
   },
-  "fifa18": {
+  "pdp-fifa18": {
     "type": "pdp",
     "title": "FIFA 18",
     "link": "/sample_content/FIFA 18.html",
     "content": {
       "packshot": {
         "product-afbeeldingen": "Games are fun"
+      }
+    }
+  },
+  "pdp-sonos": {
+    "type": "pdp",
+    "title": "Sonos",
+    "link": "/sample_content/sonos.html",
+    "content": {
+      "packshot": {
+        "product-afbeeldingen": "Sonos is great"
+      }
+    }
+  },
+  "productafbeeldingen-sonos": {
+    "type": "productafbeeldingen",
+    "title": "Productafbeeldingen Sonos",
+    "link": "/sample_content/sonos.html",
+    "content": {
+      "packshot": {
+        "afbeelding": "9200000050173636_1.jpg",
+        "product-afbeeldingen": "[\"9200000050173636_11.jpg\",\"9200000050173636_12.jpg\",\"9200000050173636_13.jpg\"]"
       }
     }
   }

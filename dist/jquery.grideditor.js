@@ -876,8 +876,6 @@ $.fn.gridEditor.RTEs = {};
               if (person) html += "<person>" + person + "</person>";
 
               markdown = convertHtmlToMarkdown(html);
-            } else if (elementType=="imagelist") {
-              if (markdown.trim()=="\*") markdown = "";
             } else if (elementType=="list") {
               if (markdown.trim()=="\*") markdown = "";
             }
@@ -1096,9 +1094,6 @@ $.fn.gridEditor.RTEs = {};
                 var value = getObjectById(content, elementId);
                 if (!value) value = placeholder;
                 switch (element.type) {
-                  case "image":
-                    htmlElement.html(value);
-                    break;
                   case "quote":
                     if (viewType=="live" || viewType=="preview") {
                       // value="<p>" + value + "</p>";
@@ -1124,6 +1119,7 @@ $.fn.gridEditor.RTEs = {};
                     htmlElement.val(convertMarkdownToHtml(value));
                     htmlElement.html(convertMarkdownToHtml(value));
                     break;
+                  case "image":
                   case "imagelist":
                     populateImageList(htmlElement, template.id, value);
                     break;
@@ -1154,6 +1150,7 @@ $.fn.gridEditor.RTEs = {};
                     if (element.type.substring(0, 9)=="template-") {
                       htmlElement.val(value);
                     } else {
+                      htmlElement.val(value);
                       htmlElement.html(value);
                     }
                 }
@@ -1232,6 +1229,80 @@ $.fn.gridEditor.RTEs = {};
           console.error("Error updating document: ", error);
       });
     }
+  }
+
+  setShopMainTemplate = function() {
+    $('#product_title').append('<a id="edit-page-template" href="http://localhost:8000/template.html?template=pdp" class="review__btn-write-review" style="float: right" title="Pas template aan"><i class="fa fa-th"></i> Pas pagina-template aan</a>');
+  }
+
+  setShopElementContent = function(elementSelector, templateId, productId) {
+    if (getURLParameter("content")) productId = setProductId(getURLParameter("content"));
+
+    var preview = getURLParameter("preview") && getURLParameter("preview")!='undefined' ? true : false;
+
+    var sectionCollapsibleTemplate = `<div class="slot slot--description slot--seperated slot--seperated--has-more-content js_slot-description">
+      <h2 data-title-element="true"></h2>
+      <div class="js_show-more-description show-more">
+        <div class="js_show-more-holder show-more-holder show-more--l product-tracklists-show-more--animate">
+          <div class="description row">
+          </div>
+        </div>
+
+        <div class="show-more__fade  js_show-more-button">
+          <a href="#" class="show-more__button" data-test="showmore">
+              <span class="[ show-more__text  show-more__text-more ]  js_link-more" title="Toon meer" data-test="showmore-text-more">Toon meer</span>
+              <span class="[ show-more__text  show-more__text-less ]  js_link-less" title="Toon minder" data-test="showmore-text-less">Toon minder</span>
+            </a>
+        </div>
+      </div>
+    </div>`;
+
+    var sectionTemplate = `<div class="slot slot--description slot--seperated">
+      <h2 data-title-element="true"></h2>
+      <div class="description row">
+      </div>
+    </div>`;
+
+    var elementTemplate = `<span><h3 data-title-element="true"></h3></span>`;
+
+    var element = $(elementSelector);
+    var elementContentSlug = ' .description';
+    var elementContent = $(elementSelector + " " + elementContentSlug);
+    element.html('<div><span id="loader" class="loader glyphicon glyphicon-refresh glyphicon-refresh-animate"></span></div>');
+
+    var contentControls = $('<div class="content-controls slot slot--seperated"></div>');
+    element.before(contentControls);
+    contentControls.append('<a href="http://localhost:8000/template.html?template=' + templateId + '" class="btn buy-block__btn-wishlist btn--wishlist btn--quaternary btn--lg js_add_to_wishlist_link js_preventable_buy_action" title="Pas template aan"><i class="fa fa-th"></i> Pas template aan</a>');
+    contentControls.append('<a href="http://localhost:8000/content.html?content=' + productId + '" class="btn buy-block__btn-wishlist btn--wishlist btn--quaternary btn--lg js_add_to_wishlist_link js_preventable_buy_action" title="Pas content aan"><i class="fa fa-edit"></i> Pas content aan</a>');
+
+    var sectionTemplates = {"basic": sectionTemplate, "collapsible": sectionCollapsibleTemplate};
+    loadTemplate(element, templateId, null, sectionTemplates, elementTemplate, elementContentSlug).then(function(template){
+      loadContent(productId, elementSelector, 'span', null, preview ? "preview" : "live").then(function(content) {
+        // var replaceList = ["blockquote"];
+        // wrapWithParagraph(elementSelector, replaceList);
+
+        $(elementSelector + ' .show-more__button').click(function(event) {
+          var parent = $(this).parent().parent().parent();
+          if (parent.hasClass('active')) {
+            parent.removeClass('active');
+            event.preventDefault();
+            parent.find('.show-more-holder').height('210px');
+            parent.find('.js_link-less').hide();
+            parent.find('.js_link-more').show();
+          } else {
+            parent.addClass('active');
+            event.preventDefault();
+            parent.find('.show-more-holder').height(parent.find('.description').height());
+            parent.find('.js_link-less').show();
+            parent.find('.js_link-more').hide();
+          }
+
+          $('html, body').animate({
+              scrollTop: $(parent).offset().top
+          }, 500);
+        })
+      })
+    });
   }
 
   getTemplate = function(id, isPreview) {
@@ -1460,7 +1531,8 @@ $.fn.gridEditor.RTEs = {};
         break;
       case "image":
         content += label;
-        content += '<div data-id="' + id + '" data-type="' + element.type + '"></div>';
+        content += '<select data-id="' + id + '" data-type="' + element.type + '"></select>';
+        // content += '<input class="form-control" data-id="' + id + '" data-type="' + element.type + '">';
         break;
       case "imagelist":
         content += label;
@@ -1477,7 +1549,8 @@ $.fn.gridEditor.RTEs = {};
         break;
       default:
         content += label;
-        content += '<div data-id="' + id + '" data-type="' + element.type + '"></div>';
+        content += '<input class="form-control" data-id="' + id + '" data-type="' + element.type + '">';
+        // content += '<div data-id="' + id + '" data-type="' + element.type + '"></div>';
     }
 
     content += "</div>"
@@ -1500,7 +1573,7 @@ $.fn.gridEditor.RTEs = {};
     })
   }
 
-  populateImageList = function(element, templateId, selectedItems) {
+  populateImageList = function(element, templateId, selectedItemsJSON) {
     return $.getJSON("http://localhost:8888/images/" + templateId, function(images) {
       images.forEach(function(image) {
         element.append($("<option></option>")
@@ -1510,7 +1583,8 @@ $.fn.gridEditor.RTEs = {};
           );
       });
 
-      element.val(JSON.parse(selectedItems));
+      var selectedItems = isJson(selectedItemsJSON) ? JSON.parse(selectedItemsJSON) : selectedItemsJSON;
+      if (selectedItems) element.val(selectedItems);
       $(element).imagepicker();
     })
   }
@@ -1528,47 +1602,13 @@ $.fn.gridEditor.RTEs = {};
     return type;
   }
 
-  separateContent = function(content) {
-    var separator = ["blockquote", "img"];
-
-    var htmlObject = $.parseHTML(content);
-    var filteredHtmlObject = htmlObject.filter(function(index) {
-      return index.nodeName != "#text";
-    })
-
-    var htmlArray = [];
-    var content = {};
-    var separatorIndex = 0;
-
-    filteredHtmlObject.forEach(function(data) {
-      separatorIndex = separator.indexOf(data.nodeName.toLowerCase());
-      if (separatorIndex >= 0) {
-        if (content) {
-          htmlArray.push(content);
-        }
-        content = {};
-        if (separator[separatorIndex] == "img") {
-          content.type = "image";
-          content.content = data.outerHTML;
-        } else {
-          content.type = separator[separatorIndex];
-          content.content = data.innerHTML;
-        }
-
-        htmlArray.push(content);
-      } else {
-        if (content == undefined || content.type != "text") {
-          content = {};
-          content.type = "text";
-          content.content = "";
-        } else {
-          content.content += data.innerHTML;
-        }
+  function isJson(str) {
+      try {
+          JSON.parse(str);
+      } catch (e) {
+          return false;
       }
-    })
-    htmlArray.push(content);
-
-    return htmlArray;
+      return true;
   }
 
   wrapWithParagraph = function(selector, replaceList) {
