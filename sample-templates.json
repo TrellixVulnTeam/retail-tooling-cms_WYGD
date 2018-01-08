@@ -5,6 +5,7 @@
     "content": {
       "packshot": {
         "title": "Productafbeeldingen",
+        "type": "product-images",
         "sort": 1,
         "elements": {
           "product-afbeeldingen": {
@@ -28,6 +29,7 @@
     "content": {
       "packshot": {
         "title": "Productafbeeldingen",
+        "type": "product-images",
         "sort": 1,
         "elements": {
           "afbeelding": {

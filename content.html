@@ -221,14 +221,14 @@
         }
 
         $("#preview .content").hide();
-        loadContent(getProductId(), '#edit-form').then(function(content){
+        loadContent(getProductId(), '#edit-form', null, "content-editor").then(function(content){
           $('#preview-live').attr("href", content.link);
           populateTemplateItems();
 
           loadTemplateInContentEditor($("#editor"), $("#panel-template")).then(function(template) {
             $("#edit-template").attr("href", "/template.html?template=" + template.id);
 
-            loadContent(getProductId(), '#edit-form').then(function(content){
+            loadContent(getProductId(), '#edit-form', null, "content-editor").then(function(content){
               $("#page-title").html(content.title);
               populateContentItems(false).then(function(){
                 enableEditMode();

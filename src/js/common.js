@@ -75,7 +75,7 @@
 
       $(row).find(elementDivider).each(function() {
         var col = this;
-        var contentType = $(col).attr("data-type") ? $(col).attr("data-type") : "";//getContentTypeFromClass(col);
+        // var contentType = $(col).attr("data-type") ? $(col).attr("data-type") : "";//getContentTypeFromClass(col);
 
         if (subElement) {
           var columnElements = $(col).find(subElement);
@@ -123,7 +123,7 @@
     return sectionElements;
   }
 
-  loadTemplate = function(formElement, templateId, subElement, sectionTemplates, elementTemplate, contentSelector) {
+  loadTemplate = function(formElement, templateId, subElement, sectionTemplates, elementTemplates, contentSelector) {
     if (templateId) setTemplateId(templateId);
 
     return getTemplate(getTemplateId()).then(function(template) {
@@ -157,44 +157,47 @@
 
       $.each(sectionsArray, function(sectionId, section) {
         if (!subElement || subElement==section.id) {
-          // var panel = $('<div class="row"></div>');
+          // var sectionElement = $('<div class="row"></div>');
           if (!section.type) section.type = "basic";
 
-          var panel = sectionTemplates ? $(sectionTemplates[section.type]).clone() : $('<div class="row"></div>');
-          panel.attr("id", section.id);
-          panel.attr("data-id", section.id);
-          panel.attr("data-title", section.title);
-          panel.attr("data-type", section.type);
+          var sectionElement = sectionTemplates ? $(sectionTemplates[section.type]).clone() : $('<div class="row"></div>');
+          // sectionElement.attr("id", section.id);
+          sectionElement.attr("data-id", section.id);
+          sectionElement.attr("data-title", section.title);
+          sectionElement.attr("data-type", section.type);
 
           if (sectionTemplates) {
-            $(panel).find("[data-title-element='true']").html(section.title);
+            $(sectionElement).find("[data-title-element='true']").html(section.title);
           }
 
           $.each(section.elements, function(elementId, element) {
-            var elementHtml = elementTemplate ? $(elementTemplate) : $('<div></div>');
-            elementHtml.attr("id", element.id);
-            elementHtml.attr("data-id", element.id);
-            elementHtml.attr("data-title", element.title);
-            elementHtml.attr("data-type", element.type);
-            elementHtml.addClass(element.class);
-            elementHtml.addClass("column");
-            elementHtml.addClass("element-" + elementId);
-            elementHtml.addClass("content-" + element.type);
+            // var contentElement = elementTemplates ? $(elementTemplates["header"]) : $('<div></div>');
+            var contentElement = $('<div></div>');
+            // contentElement.attr("id", element.id);
+            contentElement.attr("data-id", element.id);
+            contentElement.attr("data-title", element.title);
+            contentElement.attr("data-type", element.type);
+            contentElement.addClass(element.class);
+            contentElement.addClass("column");
+            contentElement.addClass("element-" + elementId);
+            contentElement.addClass("content-" + element.type);
 
-            if (elementTemplate) {
-              var elementContent = elementHtml.append(elementTemplate);
+            if (elementTemplates) {
+              var elementContent = contentElement.append(elementTemplates[template.id]);
               elementContent.find("[data-title-element='true']").html(element.title);
             } else {
-              elementHtml.append("<span></span>");
+              contentElement.append("<span></span>");
             }
 
             if (contentSelector) {
-              panel.find(contentSelector).append(elementHtml);
+              sectionElement.find(contentSelector).append(contentElement);
             } else {
-              panel.append(elementHtml);
+              sectionElement.append(contentElement);
             }
+            sectionElement.hide();
           })
-          $(formElement).append(panel);
+          $(formElement).html('<span class="loader glyphicon glyphicon-refresh glyphicon-refresh-animate"></span>');
+          $(formElement).append(sectionElement);
         }
       })
       return template;
@@ -254,14 +257,14 @@
       });
 
       $.each(sectionsArray, function(sectionId, section) {
-        var panel = sectionTemplate.clone();
-        var panelTitle = $(panel).find(".panel-title")[0];
-        var panelContent = $(panel).find(".panel-body")[0];
+        var sectionElement = sectionTemplate.clone();
+        var sectionElementTitle = $(sectionElement).find(".panel-title")[0];
+        var sectionElementContent = $(sectionElement).find(".panel-body")[0];
         var formElement = '';
 
-        panel.attr("id", section.id);
-        panel.addClass("section");
-        panelTitle.innerHTML = section.title;
+        sectionElement.attr("id", section.id);
+        sectionElement.addClass("section");
+        sectionElementTitle.innerHTML = section.title;
 
         $.each(section.elements, function(elementId, element) {
           var htmlElement = $("#" + element.id);
@@ -272,8 +275,8 @@
           }
         })
 
-        panelContent.innerHTML = formElement;
-        form.append(panel);
+        sectionElementContent.innerHTML = formElement;
+        form.append(sectionElement);
       })
       return template;
     })
@@ -308,11 +311,23 @@
     });
   }
 
-  loadContent = function(contentId, rootElementId, subElement, placeholder, viewType) {
-    // var contentId = getProductId();
+  loadContent = function(contentId, rootElementId, placeholder, viewType) {
     return getContent(viewType=="preview").then(function(allContent){
       var content = allContent[contentId];
+
       if (content) {
+        switch (viewType) {
+          case "template-editor":
+            subElement = '> .ge-content';
+            break;
+          case "content-editor":
+            subElement = '';
+            break;
+          default:
+            subElement = 'span';
+            break;
+        }
+
         var templateId = setTemplateId(content.type);
         return getTemplate(templateId).then(function(template){
           if (placeholder==undefined) placeholder = ""
@@ -320,47 +335,98 @@
 
           $.each(template.data().content, function(sectionId, section) {
             $.each(section.elements, function(elementId, element) {
-              var selector = subElement && subElement!=null ? (rootElementId + ' [data-id="' + elementId + '"] ' + subElement) : (rootElementId + ' [data-id="' + elementId + '"]');
-              var htmlElement = $(selector);
+              componentType = "element";
+              var elementSelector = rootElementId + ' [data-id="element-' + elementId + '"]';
+              var rootElement = $(elementSelector);
 
-              if (htmlElement[0]) {
+              if (rootElement.length==0) {
+                componentType = "default";
+                elementSelector = subElement && subElement!=null ? (rootElementId + ' [data-id="' + elementId + '"] ' + subElement) : (rootElementId + ' [data-id="' + elementId + '"]');
+                rootElement = $(elementSelector);
+              }
+
+              if (rootElement.length > 0) {
                 var value = getObjectById(content, elementId);
                 if (!value) value = placeholder;
                 switch (element.type) {
                   case "quote":
                     if (viewType=="live" || viewType=="preview") {
-                      // value="<p>" + value + "</p>";
                       var html = convertMarkdownToHtml(value);
 
-                      htmlElement.val(convertMarkdownToHtml(value));
-                      htmlElement.html(convertMarkdownToHtml(value));
+                      rootElement.val(convertMarkdownToHtml(value));
+                      rootElement.html(convertMarkdownToHtml(value));
                     } else {
                       var html = convertMarkdownToHtml(value);
 
                       var quote = $(html).filter('blockquote').find('p').html();
                       if (!quote) quote = value;
-                      htmlElement.find("#" + elementId + "-content").val(quote);
-                      htmlElement.find("#" + elementId + "-content").html(quote);
+                      rootElement.find("#" + elementId + "-content").val(quote);
+                      rootElement.find("#" + elementId + "-content").html(quote);
 
                       var person = $(html).find('person').html();
-                      htmlElement.find("#" + elementId + "-person").val(person);
-                      htmlElement.find("#" + elementId + "-person").html(person);
+                      rootElement.find("#" + elementId + "-person").val(person);
+                      rootElement.find("#" + elementId + "-person").html(person);
                       break;
                     }
                   case "text":
                   case "rich-text":
-                    htmlElement.val(convertMarkdownToHtml(value));
-                    htmlElement.html(convertMarkdownToHtml(value));
+                    if (viewType=="live") {
+                      rootElement.append(convertMarkdownToHtml(value));
+                    } else {
+                      rootElement.val(convertMarkdownToHtml(value));
+                      rootElement.html(convertMarkdownToHtml(value));
+                    }
                     break;
                   case "image":
+                    if (viewType=="live") {
+                      if (contentId=="productafbeeldingen-sonos") {
+                        rootElement.attr("src", "/sample_content/images/" + templateId + "/" + value);
+                      } else {
+                        rootElement.html(convertMarkdownToHtml(value));
+                      }
+                    } else {
+                      populateImageList(rootElement, template.id, value);
+                    }
+                    break;
                   case "imagelist":
-                    populateImageList(htmlElement, template.id, value);
+                    if (viewType=="live") {
+                      var images = isJson(value) ? JSON.parse(value) : value;
+
+                      if (elementId=="product-afbeeldingen") {
+                        var imageCounter = 0;
+                        var list = $('.product-image-thumb-list');
+                        rootElement.html("");
+
+                        images.forEach(function(image) {
+                          imageCounter++
+                          var imageElement = $('<img unselectable="on" draggable="false" border="0" alt="" class="h-fluid-img js_product_thumb">')
+                            .addClass("thumbnail")
+                            .attr("src", "/sample_content/images/" + templateId + "/" + image)
+                            .attr("data-index", imageCounter)
+
+                          var listItem = $('<li class="nav nav--thumb js_thumb"></li>');
+                          if (imageCounter==1) listItem.addClass("is-active");
+                          rootElement.append(listItem.wrapInner(imageElement));
+                        });
+                      } else {
+                        var list = $('<ul class="imagelist"></ul>');
+                        rootElement.append(list);
+
+                        images.forEach(function(image) {
+                          var imageElement = $('<img>')
+                            .addClass("thumbnail")
+                            .attr("src", "/sample_content/images/" + templateId + "/" + image)
+                          list.append($("<li></li>").wrapInner(imageElement));
+                        });
+                      }
+                    } else {
+                      populateImageList(rootElement, template.id, value);
+                    }
                     break;
                   case "list":
                     var html = convertMarkdownToHtml(value);
 
-                    if (html=="" && viewType!="preview" && viewType!="live") html="<ul><li></li></ul>";
-                    if (viewType=="live") {
+                    if (viewType=="live" || viewType=="preview") {
                       if (elementId=="pluspunten" || elementId=="minpunten") {
                         $("body").append('<div id="temp-html" style="display: none"></div>');
                         var tempDiv = $("#temp-html").append(html);
@@ -375,16 +441,23 @@
                         html = tempDiv.html();
                         tempDiv.remove();
                       }
+                      rootElement.append(html);
+                    } else {
+                      if (html=="") html="<ul><li></li></ul>";
+                      rootElement.val(html);
+                      rootElement.html(html);
                     }
-                    htmlElement.val(html);
-                    htmlElement.html(html);
                     break;
                   default:
-                    if (element.type.substring(0, 9)=="template-") {
-                      htmlElement.val(value);
+                    if (viewType=="live") {
+                      rootElement.append(value);
                     } else {
-                      htmlElement.val(value);
-                      htmlElement.html(value);
+                      if (element.type.substring(0, 9)=="template-") {
+                        rootElement.val(value);
+                      } else {
+                        rootElement.val(value);
+                        rootElement.html(value);
+                      }
                     }
                 }
               }
@@ -473,11 +546,77 @@
 
     var preview = getURLParameter("preview") && getURLParameter("preview")!='undefined' ? true : false;
 
+    var productImagesTemplate = `<div class="product-images product_media [ slot slot--product-images ] js_product_media" data-test="product-images">
+      <a name="product_images" id="product_images"></a>
+      <div class="product_image js_product_image">
+        <div class="fluid-grid fluid-grid--s">
+          <div class="fluid-grid__item one-whole">
+            <div class="product-image__promo-labels">
+              <div class="awareness-label awareness-label--image awareness-label--award" data-test="awareness-label-award">
+                <a href="#awareness-award" class="awareness-label__link  js_awareness_scroll_trigger" data-test="scroll-to-trigger">
+                  <img src="//s.s-bol.com/nl/upload/images/expertlabels/award_whathifi_5stars.png" alt="" title="" data-test="awareness-label-image" width="82" height="26">
+                </a>
+              </div>
+            </div>
+            <div class="product-image-content js_image_container">
+              <div class="product-image-content js_image_container" data-rnwy-component="ab80e392-dfba-484d-b888-4c637c856f14">
+                <div class="product-image--content js_product_image_pan" data-test="product-image-content">
+                  <div class="sb sb-chevron-back sb-resize--lg product-image__paging product-image__prev js_prev"></div>
+                  <div class="product_zoom_wrapper js_product_zoom_wrapper tst_product_zoom_wrapper js_product_image_pan_item product_zoom_wrapper--has-zoom">
+                    <img data-id="element-afbeelding" src="//s.s-bol.com/imgbase0/imagebase3/large/FC/6/3/6/3/9200000050173636.jpg" data-zoom-src="//s.s-bol.com/imgbase0/imagebase3/extralarge/FC/6/3/6/3/9200000050173636.jpg" itemprop="image" class="js_product_img" alt="Sonos PLAY:5 - Zwart" title="Sonos PLAY:5 - Zwart" data-test="product-image">
+                  </div>
+                  <div class="sb sb-chevron-next sb-resize--lg product-image__paging product-image__next js_next"></div>
+                </div>
+                <div class="product-image__image-number js_product-image-number">Afbeelding 1 van 15</div>
+              </div>
+            </div>
+          </div>
+          <div class="fluid-grid__item one-whole product-image-thumb-list js_thumbs_list" data-test="thumb-list">
+            <div class="product-image__thumb-list is-border-box product-image__thumb-list--has-navigation" data-test="product-images">
+              <div class="nav nav--prev js_nav_prev"><span class="sb sb-chevron-back"></span></div>
+              <div data-id="element-product-afbeeldingen" class="list js_list">
+                <ul class="js_thumbs_list_ul product-image__thumb-list--has-scroller">
+                  <li class="nav nav--thumb js_thumb is-active" data-index="0"><img src="//s.s-bol.com/imgbase0/imagebase3/thumb/FC/6/3/6/3/9200000050173636.jpg" unselectable="on" draggable="false" border="0" alt="" class="h-fluid-img js_product_thumb"></li>
+                  <li class="nav nav--thumb js_thumb" data-index="1"><img src="//s.s-bol.com/imgbase0/imagebase3/thumb/FC/6/3/6/3/9200000050173636_1.jpg" unselectable="on" draggable="false" border="0" alt="" class="h-fluid-img js_product_thumb"></li>
+                  <li class="nav nav--thumb js_thumb" data-index="2"><img src="//s.s-bol.com/imgbase0/imagebase3/thumb/FC/6/3/6/3/9200000050173636_2.jpg" unselectable="on" draggable="false" border="0" alt="" class="h-fluid-img js_product_thumb"></li>
+                  <li class="nav nav--thumb js_thumb" data-index="3"><img src="//s.s-bol.com/imgbase0/imagebase3/thumb/FC/6/3/6/3/9200000050173636_3.jpg" unselectable="on" draggable="false" border="0" alt="" class="h-fluid-img js_product_thumb"></li>
+                  <li class="nav nav--thumb js_thumb" data-index="4"><img src="//s.s-bol.com/imgbase0/imagebase3/thumb/FC/6/3/6/3/9200000050173636_4.jpg" unselectable="on" draggable="false" border="0" alt="" class="h-fluid-img js_product_thumb"></li>
+                  <li class="nav nav--thumb js_thumb" data-index="5"><img src="//s.s-bol.com/imgbase0/imagebase3/thumb/FC/6/3/6/3/9200000050173636_5.jpg" unselectable="on" draggable="false" border="0" alt="" class="h-fluid-img js_product_thumb"></li>
+                  <li class="nav nav--thumb js_thumb" data-index="6"><img src="//s.s-bol.com/imgbase0/imagebase3/thumb/FC/6/3/6/3/9200000050173636_6.jpg" unselectable="on" draggable="false" border="0" alt="" class="h-fluid-img js_product_thumb"></li>
+                  <li class="nav nav--thumb js_thumb" data-index="7"><img src="//s.s-bol.com/imgbase0/imagebase3/thumb/FC/6/3/6/3/9200000050173636_7.jpg" unselectable="on" draggable="false" border="0" alt="" class="h-fluid-img js_product_thumb"></li>
+                  <li class="nav nav--thumb js_thumb" data-index="8"><img src="//s.s-bol.com/imgbase0/imagebase3/thumb/FC/6/3/6/3/9200000050173636_8.jpg" unselectable="on" draggable="false" border="0" alt="" class="h-fluid-img js_product_thumb"></li>
+                  <li class="nav nav--thumb js_thumb" data-index="9"><img src="//s.s-bol.com/imgbase0/imagebase3/thumb/FC/6/3/6/3/9200000050173636_9.jpg" unselectable="on" draggable="false" border="0" alt="" class="h-fluid-img js_product_thumb"></li>
+                  <li class="nav nav--thumb js_thumb" data-index="10"><img src="//s.s-bol.com/imgbase0/imagebase3/thumb/FC/6/3/6/3/9200000050173636_10.jpg" unselectable="on" draggable="false" border="0" alt="" class="h-fluid-img js_product_thumb"></li>
+                  <li class="nav nav--thumb js_thumb" data-index="11"><img src="//s.s-bol.com/imgbase0/imagebase3/thumb/FC/6/3/6/3/9200000050173636_11.jpg" unselectable="on" draggable="false" border="0" alt="" class="h-fluid-img js_product_thumb"></li>
+                  <li class="nav nav--thumb js_thumb" data-index="12"><img src="//s.s-bol.com/imgbase0/imagebase3/thumb/FC/6/3/6/3/9200000050173636_12.jpg" unselectable="on" draggable="false" border="0" alt="" class="h-fluid-img js_product_thumb"></li>
+                  <li class="nav nav--thumb js_thumb" data-index="13"><img src="//s.s-bol.com/imgbase0/imagebase3/thumb/FC/6/3/6/3/9200000050173636_13.jpg" unselectable="on" draggable="false" border="0" alt="" class="h-fluid-img js_product_thumb"></li>
+                  <li class="nav nav--thumb js_thumb" data-index="14"><img src="//s.s-bol.com/imgbase0/imagebase3/thumb/FC/6/3/6/3/9200000050173636_14.jpg" unselectable="on" draggable="false" border="0" alt="" class="h-fluid-img js_product_thumb"></li>
+                  <div class="product-image__thumb-scroller" style="transform: translate3d(470px, 0px, 0px); width: 80px; height: 80px;"></div>
+                </ul>
+              </div>
+              <div class="nav nav--next js_nav_next"><span class="sb sb-chevron-next"></span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="product-image-cta-container">
+        <a href="#" title="Sonos PLAY:5 - Zwart" data-ean="8717755773036" data-image="https://s.s-bol.com/imgbase0/imagebase3/mini/FC/6/3/6/3/9200000050173636.jpg" data-test="product-image-cta-video" class="product-image-cta product-image-cta--video js-product-image-cta--video is-hidden">Bekijk video</a>
+        <link rel="dns-prefetch" href="//bolcom.tu-vms.com">
+        <link rel="preconnect" href="//bolcom.tu-vms.com">
+      </div>
+    </div>`;
+
+    var productImagesSectionTemplate = `<ul class="js_thumbs_list_ul product-image__thumb-list--has-scroller" style="transform: translate3d(-147px, 0px, 0px);">
+        <li class="nav nav--thumb js_thumb" data-index="0">
+          <img unselectable="on" draggable="false" border="0" alt="" class="h-fluid-img js_product_thumb">
+        </li>
+      </ul>`;
+
     var sectionCollapsibleTemplate = `<div class="slot slot--description slot--seperated slot--seperated--has-more-content js_slot-description">
       <h2 data-title-element="true"></h2>
       <div class="js_show-more-description show-more">
         <div class="js_show-more-holder show-more-holder show-more--l product-tracklists-show-more--animate">
-          <div class="description row">
+          <div data-id="section-productbeschrijving" class="description row">
           </div>
         </div>
 
@@ -490,29 +629,37 @@
       </div>
     </div>`;
 
-    var sectionTemplate = `<div class="slot slot--description slot--seperated">
+    var sectionBasicTemplate = `<div class="slot slot--description slot--seperated">
       <h2 data-title-element="true"></h2>
-      <div class="description row">
+      <div data-id="productbeschrijving" class="description row">
       </div>
     </div>`;
 
-    var elementTemplate = `<span><h3 data-title-element="true"></h3></span>`;
+    var elementHeaderTemplate = `<span><h3 data-title-element="true"></h3></span>`;
+    var elementContentTemplate = `<span><h3 data-title-element="true"></h3></span>`;
 
     var element = $(elementSelector);
     var elementContentSlug = ' .description';
     var elementContent = $(elementSelector + " " + elementContentSlug);
-    element.html('<div><span id="loader" class="loader glyphicon glyphicon-refresh glyphicon-refresh-animate"></span></div>');
+    element.html("");
+    // element.html('<div><span id="loader" class="loader glyphicon glyphicon-refresh glyphicon-refresh-animate"></span></div>');
 
     var contentControls = $('<div class="content-controls slot slot--seperated"></div>');
     element.before(contentControls);
     contentControls.append('<a href="http://localhost:8000/template.html?template=' + templateId + '" class="btn buy-block__btn-wishlist btn--wishlist btn--quaternary btn--lg js_add_to_wishlist_link js_preventable_buy_action" title="Pas template aan"><i class="fa fa-th"></i> Pas template aan</a>');
     contentControls.append('<a href="http://localhost:8000/content.html?content=' + productId + '" class="btn buy-block__btn-wishlist btn--wishlist btn--quaternary btn--lg js_add_to_wishlist_link js_preventable_buy_action" title="Pas content aan"><i class="fa fa-edit"></i> Pas content aan</a>');
 
-    var sectionTemplates = {"basic": sectionTemplate, "collapsible": sectionCollapsibleTemplate};
-    loadTemplate(element, templateId, null, sectionTemplates, elementTemplate, elementContentSlug).then(function(template){
-      loadContent(productId, elementSelector, 'span', null, preview ? "preview" : "live").then(function(content) {
+    var sectionTemplates = {"basic": sectionBasicTemplate, "collapsible": sectionCollapsibleTemplate, "product-images": productImagesTemplate};
+    var elementTemplates = {"header": elementHeaderTemplate, "productbeschrijving-electronica": elementContentTemplate};
+    var viewType = preview ? "preview" : "live";
+
+    loadTemplate(element, templateId, null, sectionTemplates, elementTemplates, elementContentSlug).then(function(template) {
+      loadContent(productId, elementSelector, null, viewType).then(function(content) {
         // var replaceList = ["blockquote"];
         // wrapWithParagraph(elementSelector, replaceList);
+
+        $(elementSelector).show();
+        $(elementSelector).find(".loader").remove();
 
         $(elementSelector + ' .show-more__button').click(function(event) {
           var parent = $(this).parent().parent().parent();

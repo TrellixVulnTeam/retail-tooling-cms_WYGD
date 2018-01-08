@@ -93,7 +93,7 @@
         }
         setProductId($("#content-items option:selected").val());
         $('#preview-live').attr("href", liveLink + "?content=" + getProductId());
-        loadContent(getProductId(), '#grid-editor', '> .ge-content', 'No content').then(function() {
+        loadContent(getProductId(), '#grid-editor', 'No content', "template-editor").then(function() {
           enableEditMode();
         });
       })
@@ -166,7 +166,7 @@
 
           enableEditMode();
 
-          loadContent(getProductId(), '#grid-editor', '> .ge-content').then(function() {
+          loadContent(getProductId(), '#grid-editor', null, "template-editor").then(function() {
             $("#preview-content ul.dropdown-menu a").click(function() {
               disableEditMode();
               if (typeof tinymce != 'undefined' && tinymce != null) {
