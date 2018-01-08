@@ -106,14 +106,35 @@ person:before {
 .slot--description img {
   width: 100%;
 }
+.content-controls {
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: 0;
+  padding: 30px 0 0 0;
+  text-align: center;
+  z-index: 1000;
+}
 .content-controls a {
   float: none;
   margin-right: 5px;
   display: inline-block;
 }
+.hover {
+  outline: 1px solid #36c;
+}
+.hover .slot {
+  opacity: .3;
+}
 .slot--description h4 {
   padding-top: 10px;
   padding-bottom: 10px;
+}
+.slot--product-images {
+  min-height: 595px;
+}
+.slot--product-images .loader {
+  margin-top: 280px;
 }
 .slot--description h2,
 .slot--description[data-id='productbeschrijving'] h3[data-title-element='true'] {

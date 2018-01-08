@@ -463,6 +463,9 @@
               }
             })
           })
+          $(rootElementId).find(".loader").remove();
+          $(rootElementId).children().show();
+
           return allContent[contentId];
         })
       }
@@ -541,7 +544,7 @@
     $('#product_title').append('<a id="edit-page-template" href="http://localhost:8000/template.html?template=pdp" class="review__btn-write-review" style="float: right" title="Pas template aan"><i class="fa fa-th"></i> Pas pagina-template aan</a>');
   }
 
-  setShopElementContent = function(elementSelector, templateId, productId) {
+  setShopElementContent = function(rootElementSelector, templateId, productId) {
     if (getURLParameter("content")) productId = setProductId(getURLParameter("content"));
 
     var preview = getURLParameter("preview") && getURLParameter("preview")!='undefined' ? true : false;
@@ -638,30 +641,35 @@
     var elementHeaderTemplate = `<span><h3 data-title-element="true"></h3></span>`;
     var elementContentTemplate = `<span><h3 data-title-element="true"></h3></span>`;
 
-    var element = $(elementSelector);
-    var elementContentSlug = ' .description';
-    var elementContent = $(elementSelector + " " + elementContentSlug);
-    element.html("");
-    // element.html('<div><span id="loader" class="loader glyphicon glyphicon-refresh glyphicon-refresh-animate"></span></div>');
-
-    var contentControls = $('<div class="content-controls slot slot--seperated"></div>');
-    element.before(contentControls);
-    contentControls.append('<a href="http://localhost:8000/template.html?template=' + templateId + '" class="btn buy-block__btn-wishlist btn--wishlist btn--quaternary btn--lg js_add_to_wishlist_link js_preventable_buy_action" title="Pas template aan"><i class="fa fa-th"></i> Pas template aan</a>');
-    contentControls.append('<a href="http://localhost:8000/content.html?content=' + productId + '" class="btn buy-block__btn-wishlist btn--wishlist btn--quaternary btn--lg js_add_to_wishlist_link js_preventable_buy_action" title="Pas content aan"><i class="fa fa-edit"></i> Pas content aan</a>');
+    var rootElement = $(rootElementSelector);
+    var rootElementContentSlug = ' .description';
+    var rootElementContent = $(rootElementSelector + " " + rootElementContentSlug);
+    rootElement.html("");
 
     var sectionTemplates = {"basic": sectionBasicTemplate, "collapsible": sectionCollapsibleTemplate, "product-images": productImagesTemplate};
     var elementTemplates = {"header": elementHeaderTemplate, "productbeschrijving-electronica": elementContentTemplate};
     var viewType = preview ? "preview" : "live";
 
-    loadTemplate(element, templateId, null, sectionTemplates, elementTemplates, elementContentSlug).then(function(template) {
-      loadContent(productId, elementSelector, null, viewType).then(function(content) {
+    loadTemplate(rootElement, templateId, null, sectionTemplates, elementTemplates, rootElementContentSlug).then(function(template) {
+      loadContent(productId, rootElementSelector, null, viewType).then(function(content) {
         // var replaceList = ["blockquote"];
         // wrapWithParagraph(elementSelector, replaceList);
 
-        $(elementSelector).show();
-        $(elementSelector).find(".loader").remove();
+        var contentControls = $('<div class="content-controls"></div>');
+        contentControls.hide();
+        rootElement.append(contentControls);
+        contentControls.append('<a href="http://localhost:8000/template.html?template=' + templateId + '" class="btn buy-block__btn-wishlist btn--wishlist btn--quaternary btn--lg js_add_to_wishlist_link js_preventable_buy_action" title="Pas template aan"><i class="fa fa-th"></i> Pas template aan</a>');
+        contentControls.append('<a href="http://localhost:8000/content.html?content=' + productId + '" class="btn buy-block__btn-wishlist btn--wishlist btn--quaternary btn--lg js_add_to_wishlist_link js_preventable_buy_action" title="Pas content aan"><i class="fa fa-edit"></i> Pas content aan</a>');
 
-        $(elementSelector + ' .show-more__button').click(function(event) {
+        rootElement.hover(function() {
+          contentControls.show();
+          rootElement.addClass("hover");
+        }, function() {
+          contentControls.hide();
+          rootElement.removeClass("hover");
+        })
+
+        $(rootElementSelector + ' .show-more__button').click(function(event) {
           var parent = $(this).parent().parent().parent();
           if (parent.hasClass('active')) {
             parent.removeClass('active');
