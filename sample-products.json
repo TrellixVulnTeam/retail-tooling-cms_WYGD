@@ -74,8 +74,8 @@
     "link": "/sample_content/sonos.html",
     "content": {
       "packshot": {
-        "afbeelding": "9200000050173636_1.jpg",
-        "product-afbeeldingen": "[\"9200000050173636_11.jpg\",\"9200000050173636_12.jpg\",\"9200000050173636_13.jpg\"]"
+        "afbeelding": "https://firebasestorage.googleapis.com/v0/b/retail-tooling-cms.appspot.com/o/images%2F9200000050173636_1.jpg?alt=media&token=235133b9-56a2-46bb-b848-da59e428bf5e",
+        "product-afbeeldingen": "[\"https://firebasestorage.googleapis.com/v0/b/retail-tooling-cms.appspot.com/o/images%2F9200000050173636_1.jpg?alt=media&token=235133b9-56a2-46bb-b848-da59e428bf5e\",\"https://firebasestorage.googleapis.com/v0/b/retail-tooling-cms.appspot.com/o/images%2F9200000050173636_10.jpg?alt=media&token=a830ef37-85a4-4a9b-9b16-80bb727acb12\",\"https://firebasestorage.googleapis.com/v0/b/retail-tooling-cms.appspot.com/o/images%2F9200000050173636_11.jpg?alt=media&token=ebf1ded7-1231-4cb5-b77d-e7317b3d7d35\",\"https://firebasestorage.googleapis.com/v0/b/retail-tooling-cms.appspot.com/o/images%2F9200000050173636_12.jpg?alt=media&token=00bb6539-c233-45d6-8174-83352f8acd6f\",\"https://firebasestorage.googleapis.com/v0/b/retail-tooling-cms.appspot.com/o/images%2F9200000050173636_13.jpg?alt=media&token=667a75dc-470c-40db-8874-494ecf16d529\"]"
       }
     }
   }

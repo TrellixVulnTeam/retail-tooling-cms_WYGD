@@ -9,5 +9,6 @@ var firebaseConfig = {
 };
 firebase.initializeApp(firebaseConfig);
 
-// Initialize Cloud Firestore through Firebase
+// Initialize Cloud Firestore & Storage through Firebase
 var db = firebase.firestore();
+var storage = firebase.storage();

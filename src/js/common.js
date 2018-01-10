@@ -47,6 +47,60 @@
     });
   }
 
+  resetSampleImages = function() {
+    return getTemplates().then(function(templates) {
+      var imageObjects = {};
+
+      return $.getJSON("sample-images.json", function(images) {
+        var storageRef = storage.ref();
+        var imagesRef = storageRef.child('images');
+
+        $.each(images, function(imageId, image) {
+          var imageRef = imagesRef.child(imageId);
+
+          var getDownloadUrlPromise = imageRef.getDownloadURL().then(function(url) {
+            var imageObject = {template: image.template, url: url};
+            var imageListRef = db.collection("images").doc(imageId);
+            imageObjects[imageId] = imageObject;
+            imageListRef.set(imageObject)
+            .then(function() {
+                console.log("Image successfully updated!");
+            })
+            .catch(function(error) {
+                // The document probably doesn't exist.
+                console.error("Error updating mage: ", error);
+            });
+          })
+        })
+      })
+    })
+  }
+
+  getSampleImagesJSON = function() {
+    getTemplates().then(function(templates) {
+      var imageObjects = {};
+
+      $.each(templates, function(templateId, template) {
+        var batch = db.batch();
+        $.getJSON("http://localhost:8888/images/" + templateId, function(images) {
+          var storageRef = storage.ref();
+          var imagesRef = storageRef.child('images');
+
+          images.forEach(function(fileName) {
+            var imageRef = imagesRef.child(fileName);
+
+            var getDownloadUrlPromise = imageRef.getDownloadURL().then(function(url) {
+              var imageObject = {template: templateId, url: url};
+              var imageListRef = db.collection("images").doc(fileName);
+              imageObjects[fileName] = imageObject;
+              console.log(JSON.stringify(imageObjects));
+            })
+          })
+        })
+      })
+    })
+  }
+
   saveContent = function(contentElement, configOptions) {
     return getContent().then(function(allContent){
       var content = parseContent(contentElement, configOptions);
@@ -374,7 +428,7 @@
                   case "image":
                     if (viewType=="live") {
                       if (contentId=="productafbeeldingen-sonos") {
-                        rootElement.attr("src", "/sample_content/images/" + template.id + "/" + value);
+                        rootElement.attr("src", value);
                       } else {
                         rootElement.html(convertMarkdownToHtml(value));
                       }
@@ -383,7 +437,7 @@
                     } else if (viewType=="template-editor") {
                       if (value) {
                         var imageElement = $('<img>')
-                          .attr("src", "/sample_content/images/" + template.id + "/" + value)
+                          .attr("src", value)
                         rootElement.append(imageElement);
                       }
                     } else {
@@ -404,7 +458,7 @@
                             imageCounter++
                             var imageElement = $('<img unselectable="on" draggable="false" border="0" alt="" class="h-fluid-img js_product_thumb">')
                               .addClass("thumbnail")
-                              .attr("src", "/sample_content/images/" + template.id + "/" + image)
+                              .attr("src", image)
                               .attr("data-index", imageCounter)
 
                             var listItem = $('<li class="nav nav--thumb js_thumb"></li>');
@@ -419,7 +473,7 @@
                           images.forEach(function(image) {
                             var imageElement = $('<img>')
                               .addClass("thumbnail")
-                              .attr("src", "/sample_content/images/" + template.id + "/" + image)
+                              .attr("src", image)
                             list.append($("<li></li>").wrapInner(imageElement));
                           });
                         }
@@ -434,7 +488,7 @@
                       if (images) {
                         images.forEach(function(image) {
                           var imageElement = $('<img>')
-                            .attr("src", "/sample_content/images/" + template.id + "/" + image)
+                            .attr("src", image)
                           list.append($("<li></li>").wrapInner(imageElement));
                         });
                       }
@@ -545,7 +599,6 @@
       localStorage.setItem("previewProducts", jsonOutput);
     } else {
       var batch = db.batch();
-      var that = this;
       $.each(content, function(contentKey, contentObject) {
         if (convertToMarkdown) contentObject = convertPropertiesToMarkdown(contentObject)
         var contentRef = db.collection("products").doc(contentKey);
@@ -739,6 +792,18 @@
     });
   }
 
+  getImages = function(templateId) {
+    var images = {};
+    return db.collection("images").where("template", "==", templateId)
+    .get()
+    .then(function(querySnapshot) {
+      querySnapshot.forEach(function(image) {
+          images[image.id] = image.data();
+      });
+      return images;
+    });
+  }
+
   storeTemplate = function(id, template, isPreview) {
     var templates = {};
     templates[id] = template;
@@ -776,6 +841,39 @@
     })
     .catch(function(error) {
         console.error("Error updating document: ", error);
+    });
+  }
+
+  storeImage = function(file, templateId) {
+    var imageId = file.name;
+    var storageRef = storage.ref();
+    var imagesRef = storageRef.child('images');
+    var imageRef = imagesRef.child(imageId);
+
+    imageRef.put(file).then(function(snapshot) {
+      var imageURL = snapshot.downloadURL;
+
+      var imageObject = {template: templateId, url: imageURL};
+      var imageListRef = db.collection("images").doc(imageId);
+      console.log(imageObject)
+      imageListRef.set(imageObject)
+      .then(function() {
+          console.log("Image successfully uploaded!");
+      })
+      .catch(function(error) {
+          // The document probably doesn't exist.
+          console.error("Error updating mage: ", error);
+      });
+    });
+  }
+
+  getImage = function(fileName) {
+    var storageRef = storage.ref();
+    var imagesRef = storageRef.child('images');
+    var imageRef = imagesRef.child(fileName);
+
+    imageRef.getDownloadURL().then(function(url) {
+      console.log(url);
     });
   }
 
@@ -1003,11 +1101,11 @@
   }
 
   populateImageList = function(element, templateId, selectedItemsJSON) {
-    return $.getJSON("http://localhost:8888/images/" + templateId, function(images) {
-      images.forEach(function(image) {
+    getImages(templateId).then(function(images) {
+      $.each(images, function(imageId, image) {
         element.append($("<option></option>")
-            .attr("data-img-src", "/sample_content/images/" + templateId + "/" + image)
-            .attr("value", image)
+            .attr("data-img-src", image.url)
+            .attr("value", image.url)
             .text(image)
           );
       });
@@ -1170,4 +1268,23 @@
     return text.toLowerCase().split(' ').join('-');;
   }
 
+  initToastr = function() {
+    toastr.options = {
+      "closeButton": false,
+      "debug": false,
+      "newestOnTop": false,
+      "progressBar": false,
+      "positionClass": "toast-top-right",
+      "preventDuplicates": false,
+      "onclick": null,
+      "showDuration": "300",
+      "hideDuration": "500",
+      "timeOut": "3000",
+      "extendedTimeOut": "1000",
+      "showEasing": "swing",
+      "hideEasing": "linear",
+      "showMethod": "fadeIn",
+      "hideMethod": "fadeOut"
+    }
+  }
 })(jQuery);

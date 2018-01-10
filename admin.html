@@ -6,11 +6,9 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
-  <title>Component editor</title>
+  <title>Component editor - Admin</title>
   <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" />
   <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" />
-  <link rel="stylesheet" type="text/css" href="dist/grideditor.css" />
-  <link rel="stylesheet" type="text/css" href="dist/grideditor-font-awesome.css" />
   <link rel="stylesheet" type="text/css" href="dist/main.css" />
   <link rel="stylesheet" type="text/css" href="dist/sketchy.css" />
   <link href="https://fonts.googleapis.com/css?family=Walter+Turncoat" rel="stylesheet">
@@ -21,11 +19,11 @@
     <div class="container">
       <div class="navbar-header">
         <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
-              <span class="sr-only">Toggle navigation</span>
-              <span class="icon-bar"></span>
-              <span class="icon-bar"></span>
-              <span class="icon-bar"></span>
-            </button>
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
       </div>
       <div id="navbar" class="collapse navbar-collapse">
         <ul class="nav navbar-nav">
@@ -37,17 +35,29 @@
   </nav>
 
   <div class="container">
-    <div class="content">
+    <div id="edit-form" class="content ">
       <h1 class="form-group">
-        <span>Content</span>
-        <div class="pull-right main-controls">
-          <button id="reset-content" class='btn btn-secondary'>Reset</button>
-          <button id="reset-images" class='btn btn-secondary'>Reset images</button>
-          <button id="add-content" class='btn btn-primary' disabled>Add</button>
-        </div>
+        Admin
       </h1>
-      <table id="content-list" class="table table-bordered"></table>
-      <span id="loader" class="loader glyphicon glyphicon-refresh glyphicon-refresh-animate"></span>
+      <div class="form-horizontal">
+        <div class="form-group">
+          <label for="template" class="col-sm-2 control-label">Template</label>
+          <div class="col-sm-10">
+            <select id="template" class="form-control"></select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="image-upload-input" class="col-sm-2 control-label">Afbeelding</label>
+          <div class="col-sm-10">
+            <input type="file" accept=".png,.jpg,.jpeg" class="form-control" id="image-upload-input">
+          </div>
+        </div>
+        <div class="form-group">
+          <div class="col-sm-offset-2 col-sm-10">
+            <button id="upload-image" type="submit" class="btn btn btn-primary" disabled="true">Upload</button>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -59,33 +69,36 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/tinymce/4.7.3/jquery.tinymce.min.js"></script>
   <script src="https://www.gstatic.com/firebasejs/4.8.0/firebase.js"></script>
   <script src="https://www.gstatic.com/firebasejs/4.8.0/firebase-firestore.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/showdown/1.8.6/showdown.min.js"></script>
   <script src="dist/jquery.grideditor.js"></script>
-  <script src="dist/reMarked.js"></script>
   <script src="http://localhost:35729/livereload.js"></script>
 
   <script>
-    $("#reset-content").on('click', function() {
-      resetSampleContent().done(function(){
-        init();
-        toastr.success('Content restored')
-      });
-    })
-
-    $("#reset-images").on('click', function() {
-      resetSampleImages();
-      toastr.success('Images restored')
-    })
-
     $(document).ready(function() {
-      init = function() {
-        initToastr();
-        loadContentItems('#content-list')
-        .then(function(content) {
-          $("#loader").hide();
-          $('#content-list').show();
-        })
-      }
-      init();
+      var image = [];
+
+      getTemplates().then(function(templates) {
+        var templatesDropdown = $('#template');
+        templatesDropdown.html("");
+
+        $.each(templates, function (templateId, template) {
+          templatesDropdown.append($("<option></option>")
+              .attr("value", templateId)
+              .text(template.title)
+            );
+        });
+      })
+
+      $("#image-upload-input").change(function() {
+        image = this.files[0];
+        $("#upload-image").removeAttr("disabled");
+      });
+
+      $("#upload-image").click(function() {
+        var templateId = $('#template').val();
+        console.log(templateId)
+        storeImage(image, templateId);
+      });
 
     });
   </script>
