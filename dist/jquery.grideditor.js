@@ -61,7 +61,8 @@ $.fn.gridEditor = function( options ) {
             'content_types'     : [{id: "text", label: "Tekst"}, {id: "rich-text", label: "Opgemaakte tekst"}, {id: "list", label: "Lijst"}, {id: "quote", label: "Annotatie"}, {id: "image", label: "Afbeelding"}, {id: "image-list", label: "Meerdere afbeeldingen"}, {id: "warning", label: "Waarschuwing"}],
             'template_types'    : [{id: "basic", label: "Basic"}, {id: "collapsible", label: "Collapsible"}],
             'prios'             : [{id: 1, label: "Hoge prio"}, {id: 2, label: "Medium prio"}, {id: 3, label: "Lage prio"}],
-            'default_content_type_id'     : "text"
+            'default_content_type_id'     : "text",
+            'default_content_prio' : 2
         }, options);
 
 
@@ -681,10 +682,11 @@ $.fn.gridEditor = function( options ) {
             return $('<div class="row" data-id="' + slugify(title) + '" data-title="' + title + '" />')
         }
 
-        function createColumn(size, contentType, title) {
+        function createColumn(size, contentType, title, contentPrio) {
           elementCount++;
           if (title==undefined) title = $.grep(settings.content_types, function(e){ return e.id == settings.default_content_type_id}).label;
           if (contentType==undefined) contentType = settings.default_content_type_id;
+          if (contentPrio==undefined) contentPrio = settings.default_content_prio;
           var columnId = contentType + "-" + elementCount;
 
           return $('<div/>')
