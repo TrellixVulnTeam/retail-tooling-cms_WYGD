@@ -60,6 +60,7 @@ $.fn.gridEditor = function( options ) {
             'source_textarea'   : '',
             'content_types'     : [{id: "text", label: "Tekst"}, {id: "rich-text", label: "Opgemaakte tekst"}, {id: "list", label: "Lijst"}, {id: "quote", label: "Annotatie"}, {id: "image", label: "Afbeelding"}, {id: "image-list", label: "Meerdere afbeeldingen"}, {id: "warning", label: "Waarschuwing"}],
             'template_types'    : [{id: "basic", label: "Basic"}, {id: "collapsible", label: "Collapsible"}],
+            'prios'             : [{id: 1, label: "Hoge prio"}, {id: 2, label: "Medium prio"}, {id: 3, label: "Lage prio"}],
             'default_content_type_id'     : "text"
         }, options);
 
@@ -276,18 +277,19 @@ $.fn.gridEditor = function( options ) {
             canvas.on('mouseleave', '.row > .ge-tools-drawer', function(e) {
               $(this).parent().find('> .ge-tools-drawer a').hide();
               $(this).parent().find('.template-type').hide();
-              $(this).parent().find('.content-type').hide();
               $(this).parent().find('.ge-details').hide();
             });
 
             canvas.on('mouseenter', '.column', function(e) {
                 $(this).find('> .ge-tools-drawer > a').show();
                 $(this).find('.content-type').show();
+                $(this).find('.prio').show();
             });
 
             canvas.on('mouseleave', '.column', function(e) {
               $(this).find('> .ge-tools-drawer > a').hide();
               $(this).find('.content-type').hide();
+              $(this).find('.prio').hide();
               $(this).find('.ge-details').hide();
             });
 
@@ -400,7 +402,9 @@ $.fn.gridEditor = function( options ) {
                 var title = col.attr('data-title') ? col.attr('data-title') : "No title";
                 var rowTitle = $('<div class="ge-element-title" contenteditable="true">' + title + '</div>').prependTo(col);
                 var contentType = col.attr('data-type') ? col.attr('data-type') : "";
+                var contentPrio = col.attr('data-prio') ? col.attr('data-prio') : "";
                 var drawer = $('<div class="ge-tools-drawer" />').prependTo(col);
+
                 var contentTypeSelect = $('<select class="content-type btn btn-xs btn-secondary dropdown-toggle"></select>').prependTo(drawer);
                 settings.content_types.forEach(function(type) {
                   var option = contentTypeSelect.append($("<option></option>")
@@ -410,6 +414,16 @@ $.fn.gridEditor = function( options ) {
                   if (contentType==type.id) contentTypeSelect.val(contentType);
                 });
                 contentTypeSelect.hide();
+
+                var prioSelect = $('<select class="prio btn btn-xs btn-secondary dropdown-toggle"></select>').prependTo(drawer);
+                settings.prios.forEach(function(prio) {
+                  var option = prioSelect.append($("<option></option>")
+                              .attr("value", prio.id)
+                              .text(prio.label)
+                            );
+                  if (contentPrio==prio.id) prioSelect.val(contentPrio);
+                });
+                prioSelect.hide();
                 // drawer.hide();
 
                 var details = createDetails(col, settings.col_classes).appendTo(drawer);
@@ -490,6 +504,10 @@ $.fn.gridEditor = function( options ) {
 
             $(".column .content-type").change(function() {
               $(this).parent().parent().attr("data-type", $(this).val());
+            })
+
+            $(".column .prio").change(function() {
+              $(this).parent().parent().attr("data-prio", $(this).val());
             })
         }
 
@@ -676,6 +694,7 @@ $.fn.gridEditor = function( options ) {
               .attr("data-id", columnId)
               .attr("data-title", title)
               .attr("data-type", contentType)
+              .attr("data-prio", contentPrio)
               .append(createDefaultContentWrapper().html(
                   getRTE(settings.editor_types[0]).initialContent)
               )
@@ -766,8 +785,8 @@ $.fn.gridEditor.RTEs = {};
 })( jQuery );
 
 (function($) {
-  saveTemplate = function(templateId, templateTitle, html, templateLink) {
-    var template = {title: templateTitle, content: {}, link: templateLink};
+  saveTemplate = function(templateId, templateTitle, html, templateLink, parent) {
+    var template = {title: templateTitle, content: {}, link: templateLink, parent: parent};
     var sectionCount = 0;
     var elementCount = 0;
 
@@ -784,12 +803,13 @@ $.fn.gridEditor.RTEs = {};
         var id = $(col).attr("data-id");
         var title = $(col).attr("data-title") ? $(col).attr("data-title") : "";
         var contentType = $(col).attr("data-type") ? $(col).attr("data-type") : "";
+        var contentPrio = $(col).attr("data-prio") ? parseInt($(col).attr("data-prio")) : 0;
         var colClasses = $.grep(col.className.split(" "), function(v, i){
           return v.indexOf('col-') === 0;
         }).join(" ");
         elementCount++;
 
-        templateElements[id] = {title: title, type: contentType, class: colClasses, sort: elementCount};
+        templateElements[id] = {title: title, type: contentType, prio: contentPrio, class: colClasses, sort: elementCount};
       })
 
       template.content[rowId] = {title: rowTitle, type: rowType, elements: templateElements, sort: sectionCount};
@@ -816,7 +836,7 @@ $.fn.gridEditor.RTEs = {};
   saveContent = function(contentElement, configOptions) {
     return getContent().then(function(allContent){
       var content = parseContent(contentElement, configOptions);
-      var contentId = getProductId();
+      var contentId = getContentId();
       var type = contentElement.attr("data-template-id");
 
       if (!allContent[contentId]) allContent[contentId] = {};
@@ -855,6 +875,7 @@ $.fn.gridEditor.RTEs = {};
             elementCount++;
             var elementId = $(this).attr('data-id');
             var elementType = $(this).attr('data-type');
+            var elementPrio = $(this).attr('data-prio');
             var html = (contentFormat=="object") ? $(this).val() : $(this).html();
             var markdown = "";
 
@@ -890,10 +911,8 @@ $.fn.gridEditor.RTEs = {};
     return sectionElements;
   }
 
-  loadTemplate = function(formElement, templateId, subElement, sectionTemplates, elementTemplates, contentSelector) {
-    if (templateId) setTemplateId(templateId);
-
-    return getTemplate(getTemplateId()).then(function(template) {
+  loadTemplate = function(formElement, templateId, subElement, sectionTemplates, contentSelector) {
+    return getTemplate(templateId).then(function(template) {
 
       // Sort sections & elements
       var sectionsArray = [];
@@ -921,14 +940,13 @@ $.fn.gridEditor.RTEs = {};
       $(formElement).attr("data-template-id", template.id);
       $(formElement).attr("data-template-title", template.data().title);
       $(formElement).attr("data-template-link", template.data().link);
+      $(formElement).attr("data-template-parent", template.data().parent);
 
       $.each(sectionsArray, function(sectionId, section) {
         if (!subElement || subElement==section.id) {
-          // var sectionElement = $('<div class="row"></div>');
           if (!section.type) section.type = "basic";
 
           var sectionElement = sectionTemplates ? $(sectionTemplates[section.type]).clone() : $('<div class="row"></div>');
-          // sectionElement.attr("id", section.id);
           sectionElement.attr("data-id", section.id);
           sectionElement.attr("data-title", section.title);
           sectionElement.attr("data-type", section.type);
@@ -938,23 +956,18 @@ $.fn.gridEditor.RTEs = {};
           }
 
           $.each(section.elements, function(elementId, element) {
-            // var contentElement = elementTemplates ? $(elementTemplates["header"]) : $('<div></div>');
             var contentElement = $('<div></div>');
-            // contentElement.attr("id", element.id);
             contentElement.attr("data-id", element.id);
             contentElement.attr("data-title", element.title);
             contentElement.attr("data-type", element.type);
+            contentElement.attr("data-prio", element.prio);
             contentElement.addClass(element.class);
             contentElement.addClass("column");
             contentElement.addClass("element-" + elementId);
             contentElement.addClass("content-" + element.type);
 
-            if (elementTemplates) {
-              var elementContent = contentElement.append(elementTemplates[template.id]);
-              elementContent.find("[data-title-element='true']").html(element.title);
-            } else {
-              contentElement.append("<span></span>");
-            }
+            var elementContent = contentElement.append('<span><h3 data-title-element="true"></h3></span>');
+            elementContent.find("[data-title-element='true']").html(element.title);
 
             if (contentSelector) {
               sectionElement.find(contentSelector).append(contentElement);
@@ -996,10 +1009,10 @@ $.fn.gridEditor.RTEs = {};
     });
   }
 
-  loadTemplateInContentEditor = function(form, sectionTemplate) {
-    return getTemplate(getTemplateId()).then(function(template){
+  loadTemplateInContentEditor = function(form, templateId, sectionTemplate) {
+    return getTemplate(templateId).then(function(template){
       form.html("");
-      form.attr("data-template-id", getTemplateId());
+      form.attr("data-template-id", templateId);
 
       // Sort sections & elements
       var sectionsArray = [];
@@ -1036,7 +1049,7 @@ $.fn.gridEditor.RTEs = {};
         $.each(section.elements, function(elementId, element) {
           var htmlElement = $("#" + element.id);
           if (htmlElement) {
-            formElement += createElement(element.id, element);
+            formElement += createElement(element);
           } else {
             console.log(element.id + " not found");
           }
@@ -1081,6 +1094,7 @@ $.fn.gridEditor.RTEs = {};
   loadContent = function(contentId, rootElementId, placeholder, viewType) {
     return getContent(viewType=="preview").then(function(allContent){
       var content = allContent[contentId];
+      var templateId = content.type!="all" ? content.type : getTemplateId();
 
       if (content) {
         switch (viewType) {
@@ -1095,7 +1109,6 @@ $.fn.gridEditor.RTEs = {};
             break;
         }
 
-        var templateId = setTemplateId(content.type);
         return getTemplate(templateId).then(function(template){
           if (placeholder==undefined) placeholder = ""
           $(rootElementId).attr("data-content-title", content.title);
@@ -1137,7 +1150,7 @@ $.fn.gridEditor.RTEs = {};
                     }
                   case "text":
                   case "rich-text":
-                    if (viewType=="live") {
+                    if (viewType=="live" || viewType=="preview") {
                       rootElement.append(convertMarkdownToHtml(value));
                     } else {
                       rootElement.val(convertMarkdownToHtml(value));
@@ -1147,47 +1160,75 @@ $.fn.gridEditor.RTEs = {};
                   case "image":
                     if (viewType=="live") {
                       if (contentId=="productafbeeldingen-sonos") {
-                        rootElement.attr("src", "/sample_content/images/" + templateId + "/" + value);
+                        rootElement.attr("src", "/sample_content/images/" + template.id + "/" + value);
                       } else {
                         rootElement.html(convertMarkdownToHtml(value));
                       }
-                    } else {
+                    } else if (viewType=="content-editor") {
                       populateImageList(rootElement, template.id, value);
+                    } else if (viewType=="template-editor") {
+                      if (value) {
+                        var imageElement = $('<img>')
+                          .attr("src", "/sample_content/images/" + template.id + "/" + value)
+                        rootElement.append(imageElement);
+                      }
+                    } else {
+                      rootElement.val(convertMarkdownToHtml(value));
+                      rootElement.html(convertMarkdownToHtml(value));
                     }
                     break;
                   case "imagelist":
+                    var images = isJson(value) ? JSON.parse(value) : value;
                     if (viewType=="live") {
-                      var images = isJson(value) ? JSON.parse(value) : value;
-
                       if (elementId=="product-afbeeldingen") {
                         var imageCounter = 0;
                         var list = $('.product-image-thumb-list');
                         rootElement.html("");
 
-                        images.forEach(function(image) {
-                          imageCounter++
-                          var imageElement = $('<img unselectable="on" draggable="false" border="0" alt="" class="h-fluid-img js_product_thumb">')
-                            .addClass("thumbnail")
-                            .attr("src", "/sample_content/images/" + templateId + "/" + image)
-                            .attr("data-index", imageCounter)
+                        if (images) {
+                          images.forEach(function(image) {
+                            imageCounter++
+                            var imageElement = $('<img unselectable="on" draggable="false" border="0" alt="" class="h-fluid-img js_product_thumb">')
+                              .addClass("thumbnail")
+                              .attr("src", "/sample_content/images/" + template.id + "/" + image)
+                              .attr("data-index", imageCounter)
 
-                          var listItem = $('<li class="nav nav--thumb js_thumb"></li>');
-                          if (imageCounter==1) listItem.addClass("is-active");
-                          rootElement.append(listItem.wrapInner(imageElement));
-                        });
+                            var listItem = $('<li class="nav nav--thumb js_thumb"></li>');
+                            if (imageCounter==1) listItem.addClass("is-active");
+                            rootElement.append(listItem.wrapInner(imageElement));
+                          });
+                        }
                       } else {
                         var list = $('<ul class="imagelist"></ul>');
-                        rootElement.append(list);
 
+                        if (images) {
+                          images.forEach(function(image) {
+                            var imageElement = $('<img>')
+                              .addClass("thumbnail")
+                              .attr("src", "/sample_content/images/" + template.id + "/" + image)
+                            list.append($("<li></li>").wrapInner(imageElement));
+                          });
+                        }
+
+                        rootElement.append(list);
+                      }
+                    } else if (viewType=="content-editor") {
+                      populateImageList(rootElement, template.id, value);
+                    } else if (viewType=="template-editor") {
+                      var list = $('<ul class="imagelist"></ul>');
+
+                      if (images) {
                         images.forEach(function(image) {
                           var imageElement = $('<img>')
-                            .addClass("thumbnail")
-                            .attr("src", "/sample_content/images/" + templateId + "/" + image)
+                            .attr("src", "/sample_content/images/" + template.id + "/" + image)
                           list.append($("<li></li>").wrapInner(imageElement));
                         });
                       }
+
+                      rootElement.append(list);
                     } else {
-                      populateImageList(rootElement, template.id, value);
+                      rootElement.val(convertMarkdownToHtml(value));
+                      rootElement.html(convertMarkdownToHtml(value));
                     }
                     break;
                   case "list":
@@ -1210,7 +1251,7 @@ $.fn.gridEditor.RTEs = {};
                       }
                       rootElement.append(html);
                     } else {
-                      if (html=="") html="<ul><li></li></ul>";
+                      if (viewType!="template-editor" && html=="") html="<ul><li></li></ul>";
                       rootElement.val(html);
                       rootElement.html(html);
                     }
@@ -1311,8 +1352,8 @@ $.fn.gridEditor.RTEs = {};
     $('#product_title').append('<a id="edit-page-template" href="http://localhost:8000/template.html?template=pdp" class="review__btn-write-review" style="float: right" title="Pas template aan"><i class="fa fa-th"></i> Pas pagina-template aan</a>');
   }
 
-  setShopElementContent = function(rootElementSelector, templateId, productId) {
-    if (getURLParameter("content")) productId = setProductId(getURLParameter("content"));
+  setShopElementContent = function(rootElementSelector, templateId, contentId) {
+    if (!contentId) contentId = getContentId();
 
     var preview = getURLParameter("preview") && getURLParameter("preview")!='undefined' ? true : false;
 
@@ -1405,28 +1446,24 @@ $.fn.gridEditor.RTEs = {};
       </div>
     </div>`;
 
-    var elementHeaderTemplate = `<span><h3 data-title-element="true"></h3></span>`;
-    var elementContentTemplate = `<span><h3 data-title-element="true"></h3></span>`;
-
     var rootElement = $(rootElementSelector);
     var rootElementContentSlug = ' .description';
     var rootElementContent = $(rootElementSelector + " " + rootElementContentSlug);
     rootElement.html("");
 
     var sectionTemplates = {"basic": sectionBasicTemplate, "collapsible": sectionCollapsibleTemplate, "product-images": productImagesTemplate};
-    var elementTemplates = {"header": elementHeaderTemplate, "productbeschrijving-electronica": elementContentTemplate};
     var viewType = preview ? "preview" : "live";
 
-    loadTemplate(rootElement, templateId, null, sectionTemplates, elementTemplates, rootElementContentSlug).then(function(template) {
-      loadContent(productId, rootElementSelector, null, viewType).then(function(content) {
+    loadTemplate(rootElement, templateId, null, sectionTemplates, rootElementContentSlug).then(function(template) {
+      loadContent(contentId, rootElementSelector, null, viewType).then(function(content) {
         // var replaceList = ["blockquote"];
         // wrapWithParagraph(elementSelector, replaceList);
 
         var contentControls = $('<div class="content-controls"></div>');
         contentControls.hide();
         rootElement.append(contentControls);
-        contentControls.append('<a href="http://localhost:8000/template.html?template=' + templateId + '" class="btn buy-block__btn-wishlist btn--wishlist btn--quaternary btn--lg js_add_to_wishlist_link js_preventable_buy_action" title="Pas template aan"><i class="fa fa-th"></i> Pas template aan</a>');
-        contentControls.append('<a href="http://localhost:8000/content.html?content=' + productId + '" class="btn buy-block__btn-wishlist btn--wishlist btn--quaternary btn--lg js_add_to_wishlist_link js_preventable_buy_action" title="Pas content aan"><i class="fa fa-edit"></i> Pas content aan</a>');
+        contentControls.append('<a href="http://localhost:8000/template.html?template=' + templateId + '&content=' + contentId + '" class="change-template btn buy-block__btn-wishlist btn--wishlist btn--quaternary btn--lg js_add_to_wishlist_link js_preventable_buy_action" title="Pas template aan"><i class="fa fa-th"></i> Pas template aan</a>');
+        contentControls.append('<a href="http://localhost:8000/content.html?content=' + contentId + '" class="change-content btn buy-block__btn-wishlist btn--wishlist btn--quaternary btn--lg js_add_to_wishlist_link js_preventable_buy_action" title="Pas content aan"><i class="fa fa-edit"></i> Pas content aan</a>');
 
         rootElement.hover(function() {
           contentControls.show();
@@ -1528,32 +1565,38 @@ $.fn.gridEditor.RTEs = {};
     });
   }
 
-  getProductId = function() {
-    var contentId = localStorage.getItem("selectedProductId");
-    if (!contentId || contentId=="undefined") contentId = setProductId();
+  getContentId = function() {
+    var contentId = getURLParameter("content");
+    if (!contentId || contentId=="undefined") contentId = setContentId();
     return contentId;
   }
 
-  setProductId = function(contentId) {
-    if (!contentId) contentId = "empty";
-    localStorage.setItem("selectedProductId", contentId);
-    return localStorage.getItem("selectedProductId");
+  setContentId = function(contentId) {
+    if (!contentId || contentId=="all") {
+      contentId = "empty";
+    } else {
+      setURLParameter("content", contentId);
+    }
+    return contentId;
   }
 
   getTemplateId = function() {
-    var templateId = localStorage.getItem("selectedTemplateId");
+    var templateId = getURLParameter("template");
     if (!templateId || templateId=="undefined") templateId = setTemplateId();
     return templateId;
   }
 
   setTemplateId = function(templateId) {
-    if (!templateId) templateId = "product-description";
-    localStorage.setItem("selectedTemplateId", templateId);
-    return localStorage.getItem("selectedTemplateId");
+    if (!templateId) {
+      templateId = "productbeschrijving-electronica";
+    } else {
+      setURLParameter("template", templateId);
+    }
+    return templateId;
   }
 
   getContentName = function() {
-    var contentId = getProductId();
+    var contentId = getContentId();
     return getContent().then(function(allContent){
       var contentItem = allContent[contentId];
       return contentItem.title;
@@ -1593,16 +1636,19 @@ $.fn.gridEditor.RTEs = {};
     })
   }
 
-  populateTemplateItems = function() {
+  populateTemplateItems = function(templateId) {
     return getTemplateItems().then(function(templateItems){
+      var templatesDropdown = $('#template-items');
+      templatesDropdown.html("");
+
       templateItems.forEach(function (item) {
-        $('#template-items').append($("<option></option>")
+        templatesDropdown.append($("<option></option>")
             .attr("value", item.id)
             .text(item.title)
           );
       });
 
-      $("#template-items").val(getTemplateId());
+      templatesDropdown.val(templateId ? templateId : content.type);
     })
   }
 
@@ -1610,12 +1656,12 @@ $.fn.gridEditor.RTEs = {};
     return getTemplateItems().then(function(templateItems){
       if (templateItems.length>0) {
         var mainTemplateId = $("#grid-editor").attr("data-template-id");
-        var dropdown = $('.content-type.dropdown-toggle');
-        dropdown.append($("<option disabled>___________________________</option>"));
+        var contentTypeDropdown = $('.content-type.dropdown-toggle');
+        contentTypeDropdown.append($("<option disabled>___________________________</option>"));
         templateItems.forEach(function (item) {
           var disabled = (item.id == mainTemplateId) ? ' disabled="true"' : "";
           var title = item.parent ? "- " + item.title : item.title;
-          dropdown.append($("<option" + disabled + "></option>")
+          contentTypeDropdown.append($("<option" + disabled + "></option>")
             .attr("value", "template-" + item.id)
             .text(title)
           );
@@ -1630,7 +1676,8 @@ $.fn.gridEditor.RTEs = {};
 
   populateContentItems = function(showEmptyItem) {
     return getContentItems(showEmptyItem).then(function(contentItems) {
-      $('#content-items').html("");
+      var contentDropdown = $('#preview-content');
+      var contentSelect = $('#preview-content-select');
 
       var templateId = getTemplateId();
       var filteredContentItems = contentItems.filter(function(item) {
@@ -1638,42 +1685,62 @@ $.fn.gridEditor.RTEs = {};
       })
 
       filteredContentItems.forEach(function (item) {
-        $('#content-items').append($("<option></option>")
-                    .attr("value", item.id)
-                    .text(item.title)
-                  );
-        $('#preview-content ul.dropdown-menu').append($('<li><a data-width="auto" title="' + item.id + '"><span>' + item.title + '</span></li>'));
-        if (item.id===getProductId()) $('#preview-content-select span').html(item.title);
+        contentDropdown.find('ul.dropdown-menu').append($('<li><a data-width="auto" title="' + item.id + '"><span>' + item.title + '</span></li>'));
+        if (item.id===getContentId()) contentSelect.find('span').html(item.title);
       });
 
-      $("#content-items").val(getProductId());
+      contentDropdown.val(getContentId());
     })
   }
 
-  createElement = function(id, element) {
+  createElement = function(element) {
+    var panelId = "panel-" + element.id;
+    var panelHeadingId = "panel-heading-" + element.id;
+    var panelContentId = "panel-content-" + element.id;
+    var elementPanel = $(`<div class="panel-group" role="tablist" aria-multiselectable="true">
+      <div class="panel panel-default sub-panel">
+        <div class="panel-heading" role="tab">
+          <h4 class="panel-title">
+            <a role="button" data-toggle="collapse" aria-expanded="true"></a>
+          </h4>
+        </div>
+        <div class="panel-collapse collapse in" role="tabpanel">
+          <div class="panel-body">
+          </div>
+        </div>
+      </div>
+    </div>`);
+
+    var elementPanelHeading = elementPanel.find(".panel-heading");
+    var elementPanelTitle = elementPanel.find(".panel-title a");
+    var elementPanelContentHeading = elementPanel.find(".panel-collapse");
+    var elementPanelContent = elementPanel.find(".panel-body");
+    elementPanel.attr("id", panelId);
+    elementPanelHeading.attr("id", panelHeadingId);
+    elementPanelTitle.attr("data-parent", "#" + panelId);
+    elementPanelTitle.attr("href", "#" + panelContentId);
+    elementPanelTitle.attr("aria-controls", panelContentId);
+    elementPanelContentHeading.attr("id", panelContentId);
+    elementPanelContentHeading.attr("aria-labelledby", panelContentId);
+    elementPanelTitle.html(element.title);
+
     var label = '<h4>' + element.title + '</h4>';
-    // var content = '<div class="form-group" data-id="' + element.id + '">';
-    var content = '<div class="form-group">';
+    var prioClass = element.prio!=1 ? " panel-collapse collapse in" : "";
+    var content = '<div id="element-' + element.id + '" class="form-group panel' + prioClass + '" data-prio="' + element.prio + '">';
     var type = element.type.substring(0, 9)=="template-" ? "template" : element.type;
 
     switch (type) {
       case "text":
-        content += label;
-        content += '<textarea class="form-control text" data-id="' + id + '" data-type="' + element.type + '"></textarea>';
+        content += '<textarea class="form-control text" data-id="' + element.id + '" data-type="' + element.type + '"></textarea>';
         break;
       case "rich-text":
-        content += label;
-        content += '<textarea class="form-control rich-text" data-id="' + id + '"data-type="' + element.type + '"></textarea>';
+        content += '<textarea class="form-control rich-text" data-id="' + element.id + '"data-type="' + element.type + '"></textarea>';
         break;
       case "list":
-        content += label;
-        content += '<textarea class="form-control list" data-id="' + id + '" data-type="' + element.type + '"></textarea>';
+        content += '<textarea class="form-control list" data-id="' + element.id + '" data-type="' + element.type + '"></textarea>';
         break;
       case "quote":
-        content += '<div class="quote" data-id="' + id + '" data-type="' + element.type + '">';
-        content += '<div class="row">';
-        content += '<div class="col-md-12"><h4>' + element.title + '</h4></div>'
-        content += '</div>';
+        content += '<div class="quote" data-id="' + element.id + '" data-type="' + element.type + '">';
         content += '<div class="row">';
         content += '<div class="col-md-9 form-group">';
         content += '<label for="' + element.id + '-content">Quote</label>';
@@ -1685,31 +1752,28 @@ $.fn.gridEditor.RTEs = {};
         content += '</div>';
         break;
       case "image":
-        content += label;
-        content += '<select data-id="' + id + '" data-type="' + element.type + '"></select>';
+        content += '<select data-id="' + element.id + '" data-type="' + element.type + '"></select>';
         // content += '<input class="form-control" data-id="' + id + '" data-type="' + element.type + '">';
         break;
       case "imagelist":
-        content += label;
-        content += '<select data-id="' + id + '" data-type="' + element.type + '" multiple="multiple"></select>';
+        content += '<select data-id="' + element.id + '" data-type="' + element.type + '" multiple="multiple"></select>';
         // populateImageList(id, templateId);
         // content += '<textarea class="form-control imagelist" data-id="' + id + '" data-type="' + element.type + '"></textarea>';
         // content += '<div data-id="' + id + '" data-type="' + element.type + '"></div>';
         break;
       case "template":
         var templateId = element.type.substring(9);
-        content += label;
-        content += '<select data-id="' + id + '" data-type="' + element.type + '" data-template="' + templateId + '"></select>';
-        populateContentDropdown(id, templateId);
+        content += '<select data-id="' + element.id + '" data-type="' + element.type + '" data-template="' + templateId + '"></select>';
+        populateContentDropdown(element.id, templateId);
         break;
       default:
-        content += label;
-        content += '<input class="form-control" data-id="' + id + '" data-type="' + element.type + '">';
-        // content += '<div data-id="' + id + '" data-type="' + element.type + '"></div>';
+        content += '<input class="form-control" data-id="' + element.id + '" data-type="' + element.type + '">';
     }
 
     content += "</div>"
-    return content;
+
+    elementPanelContent.html(content);
+    return elementPanel.html();
   }
 
   populateContentDropdown = function(id, templateId) {
@@ -1852,20 +1916,44 @@ $.fn.gridEditor.RTEs = {};
     return object;
   }
 
-  getURLParameter = function(sParam) {
-      var sPageURL = window.location.search.substring(1);
-      var sURLVariables = sPageURL.split('&');
-      for (var i = 0; i < sURLVariables.length; i++) {
-        var sParameterName = sURLVariables[i].split('=');
-        if (sParameterName[0] == sParam) {
-          return sParameterName[1];
-        }
+  getURLParameter = function(targetParameter) {
+    var pageURL = window.location.search.substring(1);
+    var urlVariables = pageURL.split('&');
+    for (var i = 0; i < urlVariables.length; i++) {
+      var parameter = urlVariables[i].split('=');
+      if (parameter[0] == targetParameter) {
+        return parameter[1];
       }
+    }
   }
 
-  setURLParameter = function(parameter, value) {
-    var newurl = window.location.protocol + "//" + window.location.host + window.location.pathname + '?' + parameter + '=' + value;
-    window.history.pushState({path:newurl},'',newurl);
+  setURLParameter = function(targetParameter, targetValue) {
+    var pageURL = window.location.search.substring(1);
+    var urlVariables = pageURL.split('&');
+    var parameterFound = false;
+    var parameterChanged = false;
+
+    for (var i = 0; i < urlVariables.length; i++) {
+      var parameter = urlVariables[i].split('=');
+      if (parameter[0] == targetParameter) {
+        if (parameter[0] != targetValue) {
+          urlVariables[i] = parameter[0] + "=" + targetValue;
+          parameterChanged = true;
+        }
+        parameterFound = true;
+      }
+    }
+
+    if (!parameterFound) {
+      urlVariables.push(targetParameter + "=" + targetValue);
+      parameterChanged = true;
+    }
+
+    if (parameterChanged) {
+      var parameterString = urlVariables.join("&");
+      var newurl = window.location.protocol + "//" + window.location.host + window.location.pathname + '?' + parameterString;
+      window.history.pushState({path:newurl},'',newurl);
+    }
   }
 
   slugify = function(text) {

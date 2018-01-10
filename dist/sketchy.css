@@ -72,6 +72,24 @@ textarea,
   border-bottom-right-radius: 75px 5px !important;
   border-bottom-left-radius: 5px 75px !important;
 }
+.panel.sub-panel,
+.panel.sub-panel .panel,
+.panel.sub-panel .panel-heading {
+  border: none !important;
+  margin-bottom: 0px;
+  box-shadow: none;
+}
+.panel.sub-panel .panel-heading {
+  margin-top: 20px;
+}
+.panel.sub-panel .panel-heading {
+  background-color: transparent;
+  padding: 0;
+  padding-bottom: 10px;
+}
+.panel.sub-panel .panel-body {
+  padding: 0;
+}
 body.mce-content-body,
 .mce-panel {
   background-color: transparent !important;
@@ -86,4 +104,16 @@ person {
 }
 person:before {
   content: "- ";
+}
+.imagelist {
+  list-style: none;
+  padding: 0;
+}
+.imagelist li {
+  margin: 0px 12px 12px 0px;
+  float: left;
+  display: flex;
+  align-items: center;
+  height: 100px;
+  width: 100px;
 }

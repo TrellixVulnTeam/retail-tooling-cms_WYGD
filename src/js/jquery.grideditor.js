@@ -60,6 +60,7 @@ $.fn.gridEditor = function( options ) {
             'source_textarea'   : '',
             'content_types'     : [{id: "text", label: "Tekst"}, {id: "rich-text", label: "Opgemaakte tekst"}, {id: "list", label: "Lijst"}, {id: "quote", label: "Annotatie"}, {id: "image", label: "Afbeelding"}, {id: "image-list", label: "Meerdere afbeeldingen"}, {id: "warning", label: "Waarschuwing"}],
             'template_types'    : [{id: "basic", label: "Basic"}, {id: "collapsible", label: "Collapsible"}],
+            'prios'             : [{id: 1, label: "Hoge prio"}, {id: 2, label: "Medium prio"}, {id: 3, label: "Lage prio"}],
             'default_content_type_id'     : "text"
         }, options);
 
@@ -276,18 +277,19 @@ $.fn.gridEditor = function( options ) {
             canvas.on('mouseleave', '.row > .ge-tools-drawer', function(e) {
               $(this).parent().find('> .ge-tools-drawer a').hide();
               $(this).parent().find('.template-type').hide();
-              $(this).parent().find('.content-type').hide();
               $(this).parent().find('.ge-details').hide();
             });
 
             canvas.on('mouseenter', '.column', function(e) {
                 $(this).find('> .ge-tools-drawer > a').show();
                 $(this).find('.content-type').show();
+                $(this).find('.prio').show();
             });
 
             canvas.on('mouseleave', '.column', function(e) {
               $(this).find('> .ge-tools-drawer > a').hide();
               $(this).find('.content-type').hide();
+              $(this).find('.prio').hide();
               $(this).find('.ge-details').hide();
             });
 
@@ -400,7 +402,9 @@ $.fn.gridEditor = function( options ) {
                 var title = col.attr('data-title') ? col.attr('data-title') : "No title";
                 var rowTitle = $('<div class="ge-element-title" contenteditable="true">' + title + '</div>').prependTo(col);
                 var contentType = col.attr('data-type') ? col.attr('data-type') : "";
+                var contentPrio = col.attr('data-prio') ? col.attr('data-prio') : "";
                 var drawer = $('<div class="ge-tools-drawer" />').prependTo(col);
+
                 var contentTypeSelect = $('<select class="content-type btn btn-xs btn-secondary dropdown-toggle"></select>').prependTo(drawer);
                 settings.content_types.forEach(function(type) {
                   var option = contentTypeSelect.append($("<option></option>")
@@ -410,6 +414,16 @@ $.fn.gridEditor = function( options ) {
                   if (contentType==type.id) contentTypeSelect.val(contentType);
                 });
                 contentTypeSelect.hide();
+
+                var prioSelect = $('<select class="prio btn btn-xs btn-secondary dropdown-toggle"></select>').prependTo(drawer);
+                settings.prios.forEach(function(prio) {
+                  var option = prioSelect.append($("<option></option>")
+                              .attr("value", prio.id)
+                              .text(prio.label)
+                            );
+                  if (contentPrio==prio.id) prioSelect.val(contentPrio);
+                });
+                prioSelect.hide();
                 // drawer.hide();
 
                 var details = createDetails(col, settings.col_classes).appendTo(drawer);
@@ -490,6 +504,10 @@ $.fn.gridEditor = function( options ) {
 
             $(".column .content-type").change(function() {
               $(this).parent().parent().attr("data-type", $(this).val());
+            })
+
+            $(".column .prio").change(function() {
+              $(this).parent().parent().attr("data-prio", $(this).val());
             })
         }
 
@@ -676,6 +694,7 @@ $.fn.gridEditor = function( options ) {
               .attr("data-id", columnId)
               .attr("data-title", title)
               .attr("data-type", contentType)
+              .attr("data-prio", contentPrio)
               .append(createDefaultContentWrapper().html(
                   getRTE(settings.editor_types[0]).initialContent)
               )

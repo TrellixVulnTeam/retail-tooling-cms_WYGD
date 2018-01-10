@@ -11,10 +11,12 @@
           "product-afbeeldingen": {
             "title": "Productafbeeldingen",
             "type": "imagelist",
+            "prio": 1,
             "class": "col-md-12 col-sm-12 col-xs-12"
           },
           "productomschrijving": {
             "title": "Productomschrijving",
+            "prio": 1,
             "type": "template-productbeschrijving-electronica",
             "class": "col-md-12 col-sm-12 col-xs-12"
           }
@@ -35,11 +37,13 @@
           "afbeelding": {
             "title": "Packshot",
             "type": "image",
+            "prio": 1,
             "class": "col-md-12 col-sm-12 col-xs-12"
           },
           "product-afbeeldingen": {
             "title": "Productafbeeldingen",
             "type": "imagelist",
+            "prio": 1,
             "class": "col-md-12 col-sm-12 col-xs-12"
           }
         }
@@ -59,16 +63,19 @@
           "annotatie": {
             "title": "Annotatie",
             "type": "quote",
+            "prio": 2,
             "class": "col-md-12 col-sm-12 col-xs-12"
           },
           "samenvatting-en": {
             "title": "Samenvatting (EN)",
             "type": "rich-text",
+            "prio": 1,
             "class": "col-md-12 col-sm-12 col-xs-12"
           },
           "samenvatting-nl": {
             "title": "Samenvatting (NL)",
             "type": "rich-text",
+            "prio": 2,
             "class": "col-md-12 col-sm-12 col-xs-12"
           }
         }
@@ -80,6 +87,7 @@
           "recensie": {
             "title": "Recensie",
             "type": "text",
+            "prio": 3,
             "class": "col-md-12 col-sm-12 col-xs-12"
           }
         }
@@ -99,12 +107,14 @@
             "sort": 1,
             "title": "Pluspunten",
             "type": "list",
+            "prio": 1,
             "class": "col-md-6 col-sm-6 col-xs-12"
           },
           "minpunten": {
             "sort": 2,
             "title": "Minpunten",
             "type": "list",
+            "prio": 1,
             "class": "col-md-6 col-sm-6 col-xs-12"
           }
         }
@@ -116,6 +126,7 @@
           "samenvatting-nl": {
             "title": "Samenvatting",
             "type": "rich-text",
+            "prio": 1,
             "class": "col-md-12 col-sm-12 col-xs-12"
           }
         }
@@ -129,18 +140,21 @@
             "sort": 1,
             "title": "In de doos",
             "type": "list",
+            "prio": 2,
             "class": "col-md-12 col-sm-12 col-xs-12"
           },
           "connectiviteit": {
             "sort": 2,
             "title": "Aansluitmogelijkheden",
             "type": "list",
+            "prio": 2,
             "class": "col-md-12 col-sm-12 col-xs-12"
           },
           "kenmerken-en-features": {
             "sort": 3,
             "title": "Kenmerken en features",
             "type": "rich-text",
+            "prio": 2,
             "class": "col-md-12 col-sm-12 col-xs-12"
           }
         }

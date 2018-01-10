@@ -30,13 +30,6 @@
           <li><a href="templates.html">Templates</a></li>
           <li class="active"><a href="content-list.html">Content</a></li>
         </ul>
-        <form class="navbar-form navbar-right">
-          <div class="form-group" style="display: none">
-            <label>Content:</label>
-            <select id="content-items" class="form-control">
-            </select>
-          </div>
-        </form>
       </div>
     </div>
   </nav>
@@ -60,7 +53,6 @@
           <a id="edit-template" type="button" class="btn btn-secondary" disabled>Beheer template</a>
         </div>
       </div>
-      <span id="loader" class="loader glyphicon glyphicon-refresh glyphicon-refresh-animate"></span>
       <form id="editor">
       </form>
     </div>
@@ -111,6 +103,8 @@
 
   <script>
     $(document).ready(function() {
+      var previewElement, contentId, templateId;
+
       initTinyMCE = function() {
         tinymce.init({
           selector: 'textarea.text',
@@ -209,31 +203,32 @@
       }
 
       init = function() {
+        previewElement = $("#preview .content");
+        contentId = getContentId();
+
         initToastr();
         // watchContent();
         disableEditMode();
 
-        if (getURLParameter("content")) {
-          setProductId(getURLParameter("content"));
-        } else {
-          var productId = setProductId();
-          setURLParameter("content", productId);
-        }
+        previewElement.hide();
+        loadContent(contentId, '#edit-form', null, "content-editor").then(function(content) {
+          templateId = content.type;
+          initEditor();
+        })
+      }
 
-        $("#preview .content").hide();
-        loadContent(getProductId(), '#edit-form', null, "content-editor").then(function(content){
-          $('#preview-live').attr("href", content.link);
-          populateTemplateItems();
+      initEditor = function() {
+        loadTemplateInContentEditor($("#editor"), templateId, $("#panel-template")).then(function(template) {
+          $("#edit-template").attr("href", "/template.html?template=" + template.id);
 
-          loadTemplateInContentEditor($("#editor"), $("#panel-template")).then(function(template) {
-            $("#edit-template").attr("href", "/template.html?template=" + template.id);
+          loadContent(contentId, '#edit-form', null, "content-editor").then(function(content){
+            $("#page-title").html(content.title);
+            $('#preview-live').attr("href", content.link);
+            populateTemplateItems(templateId);
 
-            loadContent(getProductId(), '#edit-form', null, "content-editor").then(function(content){
-              $("#page-title").html(content.title);
-              populateContentItems(false).then(function(){
-                enableEditMode();
-                initTinyMCE();
-              })
+            populateContentItems(false).then(function(){
+              enableEditMode();
+              initTinyMCE();
             })
           })
         })
@@ -248,7 +243,7 @@
           // console.log(products);
           setContent(products);
           removeTinyMCE();
-          loadContent(getProductId(), '#edit-form').then(function(){
+          loadContent(contentId, '#edit-form').then(function(){
             initTinyMCE();
           })
         });
@@ -257,29 +252,9 @@
       $("#template-items").change(function() {
         disableEditMode();
         removeTinyMCE();
-        $("#content-items").html("");
-        var templateId = setTemplateId($("#template-items option:selected").val());
-        loadTemplateInContentEditor($("#editor"), $("#panel-template")).then(function(template) {
-          $("#edit-template").attr("href", "/template.html?template=" + template.id);
-          loadContent(getProductId(), '#edit-form').then(function(){
-            populateContentItems(false).then(function(){
-              enableEditMode();
-              initTinyMCE();
-            })
-          })
-        })
-      })
-
-      $("#content-items").change(function() {
-        disableEditMode();
-        removeTinyMCE();
-        var productId = setProductId($("#content-items option:selected").val());
-        setURLParameter("content", productId);
-        loadContent(getProductId(), '#edit-form').then(function(content){
-          $('#preview-live').attr("href", content.link);
-          $("#page-title").html(content.title);
-          enableEditMode();
-          initTinyMCE();
+        templateId = setTemplateId($("#template-items option:selected").val());
+        loadTemplateInContentEditor($("#editor"), templateId, $("#panel-template")).then(function(template) {
+          initEditor();
         })
       })
 
@@ -294,7 +269,7 @@
       $("#reset-content").on('click', function() {
         removeTinyMCE();
         resetSampleContent().done(function() {
-          loadContent(getProductId(), '#edit-form').then(function() {
+          loadContent(contentId, '#edit-form').then(function() {
             initTinyMCE();
             toastr.success('Content reset completed')
           })
@@ -303,7 +278,7 @@
 
       $("#preview-content").on('click', function() {
         $("#previewLoader").show();
-        $("#preview .content").hide();
+        previewElement.hide();
         removeTinyMCE();
         saveContent($('#editor'), {sectionDivider: ".section", elementDivider: ".form-group", subElement: ">", isPreview: true}).then(function(){
           initTinyMCE();
@@ -311,9 +286,10 @@
           getContentName().then(function(name) {
             $("#previewModalLabel").text(name + " preview");
           })
+
           loadTemplate($('#preview .content')).then(function(){
-            loadContent(getProductId(), '#preview .content', '> span', 'No content', "preview").then(function() {
-              $("#preview .content").show();
+            loadContent(contentId, '#preview .content', 'No content', "preview").then(function() {
+              previewElement.show();
               $("#previewLoader").hide();
             })
           });
@@ -327,7 +303,6 @@
         $("#preview-content").attr("disabled", true);
         $("#save-content").attr("disabled", true);
         $("#template-items").attr("disabled", true);
-        $("#content-items").attr("disabled", true);
         $("#edit-template").attr("disabled", true);
       }
 
@@ -338,7 +313,6 @@
         $("#preview-content").removeAttr("disabled");
         $("#save-content").removeAttr("disabled");
         $("#template-items").removeAttr("disabled");
-        $("#content-items").removeAttr("disabled");
         $("#edit-template").removeAttr("disabled");
       }
 

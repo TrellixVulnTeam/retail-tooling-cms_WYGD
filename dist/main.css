@@ -129,6 +129,11 @@ fieldset[disabled] .btn-secondary.focus {
   color: #b3b3b3;
   margin-left: 0;
 }
+#edit-form .form-group[data-prio="1"] h4:after {
+  color: red;
+  content: "*";
+  float: right;
+}
 .ge-canvas.ge-editing .row {
   margin-top: 25px;
   background-color: #f4f4f4;
@@ -195,10 +200,6 @@ blockquote,
   display: block;
   margin: 20px 0;
   background-color: rgba(160, 160, 160, 0.1);
-}
-#preview person {
-  margin-top: -20px;
-  padding-top: 0px !important;
 }
 #panel-template,
 #sample-content,
@@ -279,8 +280,23 @@ blockquote,
   box-shadow: rgba(0, 0, 0, 0.3) 3px 3px 15px 0;
   padding: 20px;
 }
+#preview .h3,
+#preview h3 {
+  font-size: 20px;
+}
+#preview person {
+  margin-top: -20px;
+  padding-top: 0px !important;
+}
 #preview .row {
   margin-bottom: 20px;
+}
+#grid-editor h3 {
+  display: none;
+}
+#grid-editor img {
+  max-width: 400px;
+  max-height: 300px;
 }
 .vertical-align,
 ul.thumbnails.image_picker_selector li .thumbnail {

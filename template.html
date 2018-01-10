@@ -47,7 +47,6 @@
       </h1>
       <div id="grid-editor">
       </div>
-      <span id="loader" class="loader glyphicon glyphicon-refresh glyphicon-refresh-animate"></span>
     </div>
   </div>
 
@@ -86,23 +85,9 @@
         });
       }
 
-      $("#content-items").change(function() {
-        disableEditMode();
-        if (typeof tinymce != 'undefined' && tinymce != null) {
-          tinymce.remove('textarea.rich-text');
-        }
-        setProductId($("#content-items option:selected").val());
-        $('#preview-live').attr("href", liveLink + "?content=" + getProductId());
-        loadContent(getProductId(), '#grid-editor', 'No content', "template-editor").then(function() {
-          enableEditMode();
-        });
-      })
-
       $("#gm-save-content").on('click', function() {
-          var content = $('#grid-editor').gridEditor('getHtml');
-          // var rawContent = $('<div id="wrapper">' + content + '</div>');
-          // console.log(html);
-          saveContent($(content), getProductId(), '> .ge-content');
+        var content = $('#grid-editor').gridEditor('getHtml');
+        saveContent($(content), getContentId(), '> .ge-content');
       })
 
       $("#save-template").on('click', function() {
@@ -111,8 +96,9 @@
         var title = editor.attr("data-template-title");
         var html = editor.gridEditor('getHtml');
         var link = editor.attr("data-template-link");
+        var parent = editor.attr("data-template-parent");
 
-        saveTemplate(id, title, html, link).then(function() {
+        saveTemplate(id, title, html, link, parent).then(function() {
           $('#grid-editor').gridEditor('deinit');
           initGridEditor($('#grid-editor'));
           addTemplateToSectionDropdowns();
@@ -146,36 +132,33 @@
       }
 
       init = function() {
-        if (getURLParameter("template")) {
-          var templateId = setTemplateId(getURLParameter("template"));
-        } else {
-          var templateId = setTemplateId();
-          setURLParameter("template", templateId);
-        }
+        var rootElementId ='#grid-editor'
+        var placeholder = null;
+        var viewType = "template-editor";
+
         disableEditMode();
 
-        loadTemplate('#grid-editor', templateId)
-        .then(function(template) {
+        loadTemplate('#grid-editor', getTemplateId()).then(function(template) {
           initGridEditor($('#grid-editor'));
           populateContentItems(true);
           addTemplateToSectionDropdowns();
           $("#page-title").html(template.data().title);
 
           liveLink = template.data().link;
-          setLiveLink(getProductId());
-
+          setLiveLink(getContentId());
           enableEditMode();
 
-          loadContent(getProductId(), '#grid-editor', null, "template-editor").then(function() {
+          loadContent(getContentId(), rootElementId, placeholder, viewType).then(function() {
             $("#preview-content ul.dropdown-menu a").click(function() {
               disableEditMode();
+
               if (typeof tinymce != 'undefined' && tinymce != null) {
                 tinymce.remove('textarea.rich-text');
               }
-              setProductId(this.title);
-              setLiveLink(getProductId());
+              setContentId(this.title);
+              setLiveLink(getContentId());
 
-              loadContent(getProductId(), '#grid-editor', '> .ge-content').then(function() {
+              loadContent(getContentId(), rootElementId, placeholder, viewType).then(function() {
                 enableEditMode()
               })
             })
@@ -198,8 +181,8 @@
         $("#preview-live").attr("disabled", true);
       }
 
-      setLiveLink = function(productId) {
-        if (liveLink) $('#preview-live').attr("href", liveLink + "?content=" + getProductId());
+      setLiveLink = function(contentId) {
+        if (liveLink) $('#preview-live').attr("href", liveLink + "?content=" + getContentId());
       }
 
       init();

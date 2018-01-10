@@ -73,6 +73,33 @@ body {
   border-bottom-left-radius: @sketch-radius-small @sketch-radius-medium !important;
 }
 
+.panel.sub-panel,
+.panel.sub-panel .panel,
+.panel.sub-panel .panel-heading,
+ {
+  border: none !important;
+  margin-bottom: 0px;
+  // border-top-left-radius: 0;
+  // border-top-right-radius: 0;
+  // border-bottom-right-radius: 0;
+  // border-bottom-left-radius: 0;
+  box-shadow: none;
+}
+
+.panel.sub-panel .panel-heading {
+  margin-top: 20px;
+}
+
+.panel.sub-panel .panel-heading {
+  background-color: transparent;
+  padding: 0;
+  padding-bottom: 10px;
+}
+
+.panel.sub-panel .panel-body {
+  padding: 0;
+}
+
 body.mce-content-body, .mce-panel {
   background-color: transparent !important;
 }
@@ -88,4 +115,18 @@ person {
 
 person:before {
   content: "- "
+}
+
+.imagelist {
+  list-style: none;
+  padding: 0;
+
+  li {
+    margin: 0px 12px 12px 0px;
+    float: left;
+    display: flex;
+    align-items: center;
+    height: 100px;
+    width: 100px;
+  }
 }
