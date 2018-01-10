@@ -226,7 +226,7 @@
             $('#preview-live').attr("href", content.link);
             populateTemplateItems(templateId);
 
-            populateContentItems(false).then(function(){
+            populateContentItems(contentId, false).then(function(){
               enableEditMode();
               initTinyMCE();
             })
