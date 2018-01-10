@@ -212,9 +212,6 @@ blockquote,
 #template-list {
   display: none;
 }
-#template {
-  margin-bottom: 25px;
-}
 #template-list .child {
   margin-left: 20px;
   display: list-item;

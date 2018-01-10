@@ -38,7 +38,7 @@
   </nav>
 
   <div class="container">
-    <div id="edit-form" class="content ">
+    <div id="admin-form" class="content ">
       <h1 class="form-group">
         Admin
       </h1>
@@ -48,18 +48,10 @@
           <h3 class="panel-title">Reset content</h3>
         </div>
         <div class="panel-body">
-          <div class="form-horizontal text-center">
-            <div class="form-group">
-            <div class="col-sm-4">
-              <button id="reset-templates" class='btn btn-primary'>Reset templates</button>
-            </div>
-            <div class="col-sm-4">
-              <button id="reset-content" class='btn btn-primary'>Reset content</button>
-            </div>
-            <div class="col-sm-4">
-              <button id="reset-images" class='btn btn-primary'>Reset images</button>
-            </div>
-            </div>
+          <div class="form">
+            <button id="reset-templates" class='btn btn-primary'>Reset templates</button>
+            <button id="reset-content" class='btn btn-primary'>Reset content</button>
+            <button id="reset-images" class='btn btn-primary'>Reset images</button>
           </div>
         </div>
       </div>
@@ -69,21 +61,21 @@
           <h3 class="panel-title">Add images</h3>
         </div>
         <div class="panel-body">
-          <div class="form-horizontal">
-            <div class="form-group">
+          <div class="form">
+            <div class="form-group row">
               <label for="template" class="col-sm-2 control-label">Template</label>
               <div class="col-sm-10">
                 <select id="template" class="form-control"></select>
               </div>
             </div>
-            <div class="form-group">
+            <div class="form-group row">
               <label for="image-upload-input" class="col-sm-2 control-label">Afbeelding</label>
               <div class="col-sm-10">
                 <input type="file" accept=".png,.jpg,.jpeg" class="form-control" id="image-upload-input">
               </div>
             </div>
-            <div class="form-group">
-              <div class="col-sm-offset-2 col-sm-10">
+            <div class="form-group row">
+              <div class="col-sm-offset-2 col-sm-10 text-right">
                 <button id="upload-image" type="submit" class="btn btn btn-primary" disabled="true">Upload</button>
               </div>
             </div>
