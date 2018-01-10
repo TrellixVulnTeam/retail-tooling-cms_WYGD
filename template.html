@@ -66,6 +66,7 @@
     $(document).ready(function() {
       var grideditor;
       var liveLink = "";
+      var contentId, templateId;
 
       initGridEditor = function(form) {
         grideditor = form.gridEditor({
@@ -85,11 +86,6 @@
         });
       }
 
-      $("#gm-save-content").on('click', function() {
-        var content = $('#grid-editor').gridEditor('getHtml');
-        saveContent($(content), getContentId(), '> .ge-content');
-      })
-
       $("#save-template").on('click', function() {
         var editor = $('#grid-editor');
         var id = editor.attr("data-template-id");
@@ -103,6 +99,7 @@
           initGridEditor($('#grid-editor'));
           addTemplateToSectionDropdowns();
           toastr.success('Template saved');
+          populateContentItems(contentId, true);
           // loadContent('#grid-editor', '.ge-content').then(function() {
           //   // location.reload();
           //   // $('#grid-editor').gridEditor().init();
@@ -135,30 +132,33 @@
         var rootElementId ='#grid-editor'
         var placeholder = null;
         var viewType = "template-editor";
+        templateId = getTemplateId()
 
         disableEditMode();
 
-        loadTemplate('#grid-editor', getTemplateId()).then(function(template) {
+        loadTemplate('#grid-editor', templateId).then(function(template) {
+          contentId = getContentId();
           initGridEditor($('#grid-editor'));
-          populateContentItems(true);
+          populateContentItems(contentId, true);
           addTemplateToSectionDropdowns();
           $("#page-title").html(template.data().title);
 
-          liveLink = template.data().link;
-          setLiveLink(getContentId());
-          enableEditMode();
+          loadContent(contentId, rootElementId, placeholder, viewType).then(function(content) {
+            liveLink = template.data().link;
+            setLiveLink(contentId);
+            enableEditMode();
 
-          loadContent(getContentId(), rootElementId, placeholder, viewType).then(function() {
+
             $("#preview-content ul.dropdown-menu a").click(function() {
               disableEditMode();
 
               if (typeof tinymce != 'undefined' && tinymce != null) {
                 tinymce.remove('textarea.rich-text');
               }
-              setContentId(this.title);
-              setLiveLink(getContentId());
+              contentId = setContentId(this.title);
+              setLiveLink(contentId);
 
-              loadContent(getContentId(), rootElementId, placeholder, viewType).then(function() {
+              loadContent(contentId, rootElementId, placeholder, viewType).then(function() {
                 enableEditMode()
               })
             })
@@ -182,7 +182,7 @@
       }
 
       setLiveLink = function(contentId) {
-        if (liveLink) $('#preview-live').attr("href", liveLink + "?content=" + getContentId());
+        if (liveLink) $('#preview-live').attr("href", liveLink + "?content=" + contentId);
       }
 
       init();

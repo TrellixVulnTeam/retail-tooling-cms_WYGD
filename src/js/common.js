@@ -30,7 +30,7 @@
     })
 
     // console.log(template);
-    return setTemplate(templateId, template);
+    return storeTemplate(templateId, template);
   }
 
   resetSampleTemplate = function() {
@@ -43,7 +43,7 @@
   resetSampleContent = function() {
     return $.getJSON("sample-products.json", function(data) {
       console.log("Content reset completed");
-      setContent(data, false, true);
+      storeContent(data, false, true);
     });
   }
 
@@ -57,7 +57,7 @@
       allContent[contentId].content = content;
       allContent[contentId].type = type;
 
-      setContent(allContent, configOptions.isPreview);
+      storeContent(allContent, configOptions.isPreview);
     })
   }
 
@@ -504,7 +504,7 @@
   //       content[doc.id] = doc.data();
   //     });
   //     console.log(content);
-  //     setContent(content);
+  //     storeContent(content);
   //   });
   //   // db.collection("content").onSnapshot(function(snapshot) {
   //   //     snapshot.docChanges.forEach(function(change) {
@@ -538,7 +538,7 @@
     }
   }
 
-  setContent = function(content, isPreview, convertToMarkdown) {
+  storeContent = function(content, isPreview, convertToMarkdown) {
     var jsonOutput = JSON.stringify(content);
 
     if (isPreview) {
@@ -739,7 +739,7 @@
     });
   }
 
-  setTemplate = function(id, template, isPreview) {
+  storeTemplate = function(id, template, isPreview) {
     var templates = {};
     templates[id] = template;
     var jsonOutput = JSON.stringify(templates);
@@ -888,7 +888,7 @@
     })
   }
 
-  populateContentItems = function(showEmptyItem) {
+  populateContentItems = function(contentId, showEmptyItem) {
     return getContentItems(showEmptyItem).then(function(contentItems) {
       var contentDropdown = $('#preview-content');
       var contentSelect = $('#preview-content-select');
@@ -903,7 +903,7 @@
         if (item.id===getContentId()) contentSelect.find('span').html(item.title);
       });
 
-      contentDropdown.val(getContentId());
+      contentDropdown.val(contentId ? contentId : getContentId());
     })
   }
 

@@ -134,7 +134,7 @@ $.fn.gridEditor = function( options ) {
             // Content dropdown
             var contentDropdown = $('<div id="preview-content" class="dropdown ge-content-mode">' +
                 '<label for="preview-content-select">Preview content: </label>' +
-                '<button id="preview-content-select" type="button" class="btn btn-md btn-secondary dropdown-toggle" data-toggle="dropdown"><span>George Orwell - 1984</span></button>' +
+                '<button id="preview-content-select" type="button" class="btn btn-md btn-secondary dropdown-toggle" data-toggle="dropdown"><span>--Geen--</span></button>' +
                   '<ul class="dropdown-menu" role="menu">' +
                   '</ul>' +
                 '</div>')
@@ -816,7 +816,7 @@ $.fn.gridEditor.RTEs = {};
     })
 
     // console.log(template);
-    return setTemplate(templateId, template);
+    return storeTemplate(templateId, template);
   }
 
   resetSampleTemplate = function() {
@@ -829,7 +829,7 @@ $.fn.gridEditor.RTEs = {};
   resetSampleContent = function() {
     return $.getJSON("sample-products.json", function(data) {
       console.log("Content reset completed");
-      setContent(data, false, true);
+      storeContent(data, false, true);
     });
   }
 
@@ -843,7 +843,7 @@ $.fn.gridEditor.RTEs = {};
       allContent[contentId].content = content;
       allContent[contentId].type = type;
 
-      setContent(allContent, configOptions.isPreview);
+      storeContent(allContent, configOptions.isPreview);
     })
   }
 
@@ -1290,7 +1290,7 @@ $.fn.gridEditor.RTEs = {};
   //       content[doc.id] = doc.data();
   //     });
   //     console.log(content);
-  //     setContent(content);
+  //     storeContent(content);
   //   });
   //   // db.collection("content").onSnapshot(function(snapshot) {
   //   //     snapshot.docChanges.forEach(function(change) {
@@ -1324,7 +1324,7 @@ $.fn.gridEditor.RTEs = {};
     }
   }
 
-  setContent = function(content, isPreview, convertToMarkdown) {
+  storeContent = function(content, isPreview, convertToMarkdown) {
     var jsonOutput = JSON.stringify(content);
 
     if (isPreview) {
@@ -1525,7 +1525,7 @@ $.fn.gridEditor.RTEs = {};
     });
   }
 
-  setTemplate = function(id, template, isPreview) {
+  storeTemplate = function(id, template, isPreview) {
     var templates = {};
     templates[id] = template;
     var jsonOutput = JSON.stringify(templates);
@@ -1674,7 +1674,7 @@ $.fn.gridEditor.RTEs = {};
     })
   }
 
-  populateContentItems = function(showEmptyItem) {
+  populateContentItems = function(contentId, showEmptyItem) {
     return getContentItems(showEmptyItem).then(function(contentItems) {
       var contentDropdown = $('#preview-content');
       var contentSelect = $('#preview-content-select');
@@ -1689,7 +1689,7 @@ $.fn.gridEditor.RTEs = {};
         if (item.id===getContentId()) contentSelect.find('span').html(item.title);
       });
 
-      contentDropdown.val(getContentId());
+      contentDropdown.val(contentId ? contentId : getContentId());
     })
   }
 
@@ -1969,8 +1969,9 @@ var firebaseConfig = {
 };
 firebase.initializeApp(firebaseConfig);
 
-// Initialize Cloud Firestore through Firebase
+// Initialize Cloud Firestore & Storage through Firebase
 var db = firebase.firestore();
+var storage = firebase.storage();
 
 (function() {
     $.fn.gridEditor.RTEs.ckeditor = {

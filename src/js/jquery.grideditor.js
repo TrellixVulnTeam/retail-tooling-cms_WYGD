@@ -134,7 +134,7 @@ $.fn.gridEditor = function( options ) {
             // Content dropdown
             var contentDropdown = $('<div id="preview-content" class="dropdown ge-content-mode">' +
                 '<label for="preview-content-select">Preview content: </label>' +
-                '<button id="preview-content-select" type="button" class="btn btn-md btn-secondary dropdown-toggle" data-toggle="dropdown"><span>George Orwell - 1984</span></button>' +
+                '<button id="preview-content-select" type="button" class="btn btn-md btn-secondary dropdown-toggle" data-toggle="dropdown"><span>--Geen--</span></button>' +
                   '<ul class="dropdown-menu" role="menu">' +
                   '</ul>' +
                 '</div>')

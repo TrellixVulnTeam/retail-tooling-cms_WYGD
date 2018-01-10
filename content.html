@@ -241,7 +241,7 @@
             products[doc.id] = doc.data();
           });
           // console.log(products);
-          setContent(products);
+          storeContent(products);
           removeTinyMCE();
           loadContent(contentId, '#edit-form').then(function(){
             initTinyMCE();
