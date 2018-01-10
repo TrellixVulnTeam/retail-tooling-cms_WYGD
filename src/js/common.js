@@ -911,14 +911,15 @@
     var panelId = "panel-" + element.id;
     var panelHeadingId = "panel-heading-" + element.id;
     var panelContentId = "panel-content-" + element.id;
-    var elementPanel = $(`<div class="panel-group" role="tablist" aria-multiselectable="true">
-      <div class="panel panel-default sub-panel">
+    var collapseClass = (element.prio==1 || element.prio==2) ? "collapse in" : "collapse";
+    var elementPanel = $(`<div class="panel-group">
+      <div class="panel panel-default sub-panel" data-prio="` + element.prio + `">
         <div class="panel-heading" role="tab">
           <h4 class="panel-title">
             <a role="button" data-toggle="collapse" aria-expanded="true"></a>
           </h4>
         </div>
-        <div class="panel-collapse collapse in" role="tabpanel">
+        <div class="panel-collapse ` + collapseClass + `" role="tabpanel">
           <div class="panel-body">
           </div>
         </div>
@@ -939,8 +940,7 @@
     elementPanelTitle.html(element.title);
 
     var label = '<h4>' + element.title + '</h4>';
-    var prioClass = element.prio!=1 ? " panel-collapse collapse in" : "";
-    var content = '<div id="element-' + element.id + '" class="form-group panel' + prioClass + '" data-prio="' + element.prio + '">';
+    var content = '<div id="element-' + element.id + '" class="form-group panel">';
     var type = element.type.substring(0, 9)=="template-" ? "template" : element.type;
 
     switch (type) {
@@ -967,13 +967,9 @@
         break;
       case "image":
         content += '<select data-id="' + element.id + '" data-type="' + element.type + '"></select>';
-        // content += '<input class="form-control" data-id="' + id + '" data-type="' + element.type + '">';
         break;
       case "imagelist":
         content += '<select data-id="' + element.id + '" data-type="' + element.type + '" multiple="multiple"></select>';
-        // populateImageList(id, templateId);
-        // content += '<textarea class="form-control imagelist" data-id="' + id + '" data-type="' + element.type + '"></textarea>';
-        // content += '<div data-id="' + id + '" data-type="' + element.type + '"></div>';
         break;
       case "template":
         var templateId = element.type.substring(9);

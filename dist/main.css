@@ -298,6 +298,17 @@ blockquote,
   max-width: 400px;
   max-height: 300px;
 }
+#editor .panel-heading a {
+  display: block;
+}
+#editor .panel-heading a:after {
+  float: right;
+  font-family: 'Glyphicons Halflings';
+  content: "\e114";
+}
+#editor .panel-heading a.collapsed:after {
+  content: "\e113";
+}
 .vertical-align,
 ul.thumbnails.image_picker_selector li .thumbnail {
   display: flex;

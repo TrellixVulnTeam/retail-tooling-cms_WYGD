@@ -321,6 +321,21 @@ h1.form-group {
     max-height: 300px;
   }
 }
+
+#editor {
+  .panel-heading a {
+    display: block;
+  }
+
+  .panel-heading a:after {
+    float: right;
+    font-family: 'Glyphicons Halflings';
+    content: "\e114";
+  }
+  .panel-heading a.collapsed:after {
+    content: "\e113";
+  }
+}
 // #preview blockquote p {
 //   margin: 0;
 //   padding: 0 40px;
