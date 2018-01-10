@@ -1641,7 +1641,6 @@ $.fn.gridEditor.RTEs = {};
 
       var imageObject = {template: templateId, url: imageURL};
       var imageListRef = db.collection("images").doc(imageId);
-      console.log(imageObject)
       imageListRef.set(imageObject)
       .then(function() {
           console.log("Image successfully uploaded!");

@@ -32,6 +32,9 @@
           <li class="active"><a href="templates.html">Templates</a></li>
           <li><a href="content-list.html">Content</a></li>
         </ul>
+        <ul class="nav navbar-nav navbar-right">
+          <li><a href="admin.html">Admin</a></li>
+        </ul>
       </div>
     </div>
   </nav>
@@ -40,10 +43,9 @@
     <div class="content">
       <h1 class="form-group">
         <span>Templates</span>
-        <div class="pull-right main-controls">
-          <button id="reset-template" class='btn btn-secondary'>Reset</button>
+        <!-- <div class="pull-right main-controls">
           <button id="add-template" class='btn btn-primary' disabled>Add</button>
-        </div>
+        </div> -->
       </h1>
       <table id="template-list" class="table table-bordered"></table>
       <span id="loader" class="loader glyphicon glyphicon-refresh glyphicon-refresh-animate"></span>
@@ -62,13 +64,6 @@
   <script src="http://localhost:35729/livereload.js"></script>
 
   <script>
-    $("#reset-template").on('click', function() {
-      resetSampleTemplate().done(function(){
-        init();
-        toastr.success('Templates restored')
-      });
-    })
-
     $(document).ready(function() {
       init = function() {
         initToastr();

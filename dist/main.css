@@ -7,6 +7,10 @@ h1 {
 h1.form-group {
   margin-bottom: 25px;
 }
+.h3,
+h3 {
+  font-size: 20px;
+}
 .form-inline label {
   margin-right: 10px;
 }
@@ -279,10 +283,6 @@ blockquote,
 #preview {
   box-shadow: rgba(0, 0, 0, 0.3) 3px 3px 15px 0;
   padding: 20px;
-}
-#preview .h3,
-#preview h3 {
-  font-size: 20px;
 }
 #preview person {
   margin-top: -20px;
