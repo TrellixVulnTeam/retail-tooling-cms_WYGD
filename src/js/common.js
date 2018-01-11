@@ -41,7 +41,7 @@
   }
 
   resetSampleContent = function() {
-    return $.getJSON("sample-products.json", function(data) {
+    return $.getJSON("sample-content.json", function(data) {
       console.log("Content reset completed");
       storeContent(data, false, true);
     });
@@ -583,7 +583,7 @@
         resolve(JSON.parse(localStorage.getItem("previewProducts")));
       });
     } else {
-      return db.collection("products").get().then(function(querySnapshot) {
+      return db.collection("content").get().then(function(querySnapshot) {
         querySnapshot.forEach(function(content) {
             contentItems[content.id] = content.data();
         });
@@ -601,7 +601,7 @@
       var batch = db.batch();
       $.each(content, function(contentKey, contentObject) {
         if (convertToMarkdown) contentObject = convertPropertiesToMarkdown(contentObject)
-        var contentRef = db.collection("products").doc(contentKey);
+        var contentRef = db.collection("content").doc(contentKey);
         batch.set(contentRef, contentObject);
       })
 
