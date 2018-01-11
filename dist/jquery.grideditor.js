@@ -835,6 +835,13 @@ $.fn.gridEditor.RTEs = {};
     });
   }
 
+  resetSampleProducts = function() {
+    return $.getJSON("sample-products.json", function(data) {
+      console.log("Product reset completed");
+      storeProducts(data, false, true);
+    });
+  }
+
   resetSampleImages = function() {
     return getTemplates().then(function(templates) {
       var imageObjects = {};
@@ -997,6 +1004,7 @@ $.fn.gridEditor.RTEs = {};
       $(formElement).attr("data-template-title", template.data().title);
       $(formElement).attr("data-template-link", template.data().link);
       $(formElement).attr("data-template-parent", template.data().parent);
+      $(formElement).html('<span class="loader glyphicon glyphicon-refresh glyphicon-refresh-animate"></span>');
 
       $.each(sectionsArray, function(sectionId, section) {
         if (!subElement || subElement==section.id) {
@@ -1032,7 +1040,6 @@ $.fn.gridEditor.RTEs = {};
             }
             sectionElement.hide();
           })
-          $(formElement).html('<span class="loader glyphicon glyphicon-refresh glyphicon-refresh-animate"></span>');
           $(formElement).append(sectionElement);
         }
       })
@@ -1116,6 +1123,31 @@ $.fn.gridEditor.RTEs = {};
       })
       return template;
     })
+  }
+
+  loadProducts = function(formElement) {
+    return getProducts().then(function(products) {
+      var productArray = [];
+      var table = $(formElement);
+      table.html("");
+      table.append("<thead><tr><th>Naam</th><th>Type</th></tr></thead>");
+      table.append("<tbody></tbody>");
+
+      $.each(products, function(productId, product) {
+        product.id = productId;
+        productArray.push(product);
+      })
+
+      productArray.sort(function (a, b) {
+        return a.title.localeCompare(b.title);
+      });
+
+      // $.each(products, function(productId, product) {
+      $.each(productArray, function(productId, product) {
+        var type = products[product.type] ? products[product.type].title : "Geen";
+        table.append('<tr><td><a href="/product.html?product=' + product.id + '">' + product.title + '</a></td><td>' + type + '</td></tr>');
+      })
+    });
   }
 
   loadContentItems = function(formElement) {
@@ -1368,7 +1400,7 @@ $.fn.gridEditor.RTEs = {};
 
     if (isPreview) {
       return new Promise(function(resolve, reject) {
-        resolve(JSON.parse(localStorage.getItem("previewProducts")));
+        resolve(JSON.parse(localStorage.getItem("previewContent")));
       });
     } else {
       return db.collection("content").get().then(function(querySnapshot) {
@@ -1380,17 +1412,18 @@ $.fn.gridEditor.RTEs = {};
     }
   }
 
-  storeContent = function(content, isPreview, convertToMarkdown) {
-    var jsonOutput = JSON.stringify(content);
+  storeProducts = function(products, isPreview, convertToMarkdown) {
+    var jsonOutput = JSON.stringify(products);
 
     if (isPreview) {
       localStorage.setItem("previewProducts", jsonOutput);
     } else {
       var batch = db.batch();
-      $.each(content, function(contentKey, contentObject) {
-        if (convertToMarkdown) contentObject = convertPropertiesToMarkdown(contentObject)
-        var contentRef = db.collection("content").doc(contentKey);
-        batch.set(contentRef, contentObject);
+      $.each(products, function(productKey, productObject) {
+        console.log(productObject)
+        // if (convertToMarkdown) productObject = convertPropertiesToMarkdown(productObject)
+        var productRef = db.collection("products").doc(productKey);
+        batch.set(productRef, productObject);
       })
 
       return batch.commit()
@@ -1403,8 +1436,31 @@ $.fn.gridEditor.RTEs = {};
     }
   }
 
+  storeContent = function(content, isPreview, convertToMarkdown) {
+    var jsonOutput = JSON.stringify(content);
+
+    if (isPreview) {
+      localStorage.setItem("previewContent", jsonOutput);
+    } else {
+      var batch = db.batch();
+      $.each(content, function(contentKey, contentObject) {
+        if (convertToMarkdown) contentObject = convertPropertiesToMarkdown(contentObject)
+        var contentRef = db.collection("content").doc(contentKey);
+        batch.set(contentRef, contentObject);
+      })
+
+      return batch.commit()
+      .then(function() {
+          console.log("Products successfully updated!");
+      })
+      .catch(function(error) {
+          console.error("Error updating document: ", error);
+      });
+    }
+  }
+
   setShopMainTemplate = function() {
-    $('#product_title').append('<a id="edit-page-template" href="http://localhost:8000/template.html?template=pdp" class="review__btn-write-review" style="float: right" title="Pas template aan"><i class="fa fa-th"></i> Pas pagina-template aan</a>');
+    $('#product_title').append('<a id="edit-page-template" href="template.html?template=pdp" class="review__btn-write-review" style="float: right" title="Pas template aan"><i class="fa fa-th"></i> Pas pagina-template aan</a>');
   }
 
   setShopElementContent = function(rootElementSelector, templateId, contentId) {
@@ -1517,8 +1573,8 @@ $.fn.gridEditor.RTEs = {};
         var contentControls = $('<div class="content-controls"></div>');
         contentControls.hide();
         rootElement.append(contentControls);
-        contentControls.append('<a href="http://localhost:8000/template.html?template=' + templateId + '&content=' + contentId + '" class="change-template btn buy-block__btn-wishlist btn--wishlist btn--quaternary btn--lg js_add_to_wishlist_link js_preventable_buy_action" title="Pas template aan"><i class="fa fa-th"></i> Pas template aan</a>');
-        contentControls.append('<a href="http://localhost:8000/content.html?content=' + contentId + '" class="change-content btn buy-block__btn-wishlist btn--wishlist btn--quaternary btn--lg js_add_to_wishlist_link js_preventable_buy_action" title="Pas content aan"><i class="fa fa-edit"></i> Pas content aan</a>');
+        contentControls.append('<a href="template.html?template=' + templateId + '&content=' + contentId + '" class="change-template btn buy-block__btn-wishlist btn--wishlist btn--quaternary btn--lg js_add_to_wishlist_link js_preventable_buy_action" title="Pas template aan"><i class="fa fa-th"></i> Pas template aan</a>');
+        contentControls.append('<a href="content.html?content=' + contentId + '" class="change-content btn buy-block__btn-wishlist btn--wishlist btn--quaternary btn--lg js_add_to_wishlist_link js_preventable_buy_action" title="Pas content aan"><i class="fa fa-edit"></i> Pas content aan</a>');
 
         rootElement.hover(function() {
           contentControls.show();
@@ -1577,6 +1633,16 @@ $.fn.gridEditor.RTEs = {};
           templates[template.id] = template.data();
       });
       return templates;
+    });
+  }
+
+  getProducts = function() {
+    var products = {};
+    return db.collection("products").get().then(function(querySnapshot) {
+      querySnapshot.forEach(function(product) {
+          products[product.id] = product.data();
+      });
+      return products;
     });
   }
 

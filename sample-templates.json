@@ -50,7 +50,7 @@
       }
     }
   },
-  "productbeschrijving-boeken": {
+  "productbeschrijving-boek": {
     "title": "Productomschrijving boeken",
     "link": "/sample_content/1984.html",
     "parent": "pdp",

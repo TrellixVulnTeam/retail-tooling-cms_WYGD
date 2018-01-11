@@ -51,6 +51,7 @@
           <div class="form">
             <button id="reset-templates" class='btn btn-primary'>Reset templates</button>
             <button id="reset-content" class='btn btn-primary'>Reset content</button>
+            <button id="reset-products" class='btn btn-primary'>Reset products</button>
             <button id="reset-images" class='btn btn-primary'>Reset images</button>
           </div>
         </div>
@@ -124,6 +125,12 @@
       $("#reset-content").on('click', function() {
         resetSampleContent().done(function(){
           toastr.success('Content restored')
+        });
+      })
+
+      $("#reset-products").on('click', function() {
+        resetSampleProducts().done(function(){
+          toastr.success('Products restored')
         });
       })
 

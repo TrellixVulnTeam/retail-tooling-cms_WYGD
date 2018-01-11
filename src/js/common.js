@@ -47,6 +47,13 @@
     });
   }
 
+  resetSampleProducts = function() {
+    return $.getJSON("sample-products.json", function(data) {
+      console.log("Product reset completed");
+      storeProducts(data, false, true);
+    });
+  }
+
   resetSampleImages = function() {
     return getTemplates().then(function(templates) {
       var imageObjects = {};
@@ -209,6 +216,7 @@
       $(formElement).attr("data-template-title", template.data().title);
       $(formElement).attr("data-template-link", template.data().link);
       $(formElement).attr("data-template-parent", template.data().parent);
+      $(formElement).html('<span class="loader glyphicon glyphicon-refresh glyphicon-refresh-animate"></span>');
 
       $.each(sectionsArray, function(sectionId, section) {
         if (!subElement || subElement==section.id) {
@@ -244,7 +252,6 @@
             }
             sectionElement.hide();
           })
-          $(formElement).html('<span class="loader glyphicon glyphicon-refresh glyphicon-refresh-animate"></span>');
           $(formElement).append(sectionElement);
         }
       })
@@ -328,6 +335,31 @@
       })
       return template;
     })
+  }
+
+  loadProducts = function(formElement) {
+    return getProducts().then(function(products) {
+      var productArray = [];
+      var table = $(formElement);
+      table.html("");
+      table.append("<thead><tr><th>Naam</th><th>Type</th></tr></thead>");
+      table.append("<tbody></tbody>");
+
+      $.each(products, function(productId, product) {
+        product.id = productId;
+        productArray.push(product);
+      })
+
+      productArray.sort(function (a, b) {
+        return a.title.localeCompare(b.title);
+      });
+
+      // $.each(products, function(productId, product) {
+      $.each(productArray, function(productId, product) {
+        var type = products[product.type] ? products[product.type].title : "Geen";
+        table.append('<tr><td><a href="/product.html?product=' + product.id + '">' + product.title + '</a></td><td>' + type + '</td></tr>');
+      })
+    });
   }
 
   loadContentItems = function(formElement) {
@@ -580,7 +612,7 @@
 
     if (isPreview) {
       return new Promise(function(resolve, reject) {
-        resolve(JSON.parse(localStorage.getItem("previewProducts")));
+        resolve(JSON.parse(localStorage.getItem("previewContent")));
       });
     } else {
       return db.collection("content").get().then(function(querySnapshot) {
@@ -592,11 +624,35 @@
     }
   }
 
+  storeProducts = function(products, isPreview, convertToMarkdown) {
+    var jsonOutput = JSON.stringify(products);
+
+    if (isPreview) {
+      localStorage.setItem("previewProducts", jsonOutput);
+    } else {
+      var batch = db.batch();
+      $.each(products, function(productKey, productObject) {
+        console.log(productObject)
+        // if (convertToMarkdown) productObject = convertPropertiesToMarkdown(productObject)
+        var productRef = db.collection("products").doc(productKey);
+        batch.set(productRef, productObject);
+      })
+
+      return batch.commit()
+      .then(function() {
+          console.log("Content successfully updated!");
+      })
+      .catch(function(error) {
+          console.error("Error updating document: ", error);
+      });
+    }
+  }
+
   storeContent = function(content, isPreview, convertToMarkdown) {
     var jsonOutput = JSON.stringify(content);
 
     if (isPreview) {
-      localStorage.setItem("previewProducts", jsonOutput);
+      localStorage.setItem("previewContent", jsonOutput);
     } else {
       var batch = db.batch();
       $.each(content, function(contentKey, contentObject) {
@@ -607,7 +663,7 @@
 
       return batch.commit()
       .then(function() {
-          console.log("Content successfully updated!");
+          console.log("Products successfully updated!");
       })
       .catch(function(error) {
           console.error("Error updating document: ", error);
@@ -789,6 +845,16 @@
           templates[template.id] = template.data();
       });
       return templates;
+    });
+  }
+
+  getProducts = function() {
+    var products = {};
+    return db.collection("products").get().then(function(querySnapshot) {
+      querySnapshot.forEach(function(product) {
+          products[product.id] = product.data();
+      });
+      return products;
     });
   }
 

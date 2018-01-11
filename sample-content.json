@@ -5,7 +5,7 @@
     "content": {}
   },
   "productbeschrijving-1984": {
-    "type": "productbeschrijving-boeken",
+    "type": "productbeschrijving-boek",
     "title": "George Orwell - 1984",
     "link": "/sample_content/1984.html",
     "content": {
@@ -20,7 +20,7 @@
     }
   },
   "productbeschrijving-before_they_pass_away": {
-    "type": "productbeschrijving-boeken",
+    "type": "productbeschrijving-boek",
     "title": "Jimmy Nelson - Before They Pass Away",
     "link": "/sample_content/1984.html?content=before_they_pass_away",
     "content": {
