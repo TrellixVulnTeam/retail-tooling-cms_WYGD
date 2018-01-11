@@ -672,7 +672,7 @@
   }
 
   setShopMainTemplate = function() {
-    $('#product_title').append('<a id="edit-page-template" href="template.html?template=pdp" class="review__btn-write-review" style="float: right" title="Pas template aan"><i class="fa fa-th"></i> Pas pagina-template aan</a>');
+    $('#product_title').append('<a id="edit-page-template" href="/template.html?template=pdp" class="review__btn-write-review" style="float: right" title="Pas template aan"><i class="fa fa-th"></i> Pas pagina-template aan</a>');
   }
 
   setShopElementContent = function(rootElementSelector, templateId, contentId) {
@@ -785,8 +785,8 @@
         var contentControls = $('<div class="content-controls"></div>');
         contentControls.hide();
         rootElement.append(contentControls);
-        contentControls.append('<a href="template.html?template=' + templateId + '&content=' + contentId + '" class="change-template btn buy-block__btn-wishlist btn--wishlist btn--quaternary btn--lg js_add_to_wishlist_link js_preventable_buy_action" title="Pas template aan"><i class="fa fa-th"></i> Pas template aan</a>');
-        contentControls.append('<a href="content.html?content=' + contentId + '" class="change-content btn buy-block__btn-wishlist btn--wishlist btn--quaternary btn--lg js_add_to_wishlist_link js_preventable_buy_action" title="Pas content aan"><i class="fa fa-edit"></i> Pas content aan</a>');
+        contentControls.append('<a href="/template.html?template=' + templateId + '&content=' + contentId + '" class="change-template btn buy-block__btn-wishlist btn--wishlist btn--quaternary btn--lg js_add_to_wishlist_link js_preventable_buy_action" title="Pas template aan"><i class="fa fa-th"></i> Pas template aan</a>');
+        contentControls.append('<a href="/content.html?content=' + contentId + '" class="change-content btn buy-block__btn-wishlist btn--wishlist btn--quaternary btn--lg js_add_to_wishlist_link js_preventable_buy_action" title="Pas content aan"><i class="fa fa-edit"></i> Pas content aan</a>');
 
         rootElement.hover(function() {
           contentControls.show();
