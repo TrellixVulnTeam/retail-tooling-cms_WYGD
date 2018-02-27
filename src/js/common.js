@@ -1,6 +1,6 @@
 (function($) {
   saveTemplate = function(templateId, templateTitle, html, templateLink, parent) {
-    var template = {title: templateTitle, content: {}, link: templateLink, parent: parent};
+    var template = {title: templateTitle, product: {}, link: templateLink, parent: parent};
     var sectionCount = 0;
     var elementCount = 0;
 
@@ -26,7 +26,7 @@
         templateElements[id] = {title: title, type: contentType, prio: contentPrio, class: colClasses, sort: elementCount};
       })
 
-      template.content[rowId] = {title: rowTitle, type: rowType, elements: templateElements, sort: sectionCount};
+      template.product[rowId] = {title: rowTitle, type: rowType, elements: templateElements, sort: sectionCount};
     })
 
     // console.log(template);
@@ -108,17 +108,17 @@
     })
   }
 
-  saveContent = function(contentElement, configOptions) {
-    return getContent().then(function(allContent){
+  saveProduct = function(contentElement, configOptions) {
+    return getProduct().then(function(products){
       var content = parseContent(contentElement, configOptions);
-      var contentId = getContentId();
+      var productId = getProductId();
       var type = contentElement.attr("data-template-id");
 
-      if (!allContent[contentId]) allContent[contentId] = {};
-      allContent[contentId].content = content;
-      allContent[contentId].type = type;
+      if (!products[productId]) products[productId] = {};
+      products[productId].content = content;
+      products[productId].type = type;
 
-      storeContent(allContent, configOptions.isPreview);
+      storeContent(products, configOptions.isPreview);
     })
   }
 
@@ -362,41 +362,12 @@
     });
   }
 
-  loadContentItems = function(formElement) {
-    return getTemplates().then(function(templates) {
-      return getContent().then(function(contentItems) {
-        var contentArray = [];
-        var table = $(formElement);
-        table.html("");
-        table.append("<thead><tr><th>Naam</th><th>Type</th></tr></thead>");
-        table.append("<tbody></tbody>");
+  loadProduct = function(productId, rootElementId, placeholder, viewType) {
+    return getProduct(viewType=="preview").then(function(products){
+      var product = products[productId];
+      var templateId = product.type!="all" ? product.type : getTemplateId();
 
-        $.each(contentItems, function(contentId, content) {
-          if (contentId.substring(0, 5)!="empty") {
-            content.id = contentId;
-            contentArray.push(content);
-          }
-        })
-
-        contentArray.sort(function (a, b) {
-          return a.title.localeCompare(b.title);
-        });
-
-        // $.each(templates, function(templateId, template) {
-        $.each(contentArray, function(contentId, content) {
-          var type = templates[content.type] ? templates[content.type].title : "Geen";
-          table.append('<tr><td><a href="/content.html?content=' + content.id + '">' + content.title + '</a></td><td>' + type + '</td></tr>');
-        })
-      });
-    });
-  }
-
-  loadContent = function(contentId, rootElementId, placeholder, viewType) {
-    return getContent(viewType=="preview").then(function(allContent){
-      var content = allContent[contentId];
-      var templateId = content.type!="all" ? content.type : getTemplateId();
-
-      if (content) {
+      if (product) {
         switch (viewType) {
           case "template-editor":
             subElement = '> .ge-content';
@@ -411,7 +382,7 @@
 
         return getTemplate(templateId).then(function(template){
           if (placeholder==undefined) placeholder = ""
-          $(rootElementId).attr("data-content-title", content.title);
+          $(rootElementId).attr("data-product-title", product.title);
 
           $.each(template.data().content, function(sectionId, section) {
             $.each(section.elements, function(elementId, element) {
@@ -426,7 +397,7 @@
               }
 
               if (rootElement.length > 0) {
-                var value = getObjectById(content, elementId);
+                var value = getObjectById(product, elementId);
                 if (!value) value = placeholder;
                 switch (element.type) {
                   case "quote":
@@ -459,7 +430,7 @@
                     break;
                   case "image":
                     if (viewType=="live") {
-                      if (contentId=="productafbeeldingen-sonos") {
+                      if (productId=="productafbeeldingen-sonos") {
                         rootElement.attr("src", value);
                       } else {
                         rootElement.html(convertMarkdownToHtml(value));
@@ -574,7 +545,7 @@
           $(rootElementId).find(".loader").remove();
           $(rootElementId).children().show();
 
-          return allContent[contentId];
+          return products[productId];
         })
       }
     });
@@ -607,7 +578,7 @@
   //   // });
   // }
 
-  getContent = function(isPreview) {
+  getProduct = function(isPreview) {
     var contentItems = {};
 
     if (isPreview) {
@@ -675,8 +646,8 @@
     $('#product_title').append('<a id="edit-page-template" href="/template.html?template=pdp" class="review__btn-write-review" style="float: right" title="Pas template aan"><i class="fa fa-th"></i> Pas pagina-template aan</a>');
   }
 
-  setShopElementContent = function(rootElementSelector, templateId, contentId) {
-    if (!contentId) contentId = getContentId();
+  setShopElementContent = function(rootElementSelector, templateId, productId) {
+    if (!productId) productId = getContentId();
 
     var preview = getURLParameter("preview") && getURLParameter("preview")!='undefined' ? true : false;
 
@@ -778,15 +749,15 @@
     var viewType = preview ? "preview" : "live";
 
     loadTemplate(rootElement, templateId, null, sectionTemplates, rootElementContentSlug).then(function(template) {
-      loadContent(contentId, rootElementSelector, null, viewType).then(function(content) {
+      loadProduct(productId, rootElementSelector, null, viewType).then(function(product) {
         // var replaceList = ["blockquote"];
         // wrapWithParagraph(elementSelector, replaceList);
 
         var contentControls = $('<div class="content-controls"></div>');
         contentControls.hide();
         rootElement.append(contentControls);
-        contentControls.append('<a href="/template.html?template=' + templateId + '&content=' + contentId + '" class="change-template btn buy-block__btn-wishlist btn--wishlist btn--quaternary btn--lg js_add_to_wishlist_link js_preventable_buy_action" title="Pas template aan"><i class="fa fa-th"></i> Pas template aan</a>');
-        contentControls.append('<a href="/content.html?content=' + contentId + '" class="change-content btn buy-block__btn-wishlist btn--wishlist btn--quaternary btn--lg js_add_to_wishlist_link js_preventable_buy_action" title="Pas content aan"><i class="fa fa-edit"></i> Pas content aan</a>');
+        contentControls.append('<a href="/template.html?template=' + templateId + '&content=' + productId + '" class="change-template btn buy-block__btn-wishlist btn--wishlist btn--quaternary btn--lg js_add_to_wishlist_link js_preventable_buy_action" title="Pas template aan"><i class="fa fa-th"></i> Pas template aan</a>');
+        contentControls.append('<a href="/content.html?content=' + productId + '" class="change-content btn buy-block__btn-wishlist btn--wishlist btn--quaternary btn--lg js_add_to_wishlist_link js_preventable_buy_action" title="Pas content aan"><i class="fa fa-edit"></i> Pas content aan</a>');
 
         rootElement.hover(function() {
           contentControls.show();
@@ -942,19 +913,19 @@
     });
   }
 
-  getContentId = function() {
-    var contentId = getURLParameter("content");
-    if (!contentId || contentId=="undefined") contentId = setContentId();
-    return contentId;
+  getProductId = function() {
+    var productId = getURLParameter("product");
+    if (!productId || productId=="undefined") productId = setProductId();
+    return productId;
   }
 
-  setContentId = function(contentId) {
-    if (!contentId || contentId=="all") {
-      contentId = "empty";
+  setProductId = function(productId) {
+    if (!productId || productId=="all") {
+      productId = "empty";
     } else {
-      setURLParameter("content", contentId);
+      setURLParameter("content", productId);
     }
-    return contentId;
+    return productId;
   }
 
   getTemplateId = function() {
@@ -972,10 +943,18 @@
     return templateId;
   }
 
+  getProductName = function() {
+    var productId = getProductId();
+    return getProduct().then(function(products){
+      var product = products[productId];
+      return product.title;
+    });
+  }
+
   getContentName = function() {
-    var contentId = getContentId();
+    var productId = getContentId();
     return getContent().then(function(allContent){
-      var contentItem = allContent[contentId];
+      var contentItem = allContent[productId];
       return contentItem.title;
     });
   }
@@ -995,21 +974,21 @@
     })
   }
 
-  getContentItems = function(showEmptyItem) {
+  getProducts = function(showEmptyItem) {
     if (showEmptyItem==undefined) showEmptyItem = false;
-    return getContent().then(function(content){
-      var contentArray = [];
-      $.each(content, function(key, object) {
+    return getProduct().then(function(products){
+      var productsArray = [];
+      $.each(products, function(key, product) {
         if (showEmptyItem || key.substring(0, 5)!="empty") {
-          contentArray.push({id: key, type: object.type, title: object.title});
+          productsArray.push({id: key, type: product.type, title: product.title});
         }
       })
 
-      contentArray.sort(function (a, b) {
+      productsArray.sort(function (a, b) {
         return a.title.localeCompare(b.title);
       });
 
-      return contentArray;
+      return productsArray;
     })
   }
 
@@ -1025,7 +1004,7 @@
           );
       });
 
-      templatesDropdown.val(templateId ? templateId : content.type);
+      templatesDropdown.val(templateId ? templateId : content.type); // content???
     })
   }
 
@@ -1051,7 +1030,7 @@
     })
   }
 
-  populateContentItems = function(contentId, showEmptyItem) {
+  populateContentItems = function(productId, showEmptyItem) {
     return getContentItems(showEmptyItem).then(function(contentItems) {
       var contentDropdown = $('#preview-content');
       var contentSelect = $('#preview-content-select');
@@ -1066,7 +1045,7 @@
         if (item.id===getContentId()) contentSelect.find('span').html(item.title);
       });
 
-      contentDropdown.val(contentId ? contentId : getContentId());
+      contentDropdown.val(productId ? productId : getContentId());
     })
   }
 

@@ -1,0 +1,307 @@
+<!doctype html>
+
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+  <title>Component editor</title>
+  <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" />
+  <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" />
+  <link rel="stylesheet" type="text/css" href="dist/main.css" />
+  <link rel="stylesheet" type="text/css" href="dist/sketchy.css" />
+  <link href="https://fonts.googleapis.com/css?family=Walter+Turncoat" rel="stylesheet">
+</head>
+
+<body>
+  <nav class="navbar navbar-inverse navbar-fixed-top">
+    <div class="container">
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+      </div>
+      <div id="navbar" class="collapse navbar-collapse">
+        <ul class="nav navbar-nav">
+          <li><a href="templates.html">Templates</a></li>
+          <li><a href="content-list.html">Content</a></li>
+          <li class="active"><a href="products.html">Products</a></li>
+        </ul>
+        <ul class="nav navbar-nav navbar-right">
+          <li><a href="admin.html">Admin</a></li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container">
+    <div id="edit-form" class="content ">
+      <h1 class="form-group">
+        <span><a href="content-list.html">Content</a></span> &gt; <span id="page-title"></span>
+        <div class="pull-right">
+          <!-- <button id="reset-content" class='btn btn-secondary'>Reset</button> -->
+          <a id="preview-live" type="button" class="btn btn-secondary" disabled>Bekijk op bol.com</a>
+          <button id="preview-content" type="button" class="btn btn-secondary" data-toggle="modal" data-target="#previewModal" disabled>Preview</button>
+          <button id="save-content" class='btn btn-primary' disabled>Save</button>
+        </div>
+      </h1>
+      <div id="template" class="form-inline">
+        <div class="form-group">
+          <label>Template:</label>
+          <select id="template-items" class="form-control">
+          </select>
+          <a id="edit-template" type="button" class="btn btn-secondary" disabled>Beheer template</a>
+        </div>
+      </div>
+      <form id="editor">
+      </form>
+    </div>
+  </div>
+
+  <div id="panel-template">
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h3 class="panel-title"></h3>
+      </div>
+      <div class="panel-body"></div>
+    </div>
+  </div>
+
+  <!-- Modal -->
+  <div class="modal fade" id="previewModal" tabindex="-1" role="dialog" aria-labelledby="previewModalLabel">
+    <div class="modal-dialog modal-lg" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+          <h4 class="modal-title" id="previewModalLabel"></h4>
+        </div>
+        <div class="modal-body">
+          <div id="preview">
+            <span id="previewLoader" class="loader glyphicon glyphicon-refresh glyphicon-refresh-animate"></span>
+            <div class="content"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+  <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/tinymce/4.7.3/tinymce.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/tinymce/4.7.3/jquery.tinymce.min.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/4.8.0/firebase.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/4.8.0/firebase-firestore.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/showdown/1.8.6/showdown.min.js"></script>
+  <script src="dist/jquery.grideditor.js"></script>
+  <script src="dist/reMarked.js"></script>
+  <script src="dist/image-picker.min.js"></script>
+  <!-- <script src="test.js"></script> -->
+  <script src="http://localhost:35729/livereload.js"></script>
+
+  <script>
+    $(document).ready(function() {
+      var previewElement, contentId, templateId;
+
+      initTinyMCE = function() {
+        tinymce.init({
+          selector: 'textarea.text',
+          menubar: false,
+          statusbar: false,
+          content_css: 'dist/sketchy.css',
+          plugins: ["autoresize"],
+          autoresize_bottom_margin: 1,
+          autoresize_on_init: false,
+          toolbar: "bold italic"
+        });
+
+        tinymce.init({
+          selector: 'textarea.rich-text',
+          menubar: false,
+          statusbar: false,
+          content_css: 'dist/sketchy.css',
+          plugins: ["autolink lists link image charmap anchor autoresize"],
+          // file_browser_callback_types: 'image',
+          relative_urls: false,
+          autoresize_bottom_margin: 1,
+          autoresize_on_init: false,
+          extended_valid_elements : "person",
+          custom_elements: "person",
+          toolbar: "formatselect styleselect | bold italic | blockquote | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link | image",
+          // toolbar: 'undo redo | formatselect | alignleft aligncenter alignright alignjustify | bullist numlist | outdent indent',
+          block_formats: 'Paragraph=p;Header 3=h3;Header 4=h4',
+          style_formats: [
+            {title: 'Bold text', inline: 'strong'},
+            {title: 'Auteur', block: 'person'},
+          ],
+          textpattern_patterns: [
+             {start: '*', end: '*', format: 'italic'},
+             {start: '**', end: '**', format: 'bold'},
+             {start: '#', format: 'h1'},
+             {start: '##', format: 'h2'},
+             {start: '###', format: 'h3'},
+             {start: '####', format: 'h4'},
+             {start: '#####', format: 'h5'},
+             {start: '######', format: 'h6'},
+             {start: '1. ', cmd: 'InsertOrderedList'},
+             {start: '* ', cmd: 'InsertUnorderedList'},
+             {start: '- ', cmd: 'InsertUnorderedList'}
+          ],
+          setup: function (editor) {
+            editor.addButton('exportMarkdown', {
+              text: 'Export Markdown',
+              icon: false,
+              onclick: function () {
+                console.log(convertHtmlToMarkdown(editor.getContent()));
+              }
+            });
+          },
+        });
+
+        tinymce.init({
+          selector: 'textarea.list',
+          menubar: false,
+          statusbar: false,
+          content_css: 'dist/sketchy.css',
+          plugins: ["lists"],
+          autoresize_bottom_margin: 1,
+          autoresize_on_init: false,
+          toolbar: false,
+          // toolbar: "bullist",
+          // valid_elements: "-ul,-li"
+        });
+      }
+
+      removeTinyMCE = function() {
+        if (typeof tinymce != 'undefined' && tinymce != null) {
+          tinymce.remove('textarea.rich-text');
+          tinymce.remove('textarea.text');
+          tinymce.remove('textarea.list');
+        }
+      }
+
+      init = function() {
+        previewElement = $("#preview .content");
+        contentId = getContentId();
+
+        initToastr();
+        // watchContent();
+        disableEditMode();
+
+        previewElement.hide();
+        loadContent(contentId, '#edit-form', null, "content-editor").then(function(content) {
+          templateId = content.type;
+          initEditor();
+        })
+      }
+
+      initEditor = function() {
+        loadTemplateInContentEditor($("#editor"), templateId, $("#panel-template")).then(function(template) {
+          $("#edit-template").attr("href", "/template.html?template=" + template.id);
+
+          loadContent(contentId, '#edit-form', null, "content-editor").then(function(content){
+            $("#page-title").html(content.title);
+            $('#preview-live').attr("href", content.link);
+            populateTemplateItems(templateId);
+
+            populateContentItems(contentId, false).then(function(){
+              enableEditMode();
+              initTinyMCE();
+            })
+          })
+        })
+      }
+
+      watchContent = function() {
+        db.collection("products").onSnapshot(function(docs) {
+          var products = {};
+          docs.forEach(function(doc) {
+            products[doc.id] = doc.data();
+          });
+          // console.log(products);
+          storeContent(products);
+          removeTinyMCE();
+          loadContent(contentId, '#edit-form').then(function(){
+            initTinyMCE();
+          })
+        });
+      }
+
+      $("#template-items").change(function() {
+        disableEditMode();
+        removeTinyMCE();
+        templateId = setTemplateId($("#template-items option:selected").val());
+        loadTemplateInContentEditor($("#editor"), templateId, $("#panel-template")).then(function(template) {
+          initEditor();
+        })
+      })
+
+      $("#save-content").on('click', function() {
+        removeTinyMCE();
+        saveContent($('#editor'), {sectionDivider: ".section", elementDivider: ".form-group", subElement: ">"}).then(function(){
+          initTinyMCE();
+          toastr.success('Content saved')
+        })
+      })
+
+      $("#reset-content").on('click', function() {
+        removeTinyMCE();
+        resetSampleContent().done(function() {
+          loadContent(contentId, '#edit-form').then(function() {
+            initTinyMCE();
+            toastr.success('Content reset completed')
+          })
+        })
+      })
+
+      $("#preview-content").on('click', function() {
+        $("#previewLoader").show();
+        previewElement.hide();
+        removeTinyMCE();
+        saveContent($('#editor'), {sectionDivider: ".section", elementDivider: ".form-group", subElement: ">", isPreview: true}).then(function(){
+          initTinyMCE();
+
+          getContentName().then(function(name) {
+            $("#previewModalLabel").text(name + " preview");
+          })
+
+          loadTemplate($('#preview .content'), templateId).then(function(){
+            loadContent(contentId, '#preview .content', 'No content', "preview").then(function() {
+              previewElement.show();
+              $("#previewLoader").hide();
+            })
+          });
+        })
+      })
+
+      disableEditMode = function() {
+        $("#editor").hide();
+        $("#loader").show();
+        $("#preview-live").attr("disabled", true);
+        $("#preview-content").attr("disabled", true);
+        $("#save-content").attr("disabled", true);
+        $("#template-items").attr("disabled", true);
+        $("#edit-template").attr("disabled", true);
+      }
+
+      enableEditMode = function() {
+        $("#editor").show();
+        $("#loader").hide();
+        $("#preview-live").removeAttr("disabled");
+        $("#preview-content").removeAttr("disabled");
+        $("#save-content").removeAttr("disabled");
+        $("#template-items").removeAttr("disabled");
+        $("#edit-template").removeAttr("disabled");
+      }
+
+      init()
+    });
+  </script>
+</body>
+
+</html>
